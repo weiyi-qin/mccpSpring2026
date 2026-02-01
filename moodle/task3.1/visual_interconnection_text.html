@@ -1,568 +1,487 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paper Structure: Interconnections - Adaptive Parameter Selection for KRR</title>
+    <title>论文结构互联可视化</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #1a1a2e;
-            min-height: 100vh;
-            color: #eee;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            overflow: hidden;
         }
+        
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: rgba(255, 255, 255, 0.95);
             padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            position: relative;
+            z-index: 100;
+        }
+        
+        .header h1 {
+            color: #1e3c72;
+            font-size: 1.5em;
             text-align: center;
         }
-        .header h1 { font-size: 1.4em; margin-bottom: 8px; }
-        .header p { opacity: 0.9; font-size: 0.9em; }
         
-        .main-container {
+        .controls {
             display: flex;
-            min-height: calc(100vh - 100px);
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+            flex-wrap: wrap;
         }
         
-        /* Network Diagram */
-        .network-panel {
-            flex: 1;
-            padding: 20px;
-            position: relative;
-            overflow: auto;
-        }
-        
-        .network-svg {
-            width: 100%;
-            height: 600px;
-        }
-        
-        /* Detail Panel */
-        .detail-panel {
-            width: 380px;
-            background: #16213e;
-            padding: 20px;
-            border-left: 1px solid #333;
-            overflow-y: auto;
-            max-height: calc(100vh - 100px);
-        }
-        .detail-title {
-            font-size: 1.1em;
-            color: #667eea;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #333;
-        }
-        .detail-section {
-            margin-bottom: 20px;
-        }
-        .detail-section h4 {
-            color: #a0aec0;
-            font-size: 0.8em;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-        }
-        .detail-text {
-            background: #1a1a2e;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 0.85em;
-            line-height: 1.6;
-            color: #cbd5e0;
-        }
-        .detail-text em {
-            color: #ffd700;
-            font-style: normal;
-        }
-        
-        .connections-list {
-            list-style: none;
-        }
-        .connections-list li {
-            background: #1a1a2e;
-            padding: 8px 12px;
-            margin: 5px 0;
-            border-radius: 6px;
-            font-size: 0.85em;
+        .btn {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
             cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            font-size: 0.9em;
+            transition: all 0.3s;
         }
-        .connections-list li:hover {
-            background: #2d3748;
-        }
-        .arrow { color: #667eea; }
         
-        /* Node styles */
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .container {
+            display: flex;
+            height: calc(100vh - 120px);
+        }
+        
+        #graph {
+            flex: 1;
+            background: white;
+            position: relative;
+        }
+        
+        #sidebar {
+            width: 400px;
+            background: rgba(255, 255, 255, 0.98);
+            overflow-y: auto;
+            padding: 20px;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+            display: none;
+        }
+        
+        #sidebar.active {
+            display: block;
+        }
+        
+        #sidebar h2 {
+            color: #1e3c72;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        #sidebar .section-type {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            margin-bottom: 10px;
+        }
+        
+        #sidebar .keywords {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin: 15px 0;
+        }
+        
+        #sidebar .keyword {
+            background: #e9ecef;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            color: #495057;
+        }
+        
+        #sidebar .summary {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        #sidebar .references {
+            margin-top: 15px;
+        }
+        
+        #sidebar .reference-item {
+            background: #fff3cd;
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border-left: 3px solid #ffc107;
+            font-size: 0.9em;
+        }
+        
         .node {
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s;
         }
-        .node:hover { filter: brightness(1.2); }
-        .node-circle {
-            stroke: #fff;
-            stroke-width: 2;
+        
+        .node:hover {
+            stroke-width: 3px;
         }
-        .node-text {
-            fill: #fff;
-            font-size: 11px;
-            text-anchor: middle;
-            pointer-events: none;
+        
+        .node.selected {
+            stroke: #ff6b6b;
+            stroke-width: 4px;
         }
+        
         .node-label {
-            fill: #a0aec0;
-            font-size: 10px;
-            text-anchor: middle;
+            font-size: 11px;
             pointer-events: none;
+            text-shadow: 0 0 3px white, 0 0 3px white;
         }
         
-        /* Edge styles */
-        .edge {
-            stroke: #4a5568;
-            stroke-width: 2;
-            fill: none;
-            opacity: 0.6;
-        }
-        .edge.highlighted {
-            stroke: #ffd700;
-            stroke-width: 3;
-            opacity: 1;
-        }
-        .edge-arrow {
-            fill: #4a5568;
+        .link {
+            stroke-opacity: 0.6;
+            transition: all 0.3s;
         }
         
-        /* Legend */
+        .link:hover {
+            stroke-opacity: 1;
+            stroke-width: 3px;
+        }
+        
+        .link.reference {
+            stroke: #667eea;
+            stroke-dasharray: 5,5;
+        }
+        
+        .link.keyword {
+            stroke: #51cf66;
+        }
+        
         .legend {
             position: absolute;
-            bottom: 20px;
-            left: 20px;
-            background: rgba(22, 33, 62, 0.95);
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.95);
             padding: 15px;
-            border-radius: 10px;
-            font-size: 0.8em;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            font-size: 0.9em;
         }
+        
         .legend-item {
             display: flex;
             align-items: center;
-            gap: 8px;
-            margin: 5px 0;
+            margin: 8px 0;
         }
-        .legend-dot {
-            width: 12px;
-            height: 12px;
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
+            margin-right: 10px;
         }
         
-        .selected { 
-            stroke: #ffd700 !important; 
-            stroke-width: 4 !important; 
+        .legend-line {
+            width: 30px;
+            height: 3px;
+            margin-right: 10px;
         }
         
-        .instruction {
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 1.2em;
+            line-height: 1;
+        }
+        
+        .stats {
             text-align: center;
-            padding: 10px;
-            background: #16213e;
-            color: #a0aec0;
-            font-size: 0.85em;
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>Adaptive Parameter Selection for Kernel Ridge Regression</h1>
-        <p>Shao-Bo Lin | Xi'an Jiaotong University</p>
+        <h1>🔗 论文结构互联可视化 - COCO Paper</h1>
+        <div class="controls">
+            <button class="btn" onclick="resetView()">🔄 重置视图</button>
+            <button class="btn" onclick="togglePhysics()">⚡ 切换物理引擎</button>
+            <button class="btn" onclick="exportData()">💾 导出数据</button>
+            <button class="btn" onclick="showHelp()">❓ 帮助</button>
+        </div>
+        <div class="stats" id="stats"></div>
     </div>
     
-    <div class="instruction">Click on any node to see its text excerpt and connections</div>
-    
-    <div class="main-container">
-        <div class="network-panel">
-            <svg class="network-svg" id="network">
-                <!-- Arrows definition -->
-                <defs>
-                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                        <polygon points="0 0, 10 3.5, 0 7" fill="#4a5568"/>
-                    </marker>
-                    <marker id="arrowhead-gold" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                        <polygon points="0 0, 10 3.5, 0 7" fill="#ffd700"/>
-                    </marker>
-                </defs>
-                
-                <!-- Edges (connections) -->
-                <g id="edges">
-                    <!-- Assumptions feed into Lemmas -->
-                    <path class="edge" id="edge-a1-l1" d="M 180,150 Q 200,200 280,220" marker-end="url(#arrowhead)"/>
-                    <path class="edge" id="edge-a2-l1" d="M 180,220 L 280,220" marker-end="url(#arrowhead)"/>
-                    <path class="edge" id="edge-a3-l1" d="M 180,290 Q 200,260 280,220" marker-end="url(#arrowhead)"/>
-                    
-                    <!-- Assumptions feed into Proposition -->
-                    <path class="edge" id="edge-a1-p1" d="M 180,150 Q 300,100 420,150" marker-end="url(#arrowhead)"/>
-                    <path class="edge" id="edge-a2-p1" d="M 180,220 Q 300,180 420,150" marker-end="url(#arrowhead)"/>
-                    
-                    <!-- Lemma 1 referenced by Theorem -->
-                    <path class="edge" id="edge-l1-t1" d="M 340,220 Q 450,280 540,320" marker-end="url(#arrowhead)"/>
-                    
-                    <!-- Lemma 2 motivates the problem -->
-                    <path class="edge" id="edge-l2-d1" d="M 340,320 Q 400,320 420,250" marker-end="url(#arrowhead)"/>
-                    
-                    <!-- Proposition enables Definition -->
-                    <path class="edge" id="edge-p1-d1" d="M 480,150 Q 500,200 480,250" marker-end="url(#arrowhead)"/>
-                    
-                    <!-- Definition leads to Theorem -->
-                    <path class="edge" id="edge-d1-t1" d="M 480,250 Q 510,280 540,320" marker-end="url(#arrowhead)"/>
-                    
-                    <!-- Proof Lemmas feed into Proposition proof -->
-                    <path class="edge" id="edge-pl3-p1" d="M 680,150 Q 600,150 480,150" marker-end="url(#arrowhead)"/>
-                    
-                    <!-- Proof Lemmas feed into Theorem -->
-                    <path class="edge" id="edge-pl4-t1" d="M 680,220 Q 620,270 600,320" marker-end="url(#arrowhead)"/>
-                    <path class="edge" id="edge-pl5-t1" d="M 680,290 Q 640,300 600,320" marker-end="url(#arrowhead)"/>
-                    <path class="edge" id="edge-pl6-t1" d="M 680,360 Q 650,350 600,320" marker-end="url(#arrowhead)"/>
-                </g>
-                
-                <!-- Nodes -->
-                <g id="nodes">
-                    <!-- Section labels -->
-                    <text x="120" y="100" fill="#667eea" font-size="12" font-weight="bold">FOUNDATIONS</text>
-                    <text x="420" y="100" fill="#9f7aea" font-size="12" font-weight="bold">MAIN CONTRIBUTIONS</text>
-                    <text x="650" y="100" fill="#ed8936" font-size="12" font-weight="bold">PROOFS</text>
-                    
-                    <!-- Assumptions (green) -->
-                    <g class="node" data-id="a1" onclick="selectNode('a1')">
-                        <circle class="node-circle" cx="120" cy="150" r="28" fill="#48bb78"/>
-                        <text class="node-text" x="120" y="154">A1</text>
-                        <text class="node-label" x="120" y="190">Boundedness</text>
-                    </g>
-                    <g class="node" data-id="a2" onclick="selectNode('a2')">
-                        <circle class="node-circle" cx="120" cy="220" r="28" fill="#48bb78"/>
-                        <text class="node-text" x="120" y="224">A2</text>
-                        <text class="node-label" x="120" y="260">Regularity</text>
-                    </g>
-                    <g class="node" data-id="a3" onclick="selectNode('a3')">
-                        <circle class="node-circle" cx="120" cy="290" r="28" fill="#48bb78"/>
-                        <text class="node-text" x="120" y="294">A3</text>
-                        <text class="node-label" x="120" y="330">Eff. Dimension</text>
-                    </g>
-                    
-                    <!-- Lemmas (orange) -->
-                    <g class="node" data-id="l1" onclick="selectNode('l1')">
-                        <circle class="node-circle" cx="280" cy="220" r="32" fill="#ed8936"/>
-                        <text class="node-text" x="280" y="224">L1</text>
-                        <text class="node-label" x="280" y="265">Optimal KRR</text>
-                    </g>
-                    <g class="node" data-id="l2" onclick="selectNode('l2')">
-                        <circle class="node-circle" cx="280" cy="320" r="32" fill="#ed8936"/>
-                        <text class="node-text" x="280" y="324">L2</text>
-                        <text class="node-label" x="280" y="365">LP Rates</text>
-                    </g>
-                    
-                    <!-- Proposition (purple) -->
-                    <g class="node" data-id="p1" onclick="selectNode('p1')">
-                        <circle class="node-circle" cx="420" cy="150" r="32" fill="#9f7aea"/>
-                        <text class="node-text" x="420" y="154">P1</text>
-                        <text class="node-label" x="420" y="195">Spectral Property</text>
-                    </g>
-                    
-                    <!-- Definition (teal) -->
-                    <g class="node" data-id="d1" onclick="selectNode('d1')">
-                        <circle class="node-circle" cx="420" cy="250" r="32" fill="#38b2ac"/>
-                        <text class="node-text" x="420" y="254">D1</text>
-                        <text class="node-label" x="420" y="295">ASUS Method</text>
-                    </g>
-                    
-                    <!-- Theorem (red) - Main Result -->
-                    <g class="node" data-id="t1" onclick="selectNode('t1')">
-                        <circle class="node-circle" cx="540" cy="320" r="40" fill="#e53e3e"/>
-                        <text class="node-text" x="540" y="316">T1</text>
-                        <text class="node-text" x="540" y="330" font-size="9">MAIN</text>
-                        <text class="node-label" x="540" y="375">Optimal Rates</text>
-                    </g>
-                    
-                    <!-- Proof Lemmas (orange, smaller) -->
-                    <g class="node" data-id="pl3" onclick="selectNode('pl3')">
-                        <circle class="node-circle" cx="680" cy="150" r="24" fill="#dd6b20"/>
-                        <text class="node-text" x="680" y="154">L3</text>
-                        <text class="node-label" x="680" y="185">Operator Bounds</text>
-                    </g>
-                    <g class="node" data-id="pl4" onclick="selectNode('pl4')">
-                        <circle class="node-circle" cx="680" cy="220" r="24" fill="#dd6b20"/>
-                        <text class="node-text" x="680" y="224">L4</text>
-                        <text class="node-label" x="680" y="255">Error Decomp</text>
-                    </g>
-                    <g class="node" data-id="pl5" onclick="selectNode('pl5')">
-                        <circle class="node-circle" cx="680" cy="290" r="24" fill="#dd6b20"/>
-                        <text class="node-text" x="680" y="294">L5</text>
-                        <text class="node-label" x="680" y="325">Small λ Case</text>
-                    </g>
-                    <g class="node" data-id="pl6" onclick="selectNode('pl6')">
-                        <circle class="node-circle" cx="680" cy="360" r="24" fill="#dd6b20"/>
-                        <text class="node-text" x="680" y="364">L6</text>
-                        <text class="node-label" x="680" y="395">Large λ Case</text>
-                    </g>
-                </g>
-            </svg>
-            
-            <div class="legend">
-                <div class="legend-item"><div class="legend-dot" style="background:#48bb78"></div> Assumptions</div>
-                <div class="legend-item"><div class="legend-dot" style="background:#ed8936"></div> Lemmas</div>
-                <div class="legend-item"><div class="legend-dot" style="background:#9f7aea"></div> Proposition</div>
-                <div class="legend-item"><div class="legend-dot" style="background:#38b2ac"></div> Definition</div>
-                <div class="legend-item"><div class="legend-dot" style="background:#e53e3e"></div> Theorem</div>
-            </div>
-        </div>
-        
-        <div class="detail-panel" id="detail-panel">
-            <div class="detail-title" id="detail-title">Select a node to view details</div>
-            <div id="detail-content">
-                <p style="color:#718096;">Click on any node in the network diagram to see its text excerpt and connections to other parts of the paper.</p>
-            </div>
+    <div class="container">
+        <div id="graph"></div>
+        <div id="sidebar">
+            <button class="close-btn" onclick="closeSidebar()">✕</button>
+            <div id="sidebar-content"></div>
         </div>
     </div>
-
+    
+    <div class="legend">
+        <strong>图例</strong>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #667eea;"></div>
+            <span>Section (章节)</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #51cf66;"></div>
+            <span>Subsection (子章节)</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #ffd43b;"></div>
+            <span>Subsubsection (小节)</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-line" style="background: #667eea; stroke-dasharray: 5,5;"></div>
+            <span>引用关系</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-line" style="background: #51cf66;"></div>
+            <span>关键词关联</span>
+        </div>
+    </div>
+    
     <script>
-        const nodeData = {
-            a1: {
-                title: "Assumption 1: Boundedness",
-                type: "Assumption",
-                text: `"Assume ∫y²dρ < ∞ and the Bernstein noise condition holds with constants M and γ."
-
-This is the <em>Bernstein noise assumption</em>, which is satisfied for bounded, Gaussian, and sub-Gaussian noise.`,
-                connections: [
-                    {to: "l1", desc: "Required for optimal learning rates"},
-                    {to: "p1", desc: "Used in spectral property proof"}
-                ],
-                usedBy: ["Lemma 1", "Lemma 2", "Proposition 1", "All proof lemmas"]
-            },
-            a2: {
-                title: "Assumption 2: Regularity",
-                type: "Assumption",
-                text: `"For r > 0, assume f_ρ = L_K^r h_ρ for some h_ρ ∈ L²_ρX"
-
-This describes the <em>regularity of the regression function</em>. Larger r implies better regularity. When r ≥ 1/2, f ∈ H_K; when r < 1/2, f ∉ H_K.`,
-                connections: [
-                    {to: "l1", desc: "Determines optimal convergence rate"},
-                    {to: "p1", desc: "Affects subdivision analysis"},
-                    {to: "t1", desc: "Rate depends on r: |D|^(-r/(2r+s))"}
-                ],
-                usedBy: ["Lemma 1", "Proposition 1", "Theorem 1"]
-            },
-            a3: {
-                title: "Assumption 3: Effective Dimension",
-                type: "Assumption",
-                text: `"There exists s ∈ (0,1] such that N(λ) ≤ C₀λ^(-s)"
-
-This is the <em>capacity assumption</em> measured by the effective dimension N(λ) = Tr((λI + L_K)^(-1)L_K).`,
-                connections: [
-                    {to: "l1", desc: "Determines capacity-dependent rate"},
-                    {to: "d1", desc: "Used in ASUS stopping criterion"}
-                ],
-                usedBy: ["Lemma 1", "Definition 1 (ASUS)"]
-            },
-            l1: {
-                title: "Lemma 1: Optimal KRR Rates",
-                type: "Lemma",
-                text: `"With λ* = c₀|D|^(-1/(2r+s)), with confidence 1-δ:
-‖f_{D,λ*} - f_ρ‖_ρ ≤ C̃|D|^(-r/(2r+s)) log(2/δ)"
-
-This establishes the <em>optimal learning rates</em> that KRR can achieve when the regularization parameter is appropriately selected. This serves as the <em>benchmark</em> for the paper.`,
-                connections: [
-                    {to: "t1", desc: "ASUS achieves same rate (Theorem 1)"},
-                    {to: "l2", desc: "LP only achieves near-optimal (log log factor)"}
-                ],
-                usedBy: ["Comparison benchmark in Theorem 1"]
-            },
-            l2: {
-                title: "Lemma 2: Lepskii Principle Rates",
-                type: "Lemma",
-                text: `"With LP parameter selection:
-‖f_{D,λ_LP} - f_ρ‖_ρ ≤ C̃|D|^(-r/(2r+s)) (log log |D|) log(2/δ)"
-
-The <em>double logarithmic factor</em> shows LP achieves only <em>near-optimal</em> rates. This is the <em>gap</em> that motivates the paper's contribution.`,
-                connections: [
-                    {to: "d1", desc: "ASUS designed to remove this gap"},
-                    {to: "t1", desc: "ASUS removes log log factor"}
-                ],
-                usedBy: ["Motivation for ASUS development"]
-            },
-            p1: {
-                title: "Proposition 1: Spectral Property",
-                type: "Proposition",
-                text: `"For λ_k = 1/(bk), the key bound becomes:
-‖(L_{K,D}+λ_k)^(1/2)(f_{D,λ_k} - f_{D,λ_{k+1}})‖_K ≤ C̄₁ b λ_k (W_{D,λ_k} + λ_k^r)"
-
-The <em>crucial insight</em>: delicate subdivision (uniform vs logarithmic) adds an extra λ_k factor, enabling optimal rates. This is <em>unique to KRR</em>'s spectral structure.`,
-                connections: [
-                    {to: "d1", desc: "Enables ASUS stopping criterion"},
-                    {to: "pl3", desc: "Proof uses Lemma 3 bounds"}
-                ],
-                usedBy: ["Definition 1 (ASUS)", "Proof section"]
-            },
-            d1: {
-                title: "Definition 1: ASUS",
-                type: "Definition",
-                text: `"<em>Adaptive Selection with Uniform Subdivision (ASUS)</em>:
-For λ_k = 1/(bk), define k̂_uni as the first k satisfying:
-‖(L_{K,D}+λ_{k-1})^(1/2)(f_{λ_k,D} - f_{λ_{k-1},D})‖_K ≥ C_US W_{D,λ_k} log²(8/δ)"
-
-Key advantages:
-1. <em>Early-stopping</em> type (no pairwise comparisons)
-2. <em>Uniform subdivision</em> exploits spectral property`,
-                connections: [
-                    {to: "t1", desc: "Achieves optimal rates"},
-                    {to: "p1", desc: "Built on spectral property insight"}
-                ],
-                usedBy: ["Theorem 1 (main result)"]
-            },
-            t1: {
-                title: "Theorem 1: ASUS Optimality (MAIN RESULT)",
-                type: "Theorem",
-                text: `"Under Assumptions 1-3, with confidence 1-δ:
-‖f_{D,λ̂_uni} - f_ρ‖_ρ ≤ C₁|D|^(-r/(2r+s)) log⁴(8/δ)
-‖f_{D,λ̂_uni} - f_ρ‖_K ≤ C₁|D|^(-r-1/2)/(2r+s)) log⁴(8/δ)"
-
-<em>ASUS achieves OPTIMAL learning rates</em>, better than:
-• Discrepancy principle
-• Balancing principle  
-• Lepskii principle`,
-                connections: [
-                    {to: "l1", desc: "Matches optimal rate from Lemma 1"},
-                    {to: "pl5", desc: "Proof combines Lemma 5 (small λ)"},
-                    {to: "pl6", desc: "...and Lemma 6 (large λ)"}
-                ],
-                usedBy: ["Main contribution of the paper"]
-            },
-            pl3: {
-                title: "Lemma 3: Operator Bounds",
-                type: "Proof Lemma",
-                text: `"Bounds for key operators:
-• S_{D,λ} ≤ C₁* (log N(λ)/(λ|D|) + √(...))
-• Q_{D,λ} ≤ √2
-• P_{D,λ} ≤ 16(κM+γ) W_{D,λ} log²(8/δ)"
-
-These <em>technical bounds</em> on the integral operators are essential for the proofs.`,
-                connections: [
-                    {to: "p1", desc: "Used in Proposition 1 proof"}
-                ],
-                usedBy: ["Proof of Proposition 1"]
-            },
-            pl4: {
-                title: "Lemma 4: Error Decomposition",
-                type: "Proof Lemma",
-                text: `"For any λ ≥ λ_{K*}:
-max{λ^(1/2)‖f_{D,λ}-f_ρ‖_K, ‖f_{D,λ}-f_ρ‖_ρ} 
-≤ 2^(r-1/2) λ^r ‖h_ρ‖_ρ + 32(κM+γ) W_{D,λ} log²(8/δ)"
-
-Standard <em>bias-variance decomposition</em> for KRR error.`,
-                connections: [
-                    {to: "pl5", desc: "Used in small λ case"},
-                    {to: "t1", desc: "Foundation for Theorem 1 proof"}
-                ],
-                usedBy: ["Lemma 5", "Theorem 1 proof"]
-            },
-            pl5: {
-                title: "Lemma 5: Small λ Case",
-                type: "Proof Lemma",
-                text: `"If λ̂_uni ≤ λ*, then:
-‖f_{D,λ̂_uni} - f_ρ‖_ρ ≤ C̄₂|D|^(-r/(2r+s)) log²(8/δ)"
-
-Handles the case when ASUS selects a parameter <em>smaller than optimal</em>.`,
-                connections: [
-                    {to: "t1", desc: "Combined with Lemma 6 for Theorem 1"}
-                ],
-                usedBy: ["Theorem 1 proof"]
-            },
-            pl6: {
-                title: "Lemma 6: Large λ Case",
-                type: "Proof Lemma",
-                text: `"If λ̂_uni > λ*, then:
-‖f_{D,λ̂_uni} - f_ρ‖_ρ ≤ C̄₅|D|^(-r/(2r+s)) log⁴(8/δ)"
-
-Handles the case when ASUS selects a parameter <em>larger than optimal</em>. Uses triangle inequality and telescoping sum.`,
-                connections: [
-                    {to: "t1", desc: "Combined with Lemma 5 for Theorem 1"}
-                ],
-                usedBy: ["Theorem 1 proof"]
-            }
-        };
-
-        let selectedNode = null;
-
-        function selectNode(id) {
-            // Clear previous selection
-            document.querySelectorAll('.node-circle').forEach(c => c.classList.remove('selected'));
-            document.querySelectorAll('.edge').forEach(e => {
-                e.classList.remove('highlighted');
-                e.setAttribute('marker-end', 'url(#arrowhead)');
+        // 数据
+        const nodes = [{"file": "introduction.tex", "type": "section", "title": "Introduction", "summary": "Online convex optimization (OCO) is a standard framework for modelling and analyzing a broad family of online decision problems under uncertainty. In the OCO problem, on every round [MATH], an online policy first selects an action [MATH] from a closed and convex admissible set (a.k.a. decision set)...", "full_content": "Online convex optimization (OCO) is a standard framework for modelling and analyzing a broad family of online decision problems under uncertainty. In the OCO problem, on every round [MATH], an online policy first selects an action [MATH] from a closed and convex admissible set (a.k.a. decision set) [MATH] Then the adversary reveals a convex cost function [MATH], resulting in a cost of [MATH]. The goal of an online policy is to choose an admissible action sequence [MATH] so that its cumulative cost is not much larger than that of any fixed admissible action chosen in hindsight. In particular, the objective is to minimize the static regret defined below [FIGURE/TABLE] The term static refers to using a fixed benchmark, specifically only one action [MATH] throughout the horizon of length [MATH]. In this paper, we consider a generalization of the standard OCO framework. In this problem, on every round [MATH] the online policy first chooses an admissible action [MATH] and then the adversary ", "references": [], "keywords": ["regret", "constraint", "violation", "convex", "online"], "id": 0}, {"file": "introduction.tex", "type": "paragraph", "title": "The {Hidden Set", "summary": "Problem:} Let [MATH] be an admissible set of actions which is known to the policy. Let [MATH], called the feasible set, be a closed and convex subset of [MATH]. Due to a large number of defining constraints, the feasible set [MATH] is too complex to communicate to the policy a priori. However, an ef...", "full_content": "Problem:} Let [MATH] be an admissible set of actions which is known to the policy. Let [MATH], called the feasible set, be a closed and convex subset of [MATH]. Due to a large number of defining constraints, the feasible set [MATH] is too complex to communicate to the policy a priori. However, an efficient separation oracle for [MATH] is assumed to be available. On the [MATH]th round, the policy first selects an admissible action [MATH] and then, the adversary reveals a convex cost function [MATH] and some convex constraint of the form [MATH] which contains the unknown feasible set [MATH]. As an example, the constraints could come from the separation oracle that, if [MATH] is infeasible, outputs a hyperplane separating the current action [MATH] and the hidden feasible set [MATH]. The objective of the policy is to perform as well as any action from the hidden feasible set [MATH] in terms of the regret and the cumulative constraint violation metrics. [FIGURE/TABLE] %As an interesting byp", "references": [], "keywords": ["regret", "constraint", "violation", "optimal", "convex"], "id": 1}, {"file": "Related_works.tex", "type": "subsection", "title": "Related Work", "summary": "", "full_content": "", "references": [], "keywords": [], "id": 2}, {"file": "Related_works.tex", "type": "paragraph", "title": "Unconstrained OCO:", "summary": "In a seminal paper, [CITE] showed that for solving intro-regret-def, the ubiquitous projected online gradient descent (OGD) policy achieves an [MATH] regret for convex cost functions with uniformly bounded sub-gradients. A number of follow-up papers proposed adaptive and parameter-free versions of O...", "full_content": "In a seminal paper, [CITE] showed that for solving intro-regret-def, the ubiquitous projected online gradient descent (OGD) policy achieves an [MATH] regret for convex cost functions with uniformly bounded sub-gradients. A number of follow-up papers proposed adaptive and parameter-free versions of OGD [CITE]. See [CITE] for textbook treatments of the OCO framework and associated algorithms. { Constrained OCO (COCO): (A) Time-invariant constraints:} A number of papers considered COCO with time-invariant constraints, i.e., [MATH] [CITE]. These works assume that the functions [MATH]'s are known to the policy a priori. However, they allowed the policy to remain infeasible on any round to avoid the costly projection step of the vanilla projected OGD policy. Their main objective was to design an efficient policy (avoiding the explicit projection step) with a small regret and CCV. { (B) Time-varying constraints:} Solving the COCO problem when the constraint functions, i.e., [MATH]'s, change a", "references": [], "keywords": ["regret", "constraint", "algorithm", "optimal", "convex"], "id": 3}, {"file": "contribution.tex", "type": "subsection", "title": "Our Contributions", "summary": "In this paper, we consider both COCO and [MATH] problems and make the following contributions. [FIGURE/TABLE]", "full_content": "In this paper, we consider both COCO and [MATH] problems and make the following contributions. [FIGURE/TABLE]", "references": [], "keywords": ["OCO", "COCO"], "id": 4}, {"file": "formulation.tex", "type": "section", "title": "The Constrained OCO (COCO) Problem", "summary": "In this section, we generalize the [MATH] and the usual unconstrained OCO and consider the COCO where on each round [MATH] an online policy first chooses an admissible action [MATH] and then the adversary chooses a convex cost function [MATH] and a constraint of the form [MATH] where [MATH] is a con...", "full_content": "In this section, we generalize the [MATH] and the usual unconstrained OCO and consider the COCO where on each round [MATH] an online policy first chooses an admissible action [MATH] and then the adversary chooses a convex cost function [MATH] and a constraint of the form [MATH] where [MATH] is a convex function.For notational simplicity, in this section, we assume that only one constraint function is revealed on each round ({i.e., [MATH]). The general case of [MATH] can be handled similarly as in Section [REF].} Let [MATH] be the feasible set satisfying all constraints as defined in Assumption [REF]. Then, the objective is to simultaneously minimize the regret and the CCV as defined in intro-regret-def and intro-gen-oco-goal with [MATH], respectively. The COCO can be motivated by the following offline convex optimization problem where the functions [MATH] are known a priori: [FIGURE/TABLE] subject to the constraints [FIGURE/TABLE] Since [MATH] intro-gen-oco-goal uses a stronger definit", "references": [], "keywords": ["regret", "constraint", "violation", "convex", "online"], "id": 5}, {"file": "formulation.tex", "type": "subsection", "title": "Assumptions", "summary": "We now state the assumptions considered in this paper. These assumptions are standard in literature on the COCO problem [CITE]. [FIGURE/TABLE] [FIGURE/TABLE] assumption Unless specified otherwise, the norm [MATH] will refer to the standard Euclidean norm and [MATH] will refer to an arbitrary subgrad...", "full_content": "We now state the assumptions considered in this paper. These assumptions are standard in literature on the COCO problem [CITE]. [FIGURE/TABLE] [FIGURE/TABLE] assumption Unless specified otherwise, the norm [MATH] will refer to the standard Euclidean norm and [MATH] will refer to an arbitrary subgradient of a convex function [MATH]. Assumption [REF] implies that the [MATH]-norm of the (sub)gradients of the cost and constraint functions are uniformly upper-bounded by [MATH] over the admissible set [MATH] Finally, we make the following feasibility assumption about the constraint functions. [FIGURE/TABLE] The feasibility assumption distinguishes the cost functions from the constraint functions and is commonly assumed in the literature [CITE]. In Section [REF], we will consider a constraint-only variant of the problem where the feasibility assumption (Assumption [REF]) will be relaxed. See Appendix [REF] for a brief discussion on the assumptions.", "references": [], "keywords": ["constraint", "convex", "bound", "OCO", "COCO"], "id": 6}, {"file": "formulation.tex", "type": "paragraph", "title": "Remarks:", "summary": "On each round, multiple constraints of the form [MATH] can be replaced by a single new constraint [MATH] where the constraint function [MATH] is defined to be the pointwise maximum of the given constraints, i.e., [MATH] It is easy to verify that if each of the constraint functions [MATH] satisfies t...", "full_content": "On each round, multiple constraints of the form [MATH] can be replaced by a single new constraint [MATH] where the constraint function [MATH] is defined to be the pointwise maximum of the given constraints, i.e., [MATH] It is easy to verify that if each of the constraint functions [MATH] satisfies the above assumptions, then the constraint function [MATH] defined above also satisfies the assumptions. Hence, throughout this section and without loss of generality, we will assume that only one constraint function is revealed on each round. That being said, under the relaxed feasibility assumption in Section [REF], this trick does not work and there we will need to consider the full set of [MATH] constraint functions. For any round [MATH] let [MATH] be the set of all feasible actions satisfying all constraints up to and including time [MATH] i.e., \\[X_t = \\{x X : g_(x) 0, 1 T\\}.\\] The set [MATH] is assumed to be non-empty. To maintain consistency in the notations, we set [MATH] The regret ", "references": [], "keywords": ["regret", "constraint", "violation", "convex", "online"], "id": 7}, {"file": "formulation.tex", "type": "subsection", "title": "Assumptions", "summary": "We now define a set of assumptions of interest. Each of our results will be valid under some subset of the following assumptions. [FIGURE/TABLE] [FIGURE/TABLE] The following condition strengthens Assumption [REF]. [FIGURE/TABLE] The following regularity assumption pertains to a certain class of wors...", "full_content": "We now define a set of assumptions of interest. Each of our results will be valid under some subset of the following assumptions. [FIGURE/TABLE] [FIGURE/TABLE] The following condition strengthens Assumption [REF]. [FIGURE/TABLE] The following regularity assumption pertains to a certain class of worst-case adversaries. [FIGURE/TABLE] Remarks 1. The assumption of the existence of actions satisfying Slater's condition is a strong one which severely limits the practical applicability of the theory. In particular, if the penalty function [MATH] is non-negative, then clearly, no feasible action satisfying Slater's condition exists. In this paper, we will obtain sublinear regret and constraint violation penalty bounds simultaneously by considering Assumption [REF] and Assumption [REF] only. However, we will see that Assumption [REF] or Assumption [REF] is sometimes useful for proving improved performance bounds. 2. In Section [REF], we will show that Assumption [REF] can be dropped from the r", "references": [], "keywords": ["regret", "constraint", "violation", "online", "bound"], "id": 8}, {"file": "lower_bounds.tex", "type": "subsection", "title": "Lower bound on regret and CCV for COCO", "summary": "In this section, we prove that under Assumptions [REF], [REF], and [REF], the regret and the CCV achieved by any online policy for the COCO over any horizon of length [MATH] are both lower bounded by [MATH] Note that the CCV lower bound does not follow from the corresponding regret lower bound for t...", "full_content": "In this section, we prove that under Assumptions [REF], [REF], and [REF], the regret and the CCV achieved by any online policy for the COCO over any horizon of length [MATH] are both lower bounded by [MATH] Note that the CCV lower bound does not follow from the corresponding regret lower bound for the OCO problem due to the additional Assumption [REF], which puts an implicit constraint on the admissible constraint functions. proof Using the standard lower bound proof strategy, we define an ensemble of OCS problem instances with a single linear constraint function on every round. Using a Coupon collector's argument, we then argue that any online policy must incur at least [MATH] cumulative constraint violation on at least one instance of the ensemble. The detailed construction is given below:", "references": [], "keywords": ["regret", "constraint", "violation", "online", "bound"], "id": 9}, {"file": "lower_bounds.tex", "type": "paragraph", "title": "Action space $$:", "summary": "The standard probability simplex [MATH] with [MATH] coordinates. The time horizon [MATH] is taken to be [MATH]", "full_content": "The standard probability simplex [MATH] with [MATH] coordinates. The time horizon [MATH] is taken to be [MATH]", "references": [], "keywords": [], "id": 10}, {"file": "lower_bounds.tex", "type": "paragraph", "title": "Constraint functions:", "summary": "On each round [MATH] let random variable [MATH] be distributed uniformly on [MATH] independently of everything else. The constraint function on round [MATH] is taken to be a random linear function with coefficients [MATH] In other words, the [MATH]th constraint is defined as [MATH] Clearly, the diam...", "full_content": "On each round [MATH] let random variable [MATH] be distributed uniformly on [MATH] independently of everything else. The constraint function on round [MATH] is taken to be a random linear function with coefficients [MATH] In other words, the [MATH]th constraint is defined as [MATH] Clearly, the diameter of the admissible set is bounded as [MATH] and the constraint functions are [MATH]-LipschitzTo see the diameter bound, let [MATH] We have [MATH].", "references": [], "keywords": ["constraint", "bound"], "id": 11}, {"file": "lower_bounds.tex", "type": "paragraph", "title": "Checking feasibility:", "summary": "We now argue that, for a large enough horizon [MATH], the above sequence of constraint functions is feasible with high probability. Using a standard result on the Coupon collector's problem [Theorem 3.8]{motwani1995randomized}, we conclude that w.h.p. there exists a coordinate [MATH] which does not...", "full_content": "We now argue that, for a large enough horizon [MATH], the above sequence of constraint functions is feasible with high probability. Using a standard result on the Coupon collector's problem [Theorem 3.8]{motwani1995randomized}, we conclude that w.h.p. there exists a coordinate [MATH] which does not appear in any of the constraints. We can now find a feasible action [MATH] for the above [MATH] constraints by choosing [MATH]", "references": [], "keywords": ["constraint", "theorem"], "id": 12}, {"file": "lower_bounds.tex", "type": "paragraph", "title": "Bounding cumulative violations:", "summary": "Consider any online policy which takes action [MATH] on round [MATH] and let [MATH] denote the natural filtration. The conditional expectation and variance of the constraint violation incurred by the policy on round [MATH] is given by \\[E[g_t(x_t)|F_{t-1}]= 1{d}_{i=1}^d x_{t,i}= 1{d},~~ Var(g_t(x_t)...", "full_content": "Consider any online policy which takes action [MATH] on round [MATH] and let [MATH] denote the natural filtration. The conditional expectation and variance of the constraint violation incurred by the policy on round [MATH] is given by \\[E[g_t(x_t)|F_{t-1}]= 1{d}_{i=1}^d x_{t,i}= 1{d},~~ Var(g_t(x_t)) < 1{d}_{i}x^2_{t,i} 1{d}. \\] Hence, for any online policy, the expected cumulative violation is given by [MATH] with its variance upper bounded as [MATH] where in the last step we have used the Pythagorean formula for the zero-mean martingale sequence [MATH] [Section 12.1, Eq. (b)]{williams1991probability}. Hence, we have \\[ EV_T^2 = Var(V_T)+ (EV_T)^2 T^2{d^2}+T{d}.\\] Hence, using Paley-Zygmund inequality for the non-negative cumulative violation random variable [MATH] [Theorem 1.4.3(b)]{chandra2012borel}, we have \\[ P(V_T T{2d}) 1{4} ({EV_T)^2}{EV_T^2} 1{4} T^2/d^2{T^2/d^2+T/d} 1{8},\\] where, in the last step, we have used the fact that [MATH] and assumed [MATH] Hence, from the previous ", "references": ["sec_12.1"], "keywords": ["constraint", "violation", "algorithm", "online", "bound"], "id": 13}, {"file": "algorithms.tex", "type": "subsubsection", "title": "Lower Bound to the Achievable CCV", "summary": "The following result shows that any online policy must incur a CCV of [MATH] [FIGURE/TABLE] [FIGURE/TABLE] where the last inequality follows from the lower bound on the achievable regret for adversarially chosen linear cost functions over a convex domain. proof -0.1in", "full_content": "The following result shows that any online policy must incur a CCV of [MATH] [FIGURE/TABLE] [FIGURE/TABLE] where the last inequality follows from the lower bound on the achievable regret for adversarially chosen linear cost functions over a convex domain. proof -0.1in", "references": [], "keywords": ["regret", "convex", "online", "adversarial", "bound"], "id": 14}, {"file": "algorithms.tex", "type": "subsection", "title": "Online Policy for COCO", "summary": "In this section, we propose a generalization of the OCS Meta-policy that is applicable for COCO and derive an upper bound on its regret and CCV. As in the [MATH], we keep track of the CCV through the same queueing process [MATH] that evolves as follows. [FIGURE/TABLE] Moreover, since [MATH], we have...", "full_content": "In this section, we propose a generalization of the OCS Meta-policy that is applicable for COCO and derive an upper bound on its regret and CCV. As in the [MATH], we keep track of the CCV through the same queueing process [MATH] that evolves as follows. [FIGURE/TABLE] Moreover, since [MATH], we have [MATH] As before, let us define the potential function [MATH] From q-bd2, Observe that for any real number [MATH], we have [MATH] Hence, [FIGURE/TABLE] where in (a), we have used the AM-GM inequality. Rearranging the above inequality, the one-step drift of the potential [MATH] can be upper bounded as [FIGURE/TABLE] Now, motivated by the drift-plus-penalty framework in the stochastic network control theory [CITE], we define a surrogate cost function [MATH] as follows: [FIGURE/TABLE] where the first term corresponds to the cost and the second term is an upper bound to the drift of the quadratic potential function given by dr-bd. In the above, [MATH] is an adjustable parameter that will be fix", "references": [], "keywords": ["regret", "algorithm", "convex", "online", "bound"], "id": 15}, {"file": "algorithms.tex", "type": "subsection", "title": "Analysis: Regret Decomposition:", "summary": "Fix any feasible action [MATH] Recalling [MATH], for any round [MATH], we have [FIGURE/TABLE] where in (a), we have used the feasibility of the action [MATH] which yields [MATH].We actually have an equality in this step for the redefined non-negative clipped constraint functions. Summing up the ineq...", "full_content": "Fix any feasible action [MATH] Recalling [MATH], for any round [MATH], we have [FIGURE/TABLE] where in (a), we have used the feasibility of the action [MATH] which yields [MATH].We actually have an equality in this step for the redefined non-negative clipped constraint functions. Summing up the inequalities drift_ineq from [MATH] to [MATH], we relate the regret for learning [MATH]'s with the regret for learning [MATH]'s: [FIGURE/TABLE] By setting [MATH] and [MATH] and recalling that [MATH] coco:coco:master_eqn yields the key regret decomposition inequality: [FIGURE/TABLE] Inequality q-bd-eqn is a general result and does not rely on the convexity of the cost/constraint functions.", "references": [], "keywords": ["regret", "constraint", "convex", "OCO", "COCO"], "id": 16}, {"file": "algorithms.tex", "type": "paragraph", "title": "Regret Decomposition:", "summary": "Fix any [MATH]-feasible admissible action [MATH] Note that when Assumption [REF] does not hold but Assumption [REF] holds then we have [MATH] Then, for any [MATH] we have [FIGURE/TABLE] where in (a), we have used the [MATH]-feasibility of the fixed action [MATH] Summing up the inequalities drift_ine...", "full_content": "Fix any [MATH]-feasible admissible action [MATH] Note that when Assumption [REF] does not hold but Assumption [REF] holds then we have [MATH] Then, for any [MATH] we have [FIGURE/TABLE] where in (a), we have used the [MATH]-feasibility of the fixed action [MATH] Summing up the inequalities drift_ineq above, we obtain the following bound, which relates the regret of learning the original cost functions to the regret of learning the surrogate cost functions: [FIGURE/TABLE] We emphasize that the regret on the RHS depends on the auxiliary variables [MATH] which are implicitly controlled by the learning policy. In particular, by setting [MATH] and recalling that [MATH] we have that [FIGURE/TABLE] -0.1in", "references": [], "keywords": ["regret", "bound", "policy", "feasibility"], "id": 17}, {"file": "algorithms.tex", "type": "subsubsection", "title": "Convex Cost and Convex Constraint functions", "summary": "We now apply q-bd-eqn to the case of convex cost [MATH] and convex constraint functions [MATH]. Let the base OCO subroutine [MATH] be taken to be the OGD policy with adaptive step sizes as given in part 1 of Theorem [REF]. In this case, using q-bd-eqn, we obtain the following bound for any feasible...", "full_content": "We now apply q-bd-eqn to the case of convex cost [MATH] and convex constraint functions [MATH]. Let the base OCO subroutine [MATH] be taken to be the OGD policy with adaptive step sizes as given in part 1 of Theorem [REF]. In this case, using q-bd-eqn, we obtain the following bound for any feasible action [MATH] [FIGURE/TABLE] where [MATH] follows from the regret guarantee of the adaptive OGD policy cvx-reg-bd, (d) follows from Eqn.\\ grad-bd in the Appendix, and [MATH] follows from the facts that [MATH] and [MATH] The following theorem gives the performance bounds for the COCO Meta-policy. [FIGURE/TABLE] -0.01in See Section [REF] for the proof of Theorem [REF]. The first part of the theorem proves the same best-known bound from [CITE]. However, our policy is simple with an elegant analysis and does not need to know [MATH] or the full functions [MATH] and [MATH] after [MATH] has been chosen. The second part of the theorem states that the regret and CCV cannot be large simultaneously at ", "references": [], "keywords": ["regret", "constraint", "optimal", "convex", "bound"], "id": 18}, {"file": "algorithms.tex", "type": "subsection", "title": "Preliminaries", "summary": "We now briefly recall the first-order methods (a.k.a. Projected Online Gradient Descent (OGD)) for the standard OCO problem. These methods differ among each other in the way the step sizes are chosen. For a sequence of convex cost functions [MATH] a projected OGD algorithm selects the successive act...", "full_content": "We now briefly recall the first-order methods (a.k.a. Projected Online Gradient Descent (OGD)) for the standard OCO problem. These methods differ among each other in the way the step sizes are chosen. For a sequence of convex cost functions [MATH] a projected OGD algorithm selects the successive actions as [Algorithm 2.1]{orabona2019modern}: [FIGURE/TABLE] where [MATH] is a subgradient of the function [MATH] at [MATH], [MATH] is the Euclidean projection operator on the set [MATH] and [MATH] is a specified step size sequence. The (diagonal version of the) AdaGrad policy adaptively chooses the step size sequence as a function of the previous subgradients as [MATH] where [MATH] [CITE]. We set [MATH] if [MATH] It enjoys the following adaptive regret bound. [FIGURE/TABLE] theorem", "references": [], "keywords": ["regret", "algorithm", "convex", "online", "bound"], "id": 19}, {"file": "algorithms.tex", "type": "subsection", "title": "Design and Analysis of the Algorithm", "summary": "To simplify the analysis, we pre-process the cost and constraint functions on each round as follows. 5pt Pre-processing: On every round, we first clip the negative part of the constraint function to zero by passing it through the standard ReLU unit. Then, we scale both the cost and constraint functi...", "full_content": "To simplify the analysis, we pre-process the cost and constraint functions on each round as follows. 5pt Pre-processing: On every round, we first clip the negative part of the constraint function to zero by passing it through the standard ReLU unit. Then, we scale both the cost and constraint functions by a positive factor [MATH] which will be determined later. In other words, we work with the pre-processed inputs [MATH] Hence, the pre-processed functions are [MATH]-Lipschitz and [MATH] 5pt In the following, we derive the Regret and CCV bounds for the pre-processed functions. The bounds for the original problem are obtained upon scaling the results back by [MATH] in the final step.", "references": [], "keywords": ["regret", "constraint", "bound"], "id": 20}, {"file": "algorithms.tex", "type": "subsubsection", "title": "Defining the Surrogate Cost Functions", "summary": "Let [MATH] denote the CCV for the pre-processed constraints up to round [MATH] Clearly, [MATH] satisfies the simple recursion [MATH] with [MATH]. Recall that one of our objectives is to make [MATH] small. Towards this, let [MATH] be any non-decreasing differentiable convex potential (Lyapunov) funct...", "full_content": "Let [MATH] denote the CCV for the pre-processed constraints up to round [MATH] Clearly, [MATH] satisfies the simple recursion [MATH] with [MATH]. Recall that one of our objectives is to make [MATH] small. Towards this, let [MATH] be any non-decreasing differentiable convex potential (Lyapunov) function such that [MATH] Using the convexity of [MATH] we have [FIGURE/TABLE] Hence, the change (drift) of the potential function [MATH] on round [MATH] can be upper bounded as [FIGURE/TABLE] Recall that, in addition to controlling the CCV, we also want to minimize the cumulative cost [MATH] (which is equivalent to the regret minimization). Inspired by the stochastic drift-plus-penalty framework of [CITE], we combine these two objectives to a single objective of minimizing a sequence of surrogate cost functions [MATH] which are obtained by taking a positive linear combination of the drift upper bound drift_ineq_new and the cost function. More precisely, we define [FIGURE/TABLE] In the above, [MA", "references": [], "keywords": ["regret", "constraint", "violation", "algorithm", "convex"], "id": 21}, {"file": "algorithms.tex", "type": "subsubsection", "title": "The Regret Decomposition Inequality", "summary": "Let [MATH] be any feasible action guaranteed by Assumption feas-constr. Plugging in the definition of surrogate costs surrogate_new into the drift inequality drift_ineq_new, and using the fact that [MATH] we have [FIGURE/TABLE] Summing the above inequalities for rounds [MATH], and using the fact tha...", "full_content": "Let [MATH] be any feasible action guaranteed by Assumption feas-constr. Plugging in the definition of surrogate costs surrogate_new into the drift inequality drift_ineq_new, and using the fact that [MATH] we have [FIGURE/TABLE] Summing the above inequalities for rounds [MATH], and using the fact that [MATH] we obtain [FIGURE/TABLE] where [MATH] on the LHS and [MATH] on the RHS of gen-reg-decomp refer to the regret for learning the pre-processed cost functions [MATH] and the surrogate cost functions [MATH] respectively. We will use the following upper bound on the [MATH]-norm of the (sub)gradients [MATH] of the surrogate cost function [MATH] defined in Eqn.\\ surrogate_new: [FIGURE/TABLE] where in [MATH], we have used the triangle inequality for [MATH] norms and in [MATH], we have used the fact that all pre-processed functions are [MATH]-Lipschitz.", "references": [], "keywords": ["regret", "bound", "gradient"], "id": 22}, {"file": "algorithms.tex", "type": "subsubsection", "title": "Convex Cost and Convex Constraint Functions", "summary": "We now apply the regret decomposition inequality gen-reg-decomp to the case of convex cost and convex constraint functions. Let us choose the regret-minimizing OCO subroutine for the surrogate cost functions to be the OGD policy with adaptive step sizes (a.k.a. AdaGrad) described in part 1 of Theore...", "full_content": "We now apply the regret decomposition inequality gen-reg-decomp to the case of convex cost and convex constraint functions. Let us choose the regret-minimizing OCO subroutine for the surrogate cost functions to be the OGD policy with adaptive step sizes (a.k.a. AdaGrad) described in part 1 of Theorem [REF] in the Appendix (see Algorithm [REF]). Plugging in the adaptive regret bound cvx-reg-bd on the RHS of gen-reg-decomp, setting [MATH] and using Eqn.\\ grad_bd_new, we arrive at the following inequality valid for any [MATH] [FIGURE/TABLE] In deriving the above result, we have utilized simple algebraic inequalities [MATH] and [MATH] Now recall that the sequence [MATH] is non-negative and non-decreasing as [MATH] Furthermore, the derivative [MATH] is non-decreasing as the function [MATH] is assumed to be convex. Hence, bounding all terms in the summation on the RHS of gen-fn-ineq from above by the last term, we arrive at the following inequality for any feasible [MATH] [FIGURE/TABLE] The ", "references": [], "keywords": ["regret", "constraint", "algorithm", "convex", "bound"], "id": 23}, {"file": "algorithms.tex", "type": "paragraph", "title": "$$ Performance Analysis", "summary": "", "full_content": "", "references": [], "keywords": [], "id": 24}, {"file": "algorithms.tex", "type": "paragraph", "title": "An exponential Lyapunov function:", "summary": "We now derive the Regret and CCV bounds for the proposed policy (Algorithm [REF]) by choosing [MATH] to be the exponential Lyapunov function: [MATH] where the parameter [MATH] will be fixed later. Clearly, the function [MATH] satisfies the required conditions for a Lyapunov function - it is a non-de...", "full_content": "We now derive the Regret and CCV bounds for the proposed policy (Algorithm [REF]) by choosing [MATH] to be the exponential Lyapunov function: [MATH] where the parameter [MATH] will be fixed later. Clearly, the function [MATH] satisfies the required conditions for a Lyapunov function - it is a non-decreasing and convex function with [MATH]", "references": [], "keywords": ["regret", "algorithm", "convex", "bound", "policy"], "id": 25}, {"file": "algorithms.tex", "type": "paragraph", "title": "Bounding the Regret:", "summary": "With the above choice for the Lyapunov function [MATH], Eqn.\\ gen-fn-ineq2 implies that for any feasible [MATH] and for any [MATH] we have [FIGURE/TABLE] Transposing the first term on the above inequality to the RHS and dividing throughout by [MATH], we have: [FIGURE/TABLE] Choosing any [MATH] the l...", "full_content": "With the above choice for the Lyapunov function [MATH], Eqn.\\ gen-fn-ineq2 implies that for any feasible [MATH] and for any [MATH] we have [FIGURE/TABLE] Transposing the first term on the above inequality to the RHS and dividing throughout by [MATH], we have: [FIGURE/TABLE] Choosing any [MATH] the last term in the above inequality becomes non-positive for any [MATH] Hence, for any [MATH], we have the following regret bound [FIGURE/TABLE]", "references": [], "keywords": ["regret", "bound", "Lyapunov"], "id": 26}, {"file": "algorithms.tex", "type": "paragraph", "title": "Bounding the CCV:", "summary": "Since all pre-processed cost functions are [MATH]-Lipschitz, we trivially have [MATH] Hence, from Eqn.\\ reg-bd-exp, we have that for any [MATH] and any [MATH] [FIGURE/TABLE] Choosing [MATH] and scaling the bounds back by [MATH] we arrive at our main result. [FIGURE/TABLE] In the above, [MATH] denote...", "full_content": "Since all pre-processed cost functions are [MATH]-Lipschitz, we trivially have [MATH] Hence, from Eqn.\\ reg-bd-exp, we have that for any [MATH] and any [MATH] [FIGURE/TABLE] Choosing [MATH] and scaling the bounds back by [MATH] we arrive at our main result. [FIGURE/TABLE] In the above, [MATH] denotes the Euclidean diameter of the closed and convex admissible set [MATH]. theorem [FIGURE/TABLE] where the last inequality follows from the lower bound on the achievable regret for adversarially chosen linear cost functions over a convex domain. proof The following theorem shows that the additional assumption on the existence of a Slater's point implies improved bounds for both regret and CCVs. [FIGURE/TABLE] theorem framed See Appendix [REF] for the proof of the above result. Case I: [MATH] [MATH] In this case, from Eq.\\ [REF] we have for all [MATH] [FIGURE/TABLE] From Eq. [REF], due to the boundedness assumption on the constraint vectors, we trivially have [FIGURE/TABLE] Plugging the above ", "references": [], "keywords": ["regret", "constraint", "optimal", "convex", "online"], "id": 27}, {"file": "algorithms.tex", "type": "subsubsection", "title": "Strongly Convex Cost and Convex Constraint Functions", "summary": "We now consider the setting where each of the cost functions [MATH] is [MATH]-strongly convex for some [MATH]. The constraint functions [MATH]'s are assumed to be convex as before and not necessarily strongly convex. In this case, we choose the regret-minimizing OCO subroutine for the surrogate cost...", "full_content": "We now consider the setting where each of the cost functions [MATH] is [MATH]-strongly convex for some [MATH]. The constraint functions [MATH]'s are assumed to be convex as before and not necessarily strongly convex. In this case, we choose the regret-minimizing OCO subroutine for the surrogate cost functions to be the OGD algorithm with the step-size sequence as given in part 2 of Theorem [REF] in the Appendix (see Algorithm [REF]). following adaptive regret bound [Theorem 4.1]{hazan2007adaptive}: [FIGURE/TABLE] where [MATH] is the sum of the strong convexity parameters of the first [MATH] cost functions. Since the cost functions are known to be [MATH]-strongly convex, each of the surrogate cost functions surrogate_new is [MATH]-strongly convex. Hence, using the bound from Eqn.\\ grad_bd_new, choosing the scaling parameter to be [MATH], and simplifying the generic regret bound given by Eqn.\\ str-cvx-reg-bd, we obtain the following regret bound for learning the surrogate cost functions ", "references": [], "keywords": ["regret", "constraint", "algorithm", "convex", "bound"], "id": 28}, {"file": "algorithms.tex", "type": "subsection", "title": "Lower Bounds", "summary": "We now show that under Assumptions [REF], [REF], and [REF], the regret and the CCV of any online policy for the COCO problem for [MATH] rounds are both lower bounded by [MATH] provided the problem is high-dimensional. Recall that if the constraint function [MATH], then the COCO problem reduces to th...", "full_content": "We now show that under Assumptions [REF], [REF], and [REF], the regret and the CCV of any online policy for the COCO problem for [MATH] rounds are both lower bounded by [MATH] provided the problem is high-dimensional. Recall that if the constraint function [MATH], then the COCO problem reduces to the standard OCO problem, and [MATH] is a well-known regret lower bound for OCO [Theorem 10]{hazan2022introduction}. In this case, we trivially have {[MATH]} The main challenge in proving a lower bound for COCO is simultaneously bounding both the regret and CCV. Prior work does not give any simultaneous lower bounds since the standard adversarial inputs used to derive the lower bound of [CITE] do not satisfy the feasibility assumption (Assumption 3). We derive the lower bound by constructing a sequence of cost and constraint functions that satisfy Assumption [REF] in a [MATH]-dimensional Euclidean box of unit diameter. [FIGURE/TABLE] In high-dimensional problems where [MATH] the above lower bo", "references": [], "keywords": ["regret", "constraint", "online", "adversarial", "bound"], "id": 29}, {"file": "algorithms.tex", "type": "subsubsection", "title": "Lower bounds", "summary": "The optimality of the regret bounds, given in Theorems [REF] and [REF], follows from the corresponding unconstrained regret bounds [Table 3.1]{hazan2016introduction}. We conclude this section by establishing lower bounds to the CCV with convex constraints. The following result shows that, under the...", "full_content": "The optimality of the regret bounds, given in Theorems [REF] and [REF], follows from the corresponding unconstrained regret bounds [Table 3.1]{hazan2016introduction}. We conclude this section by establishing lower bounds to the CCV with convex constraints. The following result shows that, under the assumption of non-negativity of the regret, the cumulative violation bounds given in Theorems [REF] and [REF] are optimal. [FIGURE/TABLE] See Section [REF] in the Appendix for the proof of the above result. As a corollary of the above result, by setting [MATH] we obtain [MATH] bounds simultaneously for regret and CCV. Clearly, this bound improves upon the bound obtained by assuming only the convexity of the cost functions as given in Theorem [REF]. Our next result shows that by assuming that Slater's condition is true, one can obtain an exponential improvement of the previous regret and CCV guarantee. [FIGURE/TABLE] theorem framed [FIGURE/TABLE] algorithm Our next result shows that under the", "references": [], "keywords": ["regret", "constraint", "violation", "algorithm", "optimal"], "id": 30}, {"file": "algorithms.tex", "type": "section", "title": "Strongly Convex Constraints", "summary": "In this section, we investigate the case when each constraint function [MATH] are [MATH]-strongly convex. To establish strong results without any extraneous assumptions, we first consider the case when the cost functions are identically equal to zero, and the only objective is to derive strong bound...", "full_content": "In this section, we investigate the case when each constraint function [MATH] are [MATH]-strongly convex. To establish strong results without any extraneous assumptions, we first consider the case when the cost functions are identically equal to zero, and the only objective is to derive strong bounds for the queue length variables. By setting [MATH] we immediately have [MATH] Hence, strong-cvx-regret yields the following recursive bounds on the queue length process; [FIGURE/TABLE] The following result gives a strong bound on the queue lengths as implied by the above bound. [FIGURE/TABLE] framed See Proposition [REF] in the Appendix for the proof of the above result.", "references": [], "keywords": ["regret", "constraint", "convex", "bound"], "id": 31}, {"file": "algorithms.tex", "type": "section", "title": "Strongly Convex Constraints", "summary": "Clearly, in this case each surrogate cost function [MATH], defined in surrogate-def, is [MATH]-strongly convex with the norm of the (sub)gradients bounded by [MATH] grad-bd. Hence, using the regret bound strong-cvx-regret, there exists an OGD policy that achieves the following bound: [FIGURE/TABLE]", "full_content": "Clearly, in this case each surrogate cost function [MATH], defined in surrogate-def, is [MATH]-strongly convex with the norm of the (sub)gradients bounded by [MATH] grad-bd. Hence, using the regret bound strong-cvx-regret, there exists an OGD policy that achieves the following bound: [FIGURE/TABLE]", "references": [], "keywords": ["regret", "convex", "bound", "policy", "gradient"], "id": 32}, {"file": "two_constr.tex", "type": "section", "title": "The Online Constraint Satisfaction Problem ({OCS", "summary": ")} In this section, we study a special case of the COCO problem, which involves only constraint functions and no cost functions. The OCS problem arises in many practical settings, including the multi-task learning problem (see Section [REF] in the Appendix for a brief discussion). In Section [REF] i...", "full_content": ")} In this section, we study a special case of the COCO problem, which involves only constraint functions and no cost functions. The OCS problem arises in many practical settings, including the multi-task learning problem (see Section [REF] in the Appendix for a brief discussion). In Section [REF] in the Appendix, we also establish a connection between the OCS problem and the well-studied Convex Body Chasing problem [CITE]. The setup is similar to the COCO setting -- on every round [MATH], an online policy selects an action [MATH] from a closed, bounded, and convex admissible set [MATH]. After observing the current action [MATH], the adversary chooses [MATH] constraints of the form [MATH] where each [MATH] is a convex function. Let [MATH] be any sub-interval of the horizon [MATH] The cumulative constraint violation (CCV) [MATH] for the OCS problem is defined as the maximum signed cumulative constraint violation in any sub-interval: [FIGURE/TABLE] The objective is to design an online le", "references": [], "keywords": ["regret", "constraint", "violation", "convex", "online"], "id": 33}, {"file": "two_constr.tex", "type": "paragraph", "title": "1. $S$-feasibility:", "summary": "Here, we assume that there is an admissible action [MATH] that satisfies the aggregate constraints over any interval of [MATH] rounds. However, unlike [CITE], which also considers the same assumption, the value of the parameter [MATH] is not necessarily known to the policy a priori. Towards this end...", "full_content": "Here, we assume that there is an admissible action [MATH] that satisfies the aggregate constraints over any interval of [MATH] rounds. However, unlike [CITE], which also considers the same assumption, the value of the parameter [MATH] is not necessarily known to the policy a priori. Towards this end, we define the set of all [MATH]-feasible actions [MATH] as below: [FIGURE/TABLE] We now replace Assumption [REF] with the following weaker version: [FIGURE/TABLE] Clearly, Assumption [REF] is weaker than Assumption [REF] as [MATH] Note that even when the individual constraint functions satisfy [MATH]-feasibility, their pointwise maximum need not satisfy [MATH]-feasibility. Hence, unlike COCO under Assumption [REF], this problem cannot be solved by simply running a no-regret policy on the pointwise maximum of the constraints.", "references": [], "keywords": ["regret", "constraint", "policy", "OCO", "COCO"], "id": 34}, {"file": "two_constr.tex", "type": "paragraph", "title": "2. $P_T$-constrained adversary", "summary": "In this case, we drop any feasibility assumption altogether. As a consequence, any static admissible benchmark [MATH] also incurs a CCV. [FIGURE/TABLE] As before, the value of [MATH] is not necessarily known to the policy a priori.", "full_content": "In this case, we drop any feasibility assumption altogether. As a consequence, any static admissible benchmark [MATH] also incurs a CCV. [FIGURE/TABLE] As before, the value of [MATH] is not necessarily known to the policy a priori.", "references": [], "keywords": ["policy", "feasibility", "benchmark"], "id": 35}, {"file": "two_constr.tex", "type": "subsection", "title": "Assumptions", "summary": "In this section, we list the general assumptions which apply to both the ~problem and the COCO, described later in Section [REF]. Since the ~problem does not contain any cost function, the cost functions mentioned below necessarily refer to COCO only. [FIGURE/TABLE] [FIGURE/TABLE] assumption -0.1in...", "full_content": "In this section, we list the general assumptions which apply to both the ~problem and the COCO, described later in Section [REF]. Since the ~problem does not contain any cost function, the cost functions mentioned below necessarily refer to COCO only. [FIGURE/TABLE] [FIGURE/TABLE] assumption -0.1in Unless specified otherwise, the norm [MATH] will refer to the standard Euclidean norm throughout the paper. Hence, Assumption [REF] implies that the [MATH]-norm of the (sub)-gradients of the cost and constraint functions are uniformly upper-bounded by [MATH] over the admissible set [MATH] Finally, we make the following feasibility assumption on the online constraint functions. [FIGURE/TABLE]", "references": [], "keywords": ["constraint", "online", "bound", "OCO", "COCO"], "id": 36}, {"file": "two_constr.tex", "type": "subsection", "title": "Designing an {OCS", "summary": "Policy with a Quadratic Lyapunov function} We define a process [MATH], which tracks the CCV: [FIGURE/TABLE] Notably, in contrast to COCO, we do not clip the constraint functions in the above recursion. Expanding Eqn.\\ q-ev2, which is also known as the queueing recursion or the Lindley process [pp. 9...", "full_content": "Policy with a Quadratic Lyapunov function} We define a process [MATH], which tracks the CCV: [FIGURE/TABLE] Notably, in contrast to COCO, we do not clip the constraint functions in the above recursion. Expanding Eqn.\\ q-ev2, which is also known as the queueing recursion or the Lindley process [pp. 92]{asmussen2003applied}, and using the definition in Eqn.\\ violation-def1, we have the following relation for all [MATH] [FIGURE/TABLE] Equation V-Q indicates that to control the CCV violation-def1, it is sufficient to control the [MATH] process. Similar to the COCO problem, we combine the classic Lyapunov method with adaptive no-regret OCO policies to control the [MATH] process.", "references": [], "keywords": ["regret", "constraint", "violation", "policy", "OCO"], "id": 37}, {"file": "two_constr.tex", "type": "paragraph", "title": "A Quadratic Lyapunov function:", "summary": "We consider the quadratic potential function [MATH] Since [MATH] from Eqn.\\ q-ev2, we have [FIGURE/TABLE] where in [MATH], we have used the AM-GM inequality. Rearranging Eqn.\\ q-bd2, the change of the potential function [MATH] on round [MATH] can be upper bounded as follows [FIGURE/TABLE] Similar to...", "full_content": "We consider the quadratic potential function [MATH] Since [MATH] from Eqn.\\ q-ev2, we have [FIGURE/TABLE] where in [MATH], we have used the AM-GM inequality. Rearranging Eqn.\\ q-bd2, the change of the potential function [MATH] on round [MATH] can be upper bounded as follows [FIGURE/TABLE] Similar to surrogate_new, we now define a surrogate cost function [MATH] as a linear combination of the constraint functions with the coefficients given by the vector [MATH], i.e., [FIGURE/TABLE] Clearly, the surrogate cost function [MATH] is convex since the coefficients [MATH]'s are non-negative and the constraint functions are convex. Our OCS policy, described below, simply runs a regret-minimizing adaptive OCO subroutine on the surrogate cost function sequence surrogate-def. The {OCS policy (Algorithm [REF]):} Pass the surrogate cost functions [MATH] to the AdaGrad algorithm which enjoys a data-dependent regret as given in part 1 of Theorem [REF] in the Appendix (Eqn.\\ cvx-reg-bd). [FIGURE/TABLE] ", "references": [], "keywords": ["regret", "constraint", "algorithm", "convex", "bound"], "id": 38}, {"file": "two_constr.tex", "type": "subsection", "title": "Performance Bounds", "summary": "[FIGURE/TABLE] [FIGURE/TABLE] Trivially, we have [MATH] and [MATH] In the non-trivial case where either [MATH] or [MATH] increases sub-linearly with the horizon length [MATH], the above theorems yield sublinear CCV bounds.", "full_content": "[FIGURE/TABLE] [FIGURE/TABLE] Trivially, we have [MATH] and [MATH] In the non-trivial case where either [MATH] or [MATH] increases sub-linearly with the horizon length [MATH], the above theorems yield sublinear CCV bounds.", "references": [], "keywords": ["bound", "theorem"], "id": 39}, {"file": "two_constr.tex", "type": "subsection", "title": "Analysis", "summary": "", "full_content": "", "references": [], "keywords": [], "id": 40}, {"file": "two_constr.tex", "type": "paragraph", "title": "Regret decomposition:", "summary": "Fix any feasible action [MATH] (Assumption [REF]). Using drift-bd, for any round [MATH] we have: [FIGURE/TABLE] where in [MATH] we have used the assumption that the action [MATH] is feasible and hence, [MATH]. Summing up the inequalities drift_ineq2 above from [MATH] to [MATH], we obtain master_eqn...", "full_content": "Fix any feasible action [MATH] (Assumption [REF]). Using drift-bd, for any round [MATH] we have: [FIGURE/TABLE] where in [MATH] we have used the assumption that the action [MATH] is feasible and hence, [MATH]. Summing up the inequalities drift_ineq2 above from [MATH] to [MATH], we obtain master_eqn that relates the change in the potential function in an interval with the regret intro-regret-def for learning the surrogate cost functions [MATH]'s: [FIGURE/TABLE] By setting [MATH] and recalling that [MATH], from master_eqn we have that [MATH] where [MATH] is the regret intro-regret-def with functions [MATH]'s. Note that master_eqn is valid for any feasible action [MATH], thus taking the supremum of the RHS of master_eqn over the set of all admissible actions in [MATH], we obtain [FIGURE/TABLE] where [MATH], defined in intro-regret-def, denotes the worst-case regret over the entire admissible set [MATH] for the sequence of surrogate cost functions [MATH]. Inequality q-regret-reln is the ke", "references": [], "keywords": ["regret", "bound", "theorem", "policy", "OCO"], "id": 41}, {"file": "two_constr.tex", "type": "subsection", "title": "Case III: Convex and Smooth Constraints", "summary": "We now consider the case when each constraint function is convex, non-negative, [MATH]-smooth, and uniformly bounded above by [MATH]. This implies that the resulting surrogate cost functions are also convex, non-negative, [MATH]-smooth and uniformly bounded above by [MATH] where [FIGURE/TABLE] Furth...", "full_content": "We now consider the case when each constraint function is convex, non-negative, [MATH]-smooth, and uniformly bounded above by [MATH]. This implies that the resulting surrogate cost functions are also convex, non-negative, [MATH]-smooth and uniformly bounded above by [MATH] where [FIGURE/TABLE] Furthermore, the surrogate function [MATH] is also smooth with the smoothness parameter given by \\[ M 2M _{i=1}^k Q_i(t) \\] Let the base OCO policy be taken as the OGD policy with step sizes chosen in part 3 of Theorem [REF]. Using the adaptive [MATH] bound quoted in the theorem, inequality q-regret-reln yields the following bound on the queue length process: [FIGURE/TABLE] where [MATH] [FIGURE/TABLE] -.15in See Section [REF] for the proof of the above result. The extension of Theorem [REF] to [MATH]-feasible benchmarks is given in Section [REF]. The dependence of [MATH] (the number of constraints revealed in each round) on the CCV derived in Theorem [REF] for the two cases is interesting. When [", "references": [], "keywords": ["regret", "constraint", "violation", "convex", "bound"], "id": 42}, {"file": "two_constr.tex", "type": "paragraph", "title": "Applications:", "summary": "In Section [REF], we use Theorem [REF] to design a multi-task binary classification policy with a bounded number of mistakes (See Theorem [REF] for the precise statement). This generalizes the classical Perceptron mistake bound of [CITE] to the multi-task setting. Furthermore, Section [REF] outlines...", "full_content": "In Section [REF], we use Theorem [REF] to design a multi-task binary classification policy with a bounded number of mistakes (See Theorem [REF] for the precise statement). This generalizes the classical Perceptron mistake bound of [CITE] to the multi-task setting. Furthermore, Section [REF] outlines an application of the ~ algorithm to a canonical network switching problem.", "references": [], "keywords": ["algorithm", "bound", "theorem", "policy"], "id": 43}, {"file": "experiments.tex", "type": "section", "title": "Experiments: Credit Card Fraud Detection", "summary": "[FIGURE/TABLE] [FIGURE/TABLE] figure", "full_content": "[FIGURE/TABLE] [FIGURE/TABLE] figure", "references": [], "keywords": [], "id": 44}, {"file": "experiments.tex", "type": "paragraph", "title": "Classification with a highly imbalanced dataset:", "summary": "We first formulate the credit card fraud detection problem in the COCO framework. Assume that we receive a sequence of [MATH]-dimensional feature vectors [MATH] and the corresponding binary labels [MATH] for a sequence of credit card transactions, where each transaction can either be legitimate (lab...", "full_content": "We first formulate the credit card fraud detection problem in the COCO framework. Assume that we receive a sequence of [MATH]-dimensional feature vectors [MATH] and the corresponding binary labels [MATH] for a sequence of credit card transactions, where each transaction can either be legitimate (label [MATH]) or fraudulent (label [MATH]). The problem is to predict the label [MATH] for each transaction [MATH] before its true label [MATH] is revealed. Typically, legitimate transactions outnumber fraudulent transactions by orders of magnitude. Since the goal is to detect any fraudulent transactions (even at the cost of a few false alarms), maximizing the classification accuracy alone is insufficient due to the significant class imbalance. We propose the following reformulation for this problem within the COCO framework. -8pt", "references": [], "keywords": ["OCO", "COCO"], "id": 45}, {"file": "experiments.tex", "type": "paragraph", "title": "Formulation:", "summary": "Let [MATH] be the likelihood of class [MATH] for the feature [MATH] given by a parameterized model with parameter [MATH]. Hence, the log-likelihood [MATH] of the data on round [MATH] can be expressed as: [FIGURE/TABLE] We train the model by maximizing the sum of log-likelihoods for legitimate transa...", "full_content": "Let [MATH] be the likelihood of class [MATH] for the feature [MATH] given by a parameterized model with parameter [MATH]. Hence, the log-likelihood [MATH] of the data on round [MATH] can be expressed as: [FIGURE/TABLE] We train the model by maximizing the sum of log-likelihoods for legitimate transactions, subject to the constraint that all fraudulent transactions have a likelihood value close to [MATH] (i.e., the sum of the log-likelihoods of the fraudulent transactions remains close to zero): [FIGURE/TABLE] The above problem prob1 can be immediately recognized to be an instance of COCO with the following cost and constraint functions: \\[ f_t(x) -(1-y_t) (1-y_t(z_t,x)), ~~g_t(x) -y_t (y_t(z_t,x)), ~t 1.\\] In our experiments, we consider the common scenario in which the likelihoods are modeled by the output of a feedforward neural network. Note that the feasibility assumption (Assumption 3) is naturally satisfied as the overparameterized neural network models are known to perfectly fit", "references": [], "keywords": ["constraint", "convex", "OCO", "COCO", "feasibility"], "id": 46}, {"file": "experiments.tex", "type": "paragraph", "title": "Experiments:", "summary": "We experiment with a publicly available credit card transaction dataset [CITE]. This highly imbalanced dataset contains only [MATH] frauds ([MATH]D_{in}=30[MATH]H=10[MATH]L_2$-normalization. The code has been publicly released [CITE]. -8pt", "full_content": "We experiment with a publicly available credit card transaction dataset [CITE]. This highly imbalanced dataset contains only [MATH] frauds ([MATH]D_{in}=30[MATH]H=10[MATH]L_2$-normalization. The code has been publicly released [CITE]. -8pt", "references": [], "keywords": [], "id": 47}, {"file": "experiments.tex", "type": "paragraph", "title": "Results:", "summary": "Given the severe class imbalance, the area under the ROC curve, which plots the True Positive Rate (TPR) against the False Positive Rate (FPR), is an appropriate metric to evaluate any prediction algorithm for this problem. By varying the hyperparameter [MATH], we obtain the ROC curve shown in Figur...", "full_content": "Given the severe class imbalance, the area under the ROC curve, which plots the True Positive Rate (TPR) against the False Positive Rate (FPR), is an appropriate metric to evaluate any prediction algorithm for this problem. By varying the hyperparameter [MATH], we obtain the ROC curve shown in Figure [REF]. The area under the ROC curve is computed to be [MATH], which is an excellent score (cf. ideal score [MATH]), notwithstanding the fact that, unlike the standard resampling-based techniques, the algorithm learns in an entirely online fashion starting from random initialization. Figure [REF] illustrates the expected sublinear variation of CCV during one of the algorithm runs. %[1] Dal Pozzolo, Andrea, Olivier Caelen, Yann-Ael Le Borgne, Serge Waterschoot, and Gianluca Bontempi. ``Learned lessons in credit card fraud detection from a practitioner perspective.\" Expert systems with applications 41, no. 10 (2014): 4915-4928.", "references": [], "keywords": ["algorithm", "online"], "id": 48}, {"file": "open_questions.tex", "type": "section", "title": "Conclusion", "summary": "-0.15in An interesting open question is whether the assumption of the feasibility of the constraints on every slot can be suitably relaxed and still ensure sublinear regret and constraint violation penalties. Specifically, it would be interesting to extend our results to the [MATH]-benchmark case [C...", "full_content": "-0.15in An interesting open question is whether the assumption of the feasibility of the constraints on every slot can be suitably relaxed and still ensure sublinear regret and constraint violation penalties. Specifically, it would be interesting to extend our results to the [MATH]-benchmark case [CITE] where the cumulative constraints hold for any consecutive [MATH] intervals where [MATH] is a sublinear function of the time-horizon [MATH], i.e., [FIGURE/TABLE] for all intervals [MATH] where [MATH] is a sublinear function. Secondly, proving joint lower bounds for static regret and constraint violation penalty would be interesting. Throughout this paper, we use the quadratic potential function to design our online policy. However, our regret decomposition result is general and could be used with any reasonable potential function. It would be interesting to see if improved performance guarantees can be established by choosing a different potential function. In this paper, we proposed eff", "references": [], "keywords": ["regret", "constraint", "violation", "optimal", "online"], "id": 49}, {"file": "open_questions.tex", "type": "section", "title": "Acknowledgement", "summary": "This work was supported by the Department of Atomic Energy, Government of India, under project no. RTI4001 and by a Google India faculty research award. The first author was also partially supported by a US-India NSF-DST collaborative grant coordinated by IDEAS-Technology Innovation Hub (TIH) at the...", "full_content": "This work was supported by the Department of Atomic Energy, Government of India, under project no. RTI4001 and by a Google India faculty research award. The first author was also partially supported by a US-India NSF-DST collaborative grant coordinated by IDEAS-Technology Innovation Hub (TIH) at the Indian Statistical Institute, Kolkata. The authors gratefully acknowledge comments from the anonymous reviewers, which substantially improved the quality of the presentation.", "references": [], "keywords": [], "id": 50}];
+        const links = [{"source": 13, "target": 13, "type": "reference"}, {"source": 0, "target": 1, "type": "keyword", "keywords": ["convex", "regret", "violation", "constraint"]}, {"source": 0, "target": 3, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 0, "target": 5, "type": "keyword", "keywords": ["violation", "constraint", "online", "convex", "regret"]}, {"source": 0, "target": 6, "type": "keyword", "keywords": ["convex", "constraint"]}, {"source": 0, "target": 7, "type": "keyword", "keywords": ["violation", "constraint", "online", "convex", "regret"]}, {"source": 0, "target": 8, "type": "keyword", "keywords": ["online", "regret", "violation", "constraint"]}, {"source": 0, "target": 9, "type": "keyword", "keywords": ["online", "regret", "violation", "constraint"]}, {"source": 0, "target": 13, "type": "keyword", "keywords": ["online", "violation", "constraint"]}, {"source": 0, "target": 14, "type": "keyword", "keywords": ["online", "regret", "convex"]}, {"source": 0, "target": 15, "type": "keyword", "keywords": ["online", "regret", "convex"]}, {"source": 0, "target": 16, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 0, "target": 18, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 0, "target": 19, "type": "keyword", "keywords": ["online", "regret", "convex"]}, {"source": 0, "target": 20, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 0, "target": 21, "type": "keyword", "keywords": ["convex", "regret", "violation", "constraint"]}, {"source": 0, "target": 23, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 0, "target": 25, "type": "keyword", "keywords": ["convex", "regret"]}, {"source": 0, "target": 27, "type": "keyword", "keywords": ["online", "regret", "constraint", "convex"]}, {"source": 0, "target": 28, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 0, "target": 29, "type": "keyword", "keywords": ["online", "regret", "constraint"]}, {"source": 0, "target": 30, "type": "keyword", "keywords": ["regret", "violation", "constraint"]}, {"source": 0, "target": 31, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 0, "target": 32, "type": "keyword", "keywords": ["convex", "regret"]}, {"source": 0, "target": 33, "type": "keyword", "keywords": ["violation", "constraint", "online", "convex", "regret"]}, {"source": 0, "target": 34, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 0, "target": 36, "type": "keyword", "keywords": ["online", "constraint"]}, {"source": 0, "target": 37, "type": "keyword", "keywords": ["regret", "violation", "constraint"]}, {"source": 0, "target": 38, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 0, "target": 42, "type": "keyword", "keywords": ["convex", "regret", "violation", "constraint"]}, {"source": 0, "target": 46, "type": "keyword", "keywords": ["convex", "constraint"]}, {"source": 0, "target": 49, "type": "keyword", "keywords": ["online", "regret", "violation", "constraint"]}, {"source": 1, "target": 3, "type": "keyword", "keywords": ["convex", "regret", "optimal", "constraint"]}, {"source": 1, "target": 5, "type": "keyword", "keywords": ["convex", "regret", "violation", "constraint"]}, {"source": 1, "target": 6, "type": "keyword", "keywords": ["convex", "constraint"]}, {"source": 1, "target": 7, "type": "keyword", "keywords": ["convex", "regret", "violation", "constraint"]}, {"source": 1, "target": 8, "type": "keyword", "keywords": ["regret", "violation", "constraint"]}, {"source": 1, "target": 9, "type": "keyword", "keywords": ["regret", "violation", "constraint"]}, {"source": 1, "target": 13, "type": "keyword", "keywords": ["violation", "constraint"]}, {"source": 1, "target": 14, "type": "keyword", "keywords": ["convex", "regret"]}, {"source": 1, "target": 15, "type": "keyword", "keywords": ["convex", "regret"]}, {"source": 1, "target": 16, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 1, "target": 18, "type": "keyword", "keywords": ["convex", "regret", "optimal", "constraint"]}, {"source": 1, "target": 19, "type": "keyword", "keywords": ["convex", "regret"]}, {"source": 1, "target": 20, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 1, "target": 21, "type": "keyword", "keywords": ["convex", "regret", "violation", "constraint"]}, {"source": 1, "target": 23, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 1, "target": 25, "type": "keyword", "keywords": ["convex", "regret"]}, {"source": 1, "target": 27, "type": "keyword", "keywords": ["convex", "regret", "optimal", "constraint"]}, {"source": 1, "target": 28, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 1, "target": 29, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 1, "target": 30, "type": "keyword", "keywords": ["regret", "violation", "constraint", "optimal"]}, {"source": 1, "target": 31, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 1, "target": 32, "type": "keyword", "keywords": ["convex", "regret"]}, {"source": 1, "target": 33, "type": "keyword", "keywords": ["convex", "regret", "violation", "constraint"]}, {"source": 1, "target": 34, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 1, "target": 37, "type": "keyword", "keywords": ["regret", "violation", "constraint"]}, {"source": 1, "target": 38, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 1, "target": 42, "type": "keyword", "keywords": ["convex", "regret", "violation", "constraint"]}, {"source": 1, "target": 46, "type": "keyword", "keywords": ["convex", "constraint"]}, {"source": 1, "target": 49, "type": "keyword", "keywords": ["regret", "violation", "constraint", "optimal"]}, {"source": 3, "target": 5, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 3, "target": 6, "type": "keyword", "keywords": ["convex", "constraint"]}, {"source": 3, "target": 7, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 3, "target": 8, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 3, "target": 9, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 3, "target": 13, "type": "keyword", "keywords": ["algorithm", "constraint"]}, {"source": 3, "target": 14, "type": "keyword", "keywords": ["convex", "regret"]}, {"source": 3, "target": 15, "type": "keyword", "keywords": ["convex", "regret", "algorithm"]}, {"source": 3, "target": 16, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 3, "target": 18, "type": "keyword", "keywords": ["convex", "regret", "optimal", "constraint"]}, {"source": 3, "target": 19, "type": "keyword", "keywords": ["convex", "regret", "algorithm"]}, {"source": 3, "target": 20, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 3, "target": 21, "type": "keyword", "keywords": ["convex", "regret", "algorithm", "constraint"]}, {"source": 3, "target": 23, "type": "keyword", "keywords": ["convex", "regret", "algorithm", "constraint"]}, {"source": 3, "target": 25, "type": "keyword", "keywords": ["convex", "regret", "algorithm"]}, {"source": 3, "target": 27, "type": "keyword", "keywords": ["convex", "regret", "optimal", "constraint"]}, {"source": 3, "target": 28, "type": "keyword", "keywords": ["convex", "regret", "algorithm", "constraint"]}, {"source": 3, "target": 29, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 3, "target": 30, "type": "keyword", "keywords": ["algorithm", "regret", "optimal", "constraint"]}, {"source": 3, "target": 31, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 3, "target": 32, "type": "keyword", "keywords": ["convex", "regret"]}, {"source": 3, "target": 33, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 3, "target": 34, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 3, "target": 37, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 3, "target": 38, "type": "keyword", "keywords": ["convex", "regret", "algorithm", "constraint"]}, {"source": 3, "target": 42, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 3, "target": 46, "type": "keyword", "keywords": ["convex", "constraint"]}, {"source": 3, "target": 49, "type": "keyword", "keywords": ["regret", "optimal", "constraint"]}, {"source": 4, "target": 6, "type": "keyword", "keywords": ["OCO", "COCO"]}, {"source": 4, "target": 16, "type": "keyword", "keywords": ["OCO", "COCO"]}, {"source": 4, "target": 34, "type": "keyword", "keywords": ["OCO", "COCO"]}, {"source": 4, "target": 36, "type": "keyword", "keywords": ["OCO", "COCO"]}, {"source": 4, "target": 45, "type": "keyword", "keywords": ["OCO", "COCO"]}, {"source": 4, "target": 46, "type": "keyword", "keywords": ["OCO", "COCO"]}, {"source": 5, "target": 6, "type": "keyword", "keywords": ["convex", "constraint"]}, {"source": 5, "target": 7, "type": "keyword", "keywords": ["violation", "constraint", "online", "convex", "regret"]}, {"source": 5, "target": 8, "type": "keyword", "keywords": ["online", "regret", "violation", "constraint"]}, {"source": 5, "target": 9, "type": "keyword", "keywords": ["online", "regret", "violation", "constraint"]}, {"source": 5, "target": 13, "type": "keyword", "keywords": ["online", "violation", "constraint"]}, {"source": 5, "target": 14, "type": "keyword", "keywords": ["online", "regret", "convex"]}, {"source": 5, "target": 15, "type": "keyword", "keywords": ["online", "regret", "convex"]}, {"source": 5, "target": 16, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 5, "target": 18, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 5, "target": 19, "type": "keyword", "keywords": ["online", "regret", "convex"]}, {"source": 5, "target": 20, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 5, "target": 21, "type": "keyword", "keywords": ["convex", "regret", "violation", "constraint"]}, {"source": 5, "target": 23, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 5, "target": 25, "type": "keyword", "keywords": ["convex", "regret"]}, {"source": 5, "target": 27, "type": "keyword", "keywords": ["online", "regret", "constraint", "convex"]}, {"source": 5, "target": 28, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 5, "target": 29, "type": "keyword", "keywords": ["online", "regret", "constraint"]}, {"source": 5, "target": 30, "type": "keyword", "keywords": ["regret", "violation", "constraint"]}, {"source": 5, "target": 31, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 5, "target": 32, "type": "keyword", "keywords": ["convex", "regret"]}, {"source": 5, "target": 33, "type": "keyword", "keywords": ["violation", "constraint", "online", "convex", "regret"]}, {"source": 5, "target": 34, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 5, "target": 36, "type": "keyword", "keywords": ["online", "constraint"]}, {"source": 5, "target": 37, "type": "keyword", "keywords": ["regret", "violation", "constraint"]}, {"source": 5, "target": 38, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 5, "target": 42, "type": "keyword", "keywords": ["convex", "regret", "violation", "constraint"]}, {"source": 5, "target": 46, "type": "keyword", "keywords": ["convex", "constraint"]}, {"source": 5, "target": 49, "type": "keyword", "keywords": ["online", "regret", "violation", "constraint"]}, {"source": 6, "target": 7, "type": "keyword", "keywords": ["convex", "constraint"]}, {"source": 6, "target": 8, "type": "keyword", "keywords": ["bound", "constraint"]}, {"source": 6, "target": 9, "type": "keyword", "keywords": ["bound", "constraint"]}, {"source": 6, "target": 11, "type": "keyword", "keywords": ["bound", "constraint"]}, {"source": 6, "target": 13, "type": "keyword", "keywords": ["bound", "constraint"]}, {"source": 6, "target": 14, "type": "keyword", "keywords": ["convex", "bound"]}, {"source": 6, "target": 15, "type": "keyword", "keywords": ["convex", "bound"]}, {"source": 6, "target": 16, "type": "keyword", "keywords": ["convex", "COCO", "constraint", "OCO"]}, {"source": 6, "target": 18, "type": "keyword", "keywords": ["convex", "bound", "constraint"]}, {"source": 6, "target": 19, "type": "keyword", "keywords": ["convex", "bound"]}, {"source": 6, "target": 20, "type": "keyword", "keywords": ["bound", "constraint"]}, {"source": 6, "target": 21, "type": "keyword", "keywords": ["convex", "constraint"]}, {"source": 6, "target": 23, "type": "keyword", "keywords": ["convex", "bound", "constraint"]}, {"source": 6, "target": 25, "type": "keyword", "keywords": ["convex", "bound"]}, {"source": 6, "target": 27, "type": "keyword", "keywords": ["convex", "constraint"]}, {"source": 6, "target": 28, "type": "keyword", "keywords": ["convex", "bound", "constraint"]}, {"source": 6, "target": 29, "type": "keyword", "keywords": ["bound", "constraint"]}, {"source": 6, "target": 31, "type": "keyword", "keywords": ["convex", "bound", "constraint"]}, {"source": 6, "target": 32, "type": "keyword", "keywords": ["convex", "bound"]}, {"source": 6, "target": 33, "type": "keyword", "keywords": ["convex", "constraint"]}, {"source": 6, "target": 34, "type": "keyword", "keywords": ["COCO", "constraint", "OCO"]}, {"source": 6, "target": 36, "type": "keyword", "keywords": ["COCO", "bound", "constraint", "OCO"]}, {"source": 6, "target": 37, "type": "keyword", "keywords": ["OCO", "constraint"]}, {"source": 6, "target": 38, "type": "keyword", "keywords": ["convex", "bound", "constraint"]}, {"source": 6, "target": 41, "type": "keyword", "keywords": ["OCO", "bound"]}, {"source": 6, "target": 42, "type": "keyword", "keywords": ["convex", "bound", "constraint"]}, {"source": 6, "target": 45, "type": "keyword", "keywords": ["OCO", "COCO"]}, {"source": 6, "target": 46, "type": "keyword", "keywords": ["convex", "COCO", "constraint", "OCO"]}, {"source": 7, "target": 8, "type": "keyword", "keywords": ["online", "regret", "violation", "constraint"]}, {"source": 7, "target": 9, "type": "keyword", "keywords": ["online", "regret", "violation", "constraint"]}, {"source": 7, "target": 13, "type": "keyword", "keywords": ["online", "violation", "constraint"]}, {"source": 7, "target": 14, "type": "keyword", "keywords": ["online", "regret", "convex"]}, {"source": 7, "target": 15, "type": "keyword", "keywords": ["online", "regret", "convex"]}, {"source": 7, "target": 16, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 7, "target": 18, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 7, "target": 19, "type": "keyword", "keywords": ["online", "regret", "convex"]}, {"source": 7, "target": 20, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 7, "target": 21, "type": "keyword", "keywords": ["convex", "regret", "violation", "constraint"]}, {"source": 7, "target": 23, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 7, "target": 25, "type": "keyword", "keywords": ["convex", "regret"]}, {"source": 7, "target": 27, "type": "keyword", "keywords": ["online", "regret", "constraint", "convex"]}, {"source": 7, "target": 28, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 7, "target": 29, "type": "keyword", "keywords": ["online", "regret", "constraint"]}, {"source": 7, "target": 30, "type": "keyword", "keywords": ["regret", "violation", "constraint"]}, {"source": 7, "target": 31, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 7, "target": 32, "type": "keyword", "keywords": ["convex", "regret"]}, {"source": 7, "target": 33, "type": "keyword", "keywords": ["violation", "constraint", "online", "convex", "regret"]}, {"source": 7, "target": 34, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 7, "target": 36, "type": "keyword", "keywords": ["online", "constraint"]}, {"source": 7, "target": 37, "type": "keyword", "keywords": ["regret", "violation", "constraint"]}, {"source": 7, "target": 38, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 7, "target": 42, "type": "keyword", "keywords": ["convex", "regret", "violation", "constraint"]}, {"source": 7, "target": 46, "type": "keyword", "keywords": ["convex", "constraint"]}, {"source": 7, "target": 49, "type": "keyword", "keywords": ["online", "regret", "violation", "constraint"]}, {"source": 8, "target": 9, "type": "keyword", "keywords": ["violation", "constraint", "online", "bound", "regret"]}, {"source": 8, "target": 11, "type": "keyword", "keywords": ["bound", "constraint"]}, {"source": 8, "target": 13, "type": "keyword", "keywords": ["online", "bound", "violation", "constraint"]}, {"source": 8, "target": 14, "type": "keyword", "keywords": ["online", "bound", "regret"]}, {"source": 8, "target": 15, "type": "keyword", "keywords": ["online", "bound", "regret"]}, {"source": 8, "target": 16, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 8, "target": 17, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 8, "target": 18, "type": "keyword", "keywords": ["bound", "regret", "constraint"]}, {"source": 8, "target": 19, "type": "keyword", "keywords": ["online", "bound", "regret"]}, {"source": 8, "target": 20, "type": "keyword", "keywords": ["bound", "regret", "constraint"]}, {"source": 8, "target": 21, "type": "keyword", "keywords": ["regret", "violation", "constraint"]}, {"source": 8, "target": 22, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 8, "target": 23, "type": "keyword", "keywords": ["bound", "regret", "constraint"]}, {"source": 8, "target": 25, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 8, "target": 26, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 8, "target": 27, "type": "keyword", "keywords": ["online", "regret", "constraint"]}, {"source": 8, "target": 28, "type": "keyword", "keywords": ["bound", "regret", "constraint"]}, {"source": 8, "target": 29, "type": "keyword", "keywords": ["online", "bound", "regret", "constraint"]}, {"source": 8, "target": 30, "type": "keyword", "keywords": ["regret", "violation", "constraint"]}, {"source": 8, "target": 31, "type": "keyword", "keywords": ["bound", "regret", "constraint"]}, {"source": 8, "target": 32, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 8, "target": 33, "type": "keyword", "keywords": ["online", "regret", "violation", "constraint"]}, {"source": 8, "target": 34, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 8, "target": 36, "type": "keyword", "keywords": ["online", "bound", "constraint"]}, {"source": 8, "target": 37, "type": "keyword", "keywords": ["regret", "violation", "constraint"]}, {"source": 8, "target": 38, "type": "keyword", "keywords": ["bound", "regret", "constraint"]}, {"source": 8, "target": 41, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 8, "target": 42, "type": "keyword", "keywords": ["bound", "regret", "violation", "constraint"]}, {"source": 8, "target": 49, "type": "keyword", "keywords": ["online", "regret", "violation", "constraint"]}, {"source": 9, "target": 11, "type": "keyword", "keywords": ["bound", "constraint"]}, {"source": 9, "target": 13, "type": "keyword", "keywords": ["online", "bound", "violation", "constraint"]}, {"source": 9, "target": 14, "type": "keyword", "keywords": ["online", "bound", "regret"]}, {"source": 9, "target": 15, "type": "keyword", "keywords": ["online", "bound", "regret"]}, {"source": 9, "target": 16, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 9, "target": 17, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 9, "target": 18, "type": "keyword", "keywords": ["bound", "regret", "constraint"]}, {"source": 9, "target": 19, "type": "keyword", "keywords": ["online", "bound", "regret"]}, {"source": 9, "target": 20, "type": "keyword", "keywords": ["bound", "regret", "constraint"]}, {"source": 9, "target": 21, "type": "keyword", "keywords": ["regret", "violation", "constraint"]}, {"source": 9, "target": 22, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 9, "target": 23, "type": "keyword", "keywords": ["bound", "regret", "constraint"]}, {"source": 9, "target": 25, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 9, "target": 26, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 9, "target": 27, "type": "keyword", "keywords": ["online", "regret", "constraint"]}, {"source": 9, "target": 28, "type": "keyword", "keywords": ["bound", "regret", "constraint"]}, {"source": 9, "target": 29, "type": "keyword", "keywords": ["online", "bound", "regret", "constraint"]}, {"source": 9, "target": 30, "type": "keyword", "keywords": ["regret", "violation", "constraint"]}, {"source": 9, "target": 31, "type": "keyword", "keywords": ["bound", "regret", "constraint"]}, {"source": 9, "target": 32, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 9, "target": 33, "type": "keyword", "keywords": ["online", "regret", "violation", "constraint"]}, {"source": 9, "target": 34, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 9, "target": 36, "type": "keyword", "keywords": ["online", "bound", "constraint"]}, {"source": 9, "target": 37, "type": "keyword", "keywords": ["regret", "violation", "constraint"]}, {"source": 9, "target": 38, "type": "keyword", "keywords": ["bound", "regret", "constraint"]}, {"source": 9, "target": 41, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 9, "target": 42, "type": "keyword", "keywords": ["bound", "regret", "violation", "constraint"]}, {"source": 9, "target": 49, "type": "keyword", "keywords": ["online", "regret", "violation", "constraint"]}, {"source": 11, "target": 13, "type": "keyword", "keywords": ["bound", "constraint"]}, {"source": 11, "target": 18, "type": "keyword", "keywords": ["bound", "constraint"]}, {"source": 11, "target": 20, "type": "keyword", "keywords": ["bound", "constraint"]}, {"source": 11, "target": 23, "type": "keyword", "keywords": ["bound", "constraint"]}, {"source": 11, "target": 28, "type": "keyword", "keywords": ["bound", "constraint"]}, {"source": 11, "target": 29, "type": "keyword", "keywords": ["bound", "constraint"]}, {"source": 11, "target": 31, "type": "keyword", "keywords": ["bound", "constraint"]}, {"source": 11, "target": 36, "type": "keyword", "keywords": ["bound", "constraint"]}, {"source": 11, "target": 38, "type": "keyword", "keywords": ["bound", "constraint"]}, {"source": 11, "target": 42, "type": "keyword", "keywords": ["bound", "constraint"]}, {"source": 13, "target": 14, "type": "keyword", "keywords": ["online", "bound"]}, {"source": 13, "target": 15, "type": "keyword", "keywords": ["online", "bound", "algorithm"]}, {"source": 13, "target": 18, "type": "keyword", "keywords": ["bound", "constraint"]}, {"source": 13, "target": 19, "type": "keyword", "keywords": ["online", "bound", "algorithm"]}, {"source": 13, "target": 20, "type": "keyword", "keywords": ["bound", "constraint"]}, {"source": 13, "target": 21, "type": "keyword", "keywords": ["algorithm", "violation", "constraint"]}, {"source": 13, "target": 23, "type": "keyword", "keywords": ["bound", "algorithm", "constraint"]}, {"source": 13, "target": 25, "type": "keyword", "keywords": ["bound", "algorithm"]}, {"source": 13, "target": 27, "type": "keyword", "keywords": ["online", "constraint"]}, {"source": 13, "target": 28, "type": "keyword", "keywords": ["bound", "algorithm", "constraint"]}, {"source": 13, "target": 29, "type": "keyword", "keywords": ["online", "bound", "constraint"]}, {"source": 13, "target": 30, "type": "keyword", "keywords": ["algorithm", "violation", "constraint"]}, {"source": 13, "target": 31, "type": "keyword", "keywords": ["bound", "constraint"]}, {"source": 13, "target": 33, "type": "keyword", "keywords": ["online", "violation", "constraint"]}, {"source": 13, "target": 36, "type": "keyword", "keywords": ["online", "bound", "constraint"]}, {"source": 13, "target": 37, "type": "keyword", "keywords": ["violation", "constraint"]}, {"source": 13, "target": 38, "type": "keyword", "keywords": ["bound", "algorithm", "constraint"]}, {"source": 13, "target": 42, "type": "keyword", "keywords": ["bound", "violation", "constraint"]}, {"source": 13, "target": 43, "type": "keyword", "keywords": ["bound", "algorithm"]}, {"source": 13, "target": 48, "type": "keyword", "keywords": ["online", "algorithm"]}, {"source": 13, "target": 49, "type": "keyword", "keywords": ["online", "violation", "constraint"]}, {"source": 14, "target": 15, "type": "keyword", "keywords": ["online", "bound", "regret", "convex"]}, {"source": 14, "target": 16, "type": "keyword", "keywords": ["convex", "regret"]}, {"source": 14, "target": 17, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 14, "target": 18, "type": "keyword", "keywords": ["convex", "bound", "regret"]}, {"source": 14, "target": 19, "type": "keyword", "keywords": ["online", "bound", "regret", "convex"]}, {"source": 14, "target": 20, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 14, "target": 21, "type": "keyword", "keywords": ["convex", "regret"]}, {"source": 14, "target": 22, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 14, "target": 23, "type": "keyword", "keywords": ["convex", "bound", "regret"]}, {"source": 14, "target": 25, "type": "keyword", "keywords": ["convex", "bound", "regret"]}, {"source": 14, "target": 26, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 14, "target": 27, "type": "keyword", "keywords": ["online", "regret", "convex"]}, {"source": 14, "target": 28, "type": "keyword", "keywords": ["convex", "bound", "regret"]}, {"source": 14, "target": 29, "type": "keyword", "keywords": ["online", "bound", "regret", "adversarial"]}, {"source": 14, "target": 31, "type": "keyword", "keywords": ["convex", "bound", "regret"]}, {"source": 14, "target": 32, "type": "keyword", "keywords": ["convex", "bound", "regret"]}, {"source": 14, "target": 33, "type": "keyword", "keywords": ["online", "regret", "convex"]}, {"source": 14, "target": 36, "type": "keyword", "keywords": ["online", "bound"]}, {"source": 14, "target": 38, "type": "keyword", "keywords": ["convex", "bound", "regret"]}, {"source": 14, "target": 41, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 14, "target": 42, "type": "keyword", "keywords": ["convex", "bound", "regret"]}, {"source": 14, "target": 49, "type": "keyword", "keywords": ["online", "regret"]}, {"source": 15, "target": 16, "type": "keyword", "keywords": ["convex", "regret"]}, {"source": 15, "target": 17, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 15, "target": 18, "type": "keyword", "keywords": ["convex", "bound", "regret"]}, {"source": 15, "target": 19, "type": "keyword", "keywords": ["online", "convex", "bound", "regret", "algorithm"]}, {"source": 15, "target": 20, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 15, "target": 21, "type": "keyword", "keywords": ["convex", "regret", "algorithm"]}, {"source": 15, "target": 22, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 15, "target": 23, "type": "keyword", "keywords": ["convex", "bound", "regret", "algorithm"]}, {"source": 15, "target": 25, "type": "keyword", "keywords": ["convex", "bound", "regret", "algorithm"]}, {"source": 15, "target": 26, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 15, "target": 27, "type": "keyword", "keywords": ["online", "regret", "convex"]}, {"source": 15, "target": 28, "type": "keyword", "keywords": ["convex", "bound", "regret", "algorithm"]}, {"source": 15, "target": 29, "type": "keyword", "keywords": ["online", "bound", "regret"]}, {"source": 15, "target": 30, "type": "keyword", "keywords": ["regret", "algorithm"]}, {"source": 15, "target": 31, "type": "keyword", "keywords": ["convex", "bound", "regret"]}, {"source": 15, "target": 32, "type": "keyword", "keywords": ["convex", "bound", "regret"]}, {"source": 15, "target": 33, "type": "keyword", "keywords": ["online", "regret", "convex"]}, {"source": 15, "target": 36, "type": "keyword", "keywords": ["online", "bound"]}, {"source": 15, "target": 38, "type": "keyword", "keywords": ["convex", "bound", "regret", "algorithm"]}, {"source": 15, "target": 41, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 15, "target": 42, "type": "keyword", "keywords": ["convex", "bound", "regret"]}, {"source": 15, "target": 43, "type": "keyword", "keywords": ["bound", "algorithm"]}, {"source": 15, "target": 48, "type": "keyword", "keywords": ["online", "algorithm"]}, {"source": 15, "target": 49, "type": "keyword", "keywords": ["online", "regret"]}, {"source": 16, "target": 18, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 16, "target": 19, "type": "keyword", "keywords": ["convex", "regret"]}, {"source": 16, "target": 20, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 16, "target": 21, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 16, "target": 23, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 16, "target": 25, "type": "keyword", "keywords": ["convex", "regret"]}, {"source": 16, "target": 27, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 16, "target": 28, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 16, "target": 29, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 16, "target": 30, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 16, "target": 31, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 16, "target": 32, "type": "keyword", "keywords": ["convex", "regret"]}, {"source": 16, "target": 33, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 16, "target": 34, "type": "keyword", "keywords": ["COCO", "regret", "constraint", "OCO"]}, {"source": 16, "target": 36, "type": "keyword", "keywords": ["COCO", "constraint", "OCO"]}, {"source": 16, "target": 37, "type": "keyword", "keywords": ["OCO", "regret", "constraint"]}, {"source": 16, "target": 38, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 16, "target": 41, "type": "keyword", "keywords": ["OCO", "regret"]}, {"source": 16, "target": 42, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 16, "target": 45, "type": "keyword", "keywords": ["OCO", "COCO"]}, {"source": 16, "target": 46, "type": "keyword", "keywords": ["convex", "COCO", "constraint", "OCO"]}, {"source": 16, "target": 49, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 17, "target": 18, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 17, "target": 19, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 17, "target": 20, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 17, "target": 22, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 17, "target": 23, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 17, "target": 25, "type": "keyword", "keywords": ["bound", "regret", "policy"]}, {"source": 17, "target": 26, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 17, "target": 28, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 17, "target": 29, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 17, "target": 31, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 17, "target": 32, "type": "keyword", "keywords": ["bound", "regret", "policy"]}, {"source": 17, "target": 34, "type": "keyword", "keywords": ["regret", "policy"]}, {"source": 17, "target": 35, "type": "keyword", "keywords": ["feasibility", "policy"]}, {"source": 17, "target": 37, "type": "keyword", "keywords": ["regret", "policy"]}, {"source": 17, "target": 38, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 17, "target": 41, "type": "keyword", "keywords": ["bound", "regret", "policy"]}, {"source": 17, "target": 42, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 17, "target": 43, "type": "keyword", "keywords": ["bound", "policy"]}, {"source": 18, "target": 19, "type": "keyword", "keywords": ["convex", "bound", "regret"]}, {"source": 18, "target": 20, "type": "keyword", "keywords": ["bound", "regret", "constraint"]}, {"source": 18, "target": 21, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 18, "target": 22, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 18, "target": 23, "type": "keyword", "keywords": ["convex", "bound", "regret", "constraint"]}, {"source": 18, "target": 25, "type": "keyword", "keywords": ["convex", "bound", "regret"]}, {"source": 18, "target": 26, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 18, "target": 27, "type": "keyword", "keywords": ["convex", "regret", "optimal", "constraint"]}, {"source": 18, "target": 28, "type": "keyword", "keywords": ["convex", "bound", "regret", "constraint"]}, {"source": 18, "target": 29, "type": "keyword", "keywords": ["bound", "regret", "constraint"]}, {"source": 18, "target": 30, "type": "keyword", "keywords": ["regret", "optimal", "constraint"]}, {"source": 18, "target": 31, "type": "keyword", "keywords": ["convex", "bound", "regret", "constraint"]}, {"source": 18, "target": 32, "type": "keyword", "keywords": ["convex", "bound", "regret"]}, {"source": 18, "target": 33, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 18, "target": 34, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 18, "target": 36, "type": "keyword", "keywords": ["bound", "constraint"]}, {"source": 18, "target": 37, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 18, "target": 38, "type": "keyword", "keywords": ["convex", "bound", "regret", "constraint"]}, {"source": 18, "target": 41, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 18, "target": 42, "type": "keyword", "keywords": ["convex", "bound", "regret", "constraint"]}, {"source": 18, "target": 46, "type": "keyword", "keywords": ["convex", "constraint"]}, {"source": 18, "target": 49, "type": "keyword", "keywords": ["regret", "optimal", "constraint"]}, {"source": 19, "target": 20, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 19, "target": 21, "type": "keyword", "keywords": ["convex", "regret", "algorithm"]}, {"source": 19, "target": 22, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 19, "target": 23, "type": "keyword", "keywords": ["convex", "bound", "regret", "algorithm"]}, {"source": 19, "target": 25, "type": "keyword", "keywords": ["convex", "bound", "regret", "algorithm"]}, {"source": 19, "target": 26, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 19, "target": 27, "type": "keyword", "keywords": ["online", "regret", "convex"]}, {"source": 19, "target": 28, "type": "keyword", "keywords": ["convex", "bound", "regret", "algorithm"]}, {"source": 19, "target": 29, "type": "keyword", "keywords": ["online", "bound", "regret"]}, {"source": 19, "target": 30, "type": "keyword", "keywords": ["regret", "algorithm"]}, {"source": 19, "target": 31, "type": "keyword", "keywords": ["convex", "bound", "regret"]}, {"source": 19, "target": 32, "type": "keyword", "keywords": ["convex", "bound", "regret"]}, {"source": 19, "target": 33, "type": "keyword", "keywords": ["online", "regret", "convex"]}, {"source": 19, "target": 36, "type": "keyword", "keywords": ["online", "bound"]}, {"source": 19, "target": 38, "type": "keyword", "keywords": ["convex", "bound", "regret", "algorithm"]}, {"source": 19, "target": 41, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 19, "target": 42, "type": "keyword", "keywords": ["convex", "bound", "regret"]}, {"source": 19, "target": 43, "type": "keyword", "keywords": ["bound", "algorithm"]}, {"source": 19, "target": 48, "type": "keyword", "keywords": ["online", "algorithm"]}, {"source": 19, "target": 49, "type": "keyword", "keywords": ["online", "regret"]}, {"source": 20, "target": 21, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 20, "target": 22, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 20, "target": 23, "type": "keyword", "keywords": ["bound", "regret", "constraint"]}, {"source": 20, "target": 25, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 20, "target": 26, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 20, "target": 27, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 20, "target": 28, "type": "keyword", "keywords": ["bound", "regret", "constraint"]}, {"source": 20, "target": 29, "type": "keyword", "keywords": ["bound", "regret", "constraint"]}, {"source": 20, "target": 30, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 20, "target": 31, "type": "keyword", "keywords": ["bound", "regret", "constraint"]}, {"source": 20, "target": 32, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 20, "target": 33, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 20, "target": 34, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 20, "target": 36, "type": "keyword", "keywords": ["bound", "constraint"]}, {"source": 20, "target": 37, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 20, "target": 38, "type": "keyword", "keywords": ["bound", "regret", "constraint"]}, {"source": 20, "target": 41, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 20, "target": 42, "type": "keyword", "keywords": ["bound", "regret", "constraint"]}, {"source": 20, "target": 49, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 21, "target": 23, "type": "keyword", "keywords": ["convex", "regret", "algorithm", "constraint"]}, {"source": 21, "target": 25, "type": "keyword", "keywords": ["convex", "regret", "algorithm"]}, {"source": 21, "target": 27, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 21, "target": 28, "type": "keyword", "keywords": ["convex", "regret", "algorithm", "constraint"]}, {"source": 21, "target": 29, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 21, "target": 30, "type": "keyword", "keywords": ["algorithm", "regret", "violation", "constraint"]}, {"source": 21, "target": 31, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 21, "target": 32, "type": "keyword", "keywords": ["convex", "regret"]}, {"source": 21, "target": 33, "type": "keyword", "keywords": ["convex", "regret", "violation", "constraint"]}, {"source": 21, "target": 34, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 21, "target": 37, "type": "keyword", "keywords": ["regret", "violation", "constraint"]}, {"source": 21, "target": 38, "type": "keyword", "keywords": ["convex", "regret", "algorithm", "constraint"]}, {"source": 21, "target": 42, "type": "keyword", "keywords": ["convex", "regret", "violation", "constraint"]}, {"source": 21, "target": 46, "type": "keyword", "keywords": ["convex", "constraint"]}, {"source": 21, "target": 49, "type": "keyword", "keywords": ["regret", "violation", "constraint"]}, {"source": 22, "target": 23, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 22, "target": 25, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 22, "target": 26, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 22, "target": 28, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 22, "target": 29, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 22, "target": 31, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 22, "target": 32, "type": "keyword", "keywords": ["bound", "regret", "gradient"]}, {"source": 22, "target": 38, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 22, "target": 41, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 22, "target": 42, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 23, "target": 25, "type": "keyword", "keywords": ["convex", "bound", "regret", "algorithm"]}, {"source": 23, "target": 26, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 23, "target": 27, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 23, "target": 28, "type": "keyword", "keywords": ["constraint", "convex", "bound", "regret", "algorithm"]}, {"source": 23, "target": 29, "type": "keyword", "keywords": ["bound", "regret", "constraint"]}, {"source": 23, "target": 30, "type": "keyword", "keywords": ["regret", "algorithm", "constraint"]}, {"source": 23, "target": 31, "type": "keyword", "keywords": ["convex", "bound", "regret", "constraint"]}, {"source": 23, "target": 32, "type": "keyword", "keywords": ["convex", "bound", "regret"]}, {"source": 23, "target": 33, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 23, "target": 34, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 23, "target": 36, "type": "keyword", "keywords": ["bound", "constraint"]}, {"source": 23, "target": 37, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 23, "target": 38, "type": "keyword", "keywords": ["constraint", "convex", "bound", "regret", "algorithm"]}, {"source": 23, "target": 41, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 23, "target": 42, "type": "keyword", "keywords": ["convex", "bound", "regret", "constraint"]}, {"source": 23, "target": 43, "type": "keyword", "keywords": ["bound", "algorithm"]}, {"source": 23, "target": 46, "type": "keyword", "keywords": ["convex", "constraint"]}, {"source": 23, "target": 49, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 25, "target": 26, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 25, "target": 27, "type": "keyword", "keywords": ["convex", "regret"]}, {"source": 25, "target": 28, "type": "keyword", "keywords": ["convex", "bound", "regret", "algorithm"]}, {"source": 25, "target": 29, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 25, "target": 30, "type": "keyword", "keywords": ["regret", "algorithm"]}, {"source": 25, "target": 31, "type": "keyword", "keywords": ["convex", "bound", "regret"]}, {"source": 25, "target": 32, "type": "keyword", "keywords": ["convex", "bound", "regret", "policy"]}, {"source": 25, "target": 33, "type": "keyword", "keywords": ["convex", "regret"]}, {"source": 25, "target": 34, "type": "keyword", "keywords": ["regret", "policy"]}, {"source": 25, "target": 37, "type": "keyword", "keywords": ["regret", "policy"]}, {"source": 25, "target": 38, "type": "keyword", "keywords": ["convex", "bound", "regret", "algorithm"]}, {"source": 25, "target": 41, "type": "keyword", "keywords": ["bound", "regret", "policy"]}, {"source": 25, "target": 42, "type": "keyword", "keywords": ["convex", "bound", "regret"]}, {"source": 25, "target": 43, "type": "keyword", "keywords": ["bound", "algorithm", "policy"]}, {"source": 26, "target": 28, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 26, "target": 29, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 26, "target": 31, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 26, "target": 32, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 26, "target": 38, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 26, "target": 41, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 26, "target": 42, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 27, "target": 28, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 27, "target": 29, "type": "keyword", "keywords": ["online", "regret", "constraint"]}, {"source": 27, "target": 30, "type": "keyword", "keywords": ["regret", "optimal", "constraint"]}, {"source": 27, "target": 31, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 27, "target": 32, "type": "keyword", "keywords": ["convex", "regret"]}, {"source": 27, "target": 33, "type": "keyword", "keywords": ["online", "regret", "constraint", "convex"]}, {"source": 27, "target": 34, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 27, "target": 36, "type": "keyword", "keywords": ["online", "constraint"]}, {"source": 27, "target": 37, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 27, "target": 38, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 27, "target": 42, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 27, "target": 46, "type": "keyword", "keywords": ["convex", "constraint"]}, {"source": 27, "target": 49, "type": "keyword", "keywords": ["online", "regret", "optimal", "constraint"]}, {"source": 28, "target": 29, "type": "keyword", "keywords": ["bound", "regret", "constraint"]}, {"source": 28, "target": 30, "type": "keyword", "keywords": ["regret", "algorithm", "constraint"]}, {"source": 28, "target": 31, "type": "keyword", "keywords": ["convex", "bound", "regret", "constraint"]}, {"source": 28, "target": 32, "type": "keyword", "keywords": ["convex", "bound", "regret"]}, {"source": 28, "target": 33, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 28, "target": 34, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 28, "target": 36, "type": "keyword", "keywords": ["bound", "constraint"]}, {"source": 28, "target": 37, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 28, "target": 38, "type": "keyword", "keywords": ["constraint", "convex", "bound", "regret", "algorithm"]}, {"source": 28, "target": 41, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 28, "target": 42, "type": "keyword", "keywords": ["convex", "bound", "regret", "constraint"]}, {"source": 28, "target": 43, "type": "keyword", "keywords": ["bound", "algorithm"]}, {"source": 28, "target": 46, "type": "keyword", "keywords": ["convex", "constraint"]}, {"source": 28, "target": 49, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 29, "target": 30, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 29, "target": 31, "type": "keyword", "keywords": ["bound", "regret", "constraint"]}, {"source": 29, "target": 32, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 29, "target": 33, "type": "keyword", "keywords": ["online", "regret", "constraint"]}, {"source": 29, "target": 34, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 29, "target": 36, "type": "keyword", "keywords": ["online", "bound", "constraint"]}, {"source": 29, "target": 37, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 29, "target": 38, "type": "keyword", "keywords": ["bound", "regret", "constraint"]}, {"source": 29, "target": 41, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 29, "target": 42, "type": "keyword", "keywords": ["bound", "regret", "constraint"]}, {"source": 29, "target": 49, "type": "keyword", "keywords": ["online", "regret", "constraint"]}, {"source": 30, "target": 31, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 30, "target": 33, "type": "keyword", "keywords": ["regret", "violation", "constraint"]}, {"source": 30, "target": 34, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 30, "target": 37, "type": "keyword", "keywords": ["regret", "violation", "constraint"]}, {"source": 30, "target": 38, "type": "keyword", "keywords": ["regret", "algorithm", "constraint"]}, {"source": 30, "target": 42, "type": "keyword", "keywords": ["regret", "violation", "constraint"]}, {"source": 30, "target": 49, "type": "keyword", "keywords": ["regret", "violation", "constraint", "optimal"]}, {"source": 31, "target": 32, "type": "keyword", "keywords": ["convex", "bound", "regret"]}, {"source": 31, "target": 33, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 31, "target": 34, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 31, "target": 36, "type": "keyword", "keywords": ["bound", "constraint"]}, {"source": 31, "target": 37, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 31, "target": 38, "type": "keyword", "keywords": ["convex", "bound", "regret", "constraint"]}, {"source": 31, "target": 41, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 31, "target": 42, "type": "keyword", "keywords": ["convex", "bound", "regret", "constraint"]}, {"source": 31, "target": 46, "type": "keyword", "keywords": ["convex", "constraint"]}, {"source": 31, "target": 49, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 32, "target": 33, "type": "keyword", "keywords": ["convex", "regret"]}, {"source": 32, "target": 34, "type": "keyword", "keywords": ["regret", "policy"]}, {"source": 32, "target": 37, "type": "keyword", "keywords": ["regret", "policy"]}, {"source": 32, "target": 38, "type": "keyword", "keywords": ["convex", "bound", "regret"]}, {"source": 32, "target": 41, "type": "keyword", "keywords": ["bound", "regret", "policy"]}, {"source": 32, "target": 42, "type": "keyword", "keywords": ["convex", "bound", "regret"]}, {"source": 32, "target": 43, "type": "keyword", "keywords": ["bound", "policy"]}, {"source": 33, "target": 34, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 33, "target": 36, "type": "keyword", "keywords": ["online", "constraint"]}, {"source": 33, "target": 37, "type": "keyword", "keywords": ["regret", "violation", "constraint"]}, {"source": 33, "target": 38, "type": "keyword", "keywords": ["convex", "regret", "constraint"]}, {"source": 33, "target": 42, "type": "keyword", "keywords": ["convex", "regret", "violation", "constraint"]}, {"source": 33, "target": 46, "type": "keyword", "keywords": ["convex", "constraint"]}, {"source": 33, "target": 49, "type": "keyword", "keywords": ["online", "regret", "violation", "constraint"]}, {"source": 34, "target": 36, "type": "keyword", "keywords": ["COCO", "constraint", "OCO"]}, {"source": 34, "target": 37, "type": "keyword", "keywords": ["OCO", "regret", "policy", "constraint"]}, {"source": 34, "target": 38, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 34, "target": 41, "type": "keyword", "keywords": ["OCO", "regret", "policy"]}, {"source": 34, "target": 42, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 34, "target": 45, "type": "keyword", "keywords": ["OCO", "COCO"]}, {"source": 34, "target": 46, "type": "keyword", "keywords": ["COCO", "constraint", "OCO"]}, {"source": 34, "target": 49, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 36, "target": 37, "type": "keyword", "keywords": ["OCO", "constraint"]}, {"source": 36, "target": 38, "type": "keyword", "keywords": ["bound", "constraint"]}, {"source": 36, "target": 41, "type": "keyword", "keywords": ["OCO", "bound"]}, {"source": 36, "target": 42, "type": "keyword", "keywords": ["bound", "constraint"]}, {"source": 36, "target": 45, "type": "keyword", "keywords": ["OCO", "COCO"]}, {"source": 36, "target": 46, "type": "keyword", "keywords": ["COCO", "constraint", "OCO"]}, {"source": 36, "target": 49, "type": "keyword", "keywords": ["online", "constraint"]}, {"source": 37, "target": 38, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 37, "target": 41, "type": "keyword", "keywords": ["OCO", "regret", "policy"]}, {"source": 37, "target": 42, "type": "keyword", "keywords": ["regret", "violation", "constraint"]}, {"source": 37, "target": 46, "type": "keyword", "keywords": ["OCO", "constraint"]}, {"source": 37, "target": 49, "type": "keyword", "keywords": ["regret", "violation", "constraint"]}, {"source": 38, "target": 41, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 38, "target": 42, "type": "keyword", "keywords": ["convex", "bound", "regret", "constraint"]}, {"source": 38, "target": 43, "type": "keyword", "keywords": ["bound", "algorithm"]}, {"source": 38, "target": 46, "type": "keyword", "keywords": ["convex", "constraint"]}, {"source": 38, "target": 49, "type": "keyword", "keywords": ["regret", "constraint"]}, {"source": 39, "target": 41, "type": "keyword", "keywords": ["bound", "theorem"]}, {"source": 39, "target": 43, "type": "keyword", "keywords": ["bound", "theorem"]}, {"source": 41, "target": 42, "type": "keyword", "keywords": ["bound", "regret"]}, {"source": 41, "target": 43, "type": "keyword", "keywords": ["bound", "policy", "theorem"]}, {"source": 42, "target": 46, "type": "keyword", "keywords": ["convex", "constraint"]}, {"source": 42, "target": 49, "type": "keyword", "keywords": ["regret", "violation", "constraint"]}, {"source": 45, "target": 46, "type": "keyword", "keywords": ["OCO", "COCO"]}];
+        
+        // 设置
+        const width = window.innerWidth;
+        const height = window.innerHeight - 120;
+        
+        // 创建SVG
+        const svg = d3.select("#graph")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height);
+        
+        // 添加缩放
+        const g = svg.append("g");
+        
+        const zoom = d3.zoom()
+            .scaleExtent([0.1, 4])
+            .on("zoom", (event) => {
+                g.attr("transform", event.transform);
             });
+        
+        svg.call(zoom);
+        
+        // 创建力导向图
+        let simulation = d3.forceSimulation(nodes)
+            .force("link", d3.forceLink(links).id(d => d.id).distance(150))
+            .force("charge", d3.forceManyBody().strength(-300))
+            .force("center", d3.forceCenter(width / 2, height / 2))
+            .force("collision", d3.forceCollide().radius(40));
+        
+        // 绘制连接线
+        const link = g.append("g")
+            .selectAll("line")
+            .data(links)
+            .join("line")
+            .attr("class", d => `link ${d.type}`)
+            .attr("stroke-width", 2);
+        
+        // 绘制节点
+        const node = g.append("g")
+            .selectAll("g")
+            .data(nodes)
+            .join("g")
+            .attr("class", "node")
+            .call(drag(simulation));
+        
+        node.append("circle")
+            .attr("r", d => {
+                if (d.type === 'section') return 25;
+                if (d.type === 'subsection') return 20;
+                return 15;
+            })
+            .attr("fill", d => {
+                if (d.type === 'section') return '#667eea';
+                if (d.type === 'subsection') return '#51cf66';
+                if (d.type === 'subsubsection') return '#ffd43b';
+                return '#dee2e6';
+            })
+            .attr("stroke", "#fff")
+            .attr("stroke-width", 2);
+        
+        node.append("text")
+            .attr("class", "node-label")
+            .attr("dy", -30)
+            .attr("text-anchor", "middle")
+            .text(d => {
+                const maxLen = 25;
+                return d.title.length > maxLen ? d.title.substr(0, maxLen) + '...' : d.title;
+            });
+        
+        // 节点点击事件
+        node.on("click", (event, d) => {
+            showSidebar(d);
+            highlightConnections(d);
+        });
+        
+        // 更新位置
+        simulation.on("tick", () => {
+            link
+                .attr("x1", d => d.source.x)
+                .attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x)
+                .attr("y2", d => d.target.y);
             
-            // Highlight selected node
-            const node = document.querySelector(`[data-id="${id}"] .node-circle`);
-            if (node) node.classList.add('selected');
-            
-            // Highlight connected edges
-            const data = nodeData[id];
-            if (data && data.connections) {
-                data.connections.forEach(conn => {
-                    const edge = document.getElementById(`edge-${id}-${conn.to}`);
-                    if (edge) {
-                        edge.classList.add('highlighted');
-                        edge.setAttribute('marker-end', 'url(#arrowhead-gold)');
-                    }
-                });
+            node.attr("transform", d => `translate(${d.x},${d.y})`);
+        });
+        
+        // 拖拽功能
+        function drag(simulation) {
+            function dragstarted(event) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                event.subject.fx = event.subject.x;
+                event.subject.fy = event.subject.y;
             }
             
-            // Update detail panel
-            updateDetailPanel(id);
-            selectedNode = id;
-        }
-
-        function updateDetailPanel(id) {
-            const data = nodeData[id];
-            if (!data) return;
+            function dragged(event) {
+                event.subject.fx = event.x;
+                event.subject.fy = event.y;
+            }
             
-            document.getElementById('detail-title').textContent = data.title;
+            function dragended(event) {
+                if (!event.active) simulation.alphaTarget(0);
+                event.subject.fx = null;
+                event.subject.fy = null;
+            }
+            
+            return d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended);
+        }
+        
+        // 显示侧边栏
+        function showSidebar(d) {
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('sidebar-content');
             
             let html = `
-                <div class="detail-section">
-                    <h4>Text Excerpt</h4>
-                    <div class="detail-text">${data.text}</div>
+                <h2>${d.title}</h2>
+                <span class="section-type">${d.type}</span>
+                
+                <div class="keywords">
+                    ${d.keywords.map(k => `<span class="keyword">#${k}</span>`).join('')}
+                </div>
+                
+                <div class="summary">
+                    <strong>📝 内容摘要：</strong><br><br>
+                    ${d.summary || '暂无内容'}
                 </div>
             `;
             
-            if (data.connections && data.connections.length > 0) {
+            if (d.references && d.references.length > 0) {
                 html += `
-                    <div class="detail-section">
-                        <h4>Connects To</h4>
-                        <ul class="connections-list">
-                            ${data.connections.map(c => `
-                                <li onclick="selectNode('${c.to}')">
-                                    <span class="arrow">→</span>
-                                    <span><strong>${nodeData[c.to]?.title.split(':')[0] || c.to}</strong>: ${c.desc}</span>
-                                </li>
-                            `).join('')}
-                        </ul>
+                    <div class="references">
+                        <strong>🔗 引用关系：</strong>
+                        ${d.references.slice(0, 5).map(r => `<div class="reference-item">${r}</div>`).join('')}
                     </div>
                 `;
             }
             
-            if (data.usedBy) {
-                html += `
-                    <div class="detail-section">
-                        <h4>Used By</h4>
-                        <div class="detail-text">${Array.isArray(data.usedBy) ? data.usedBy.join(', ') : data.usedBy}</div>
-                    </div>
-                `;
-            }
-            
-            document.getElementById('detail-content').innerHTML = html;
+            content.innerHTML = html;
+            sidebar.classList.add('active');
         }
+        
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('active');
+            node.classed('selected', false);
+            link.style('stroke-opacity', 0.6).style('stroke-width', 2);
+        }
+        
+        function highlightConnections(d) {
+            node.classed('selected', n => n.id === d.id);
+            
+            link.style('stroke-opacity', l => 
+                (l.source.id === d.id || l.target.id === d.id) ? 1 : 0.1
+            ).style('stroke-width', l =>
+                (l.source.id === d.id || l.target.id === d.id) ? 3 : 2
+            );
+        }
+        
+        function resetView() {
+            svg.transition().duration(750).call(
+                zoom.transform,
+                d3.zoomIdentity
+            );
+            closeSidebar();
+        }
+        
+        let physicsEnabled = true;
+        function togglePhysics() {
+            if (physicsEnabled) {
+                simulation.stop();
+                physicsEnabled = false;
+            } else {
+                simulation.restart();
+                physicsEnabled = true;
+            }
+        }
+        
+        function exportData() {
+            const data = { nodes, links };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'paper_structure.json';
+            a.click();
+        }
+        
+        function showHelp() {
+            alert(`🔍 使用说明：
+            
+• 点击节点查看详细内容
+• 拖动节点调整位置
+• 滚轮缩放视图
+• 拖动背景移动视图
+• 节点大小代表层级重要性
+• 线条连接表示引用或关键词关联
 
-        // Initialize with main theorem selected
-        selectNode('t1');
+颜色说明：
+🔵 蓝色 - 主要章节
+🟢 绿色 - 子章节
+🟡 黄色 - 小节`);
+        }
+        
+        // 更新统计信息
+        document.getElementById('stats').innerHTML = 
+            `📊 共 ${nodes.length} 个节点，${links.length} 个连接关系`;
     </script>
 </body>
 </html>

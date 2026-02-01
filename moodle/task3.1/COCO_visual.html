@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>论文结构可视化</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .heading {
+            margin: 15px 0;
+            padding: 15px;
+            border-left: 4px solid;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .heading:hover {
+            transform: translateX(10px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .title {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 1.8em;
+            font-weight: bold;
+            border-left: none;
+            text-align: center;
+            margin: 20px 0;
+            padding: 30px;
+            border-radius: 10px;
+        }
+        
+        .section {
+            background: #f8f9fa;
+            border-left-color: #667eea;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-left: 0;
+        }
+        
+        .subsection {
+            background: #e9ecef;
+            border-left-color: #764ba2;
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-left: 30px;
+        }
+        
+        .subsubsection {
+            background: #dee2e6;
+            border-left-color: #9c88ff;
+            font-size: 1.1em;
+            font-weight: 500;
+            margin-left: 60px;
+        }
+        
+        .paragraph {
+            background: #f1f3f5;
+            border-left-color: #b8a4ff;
+            font-size: 1em;
+            font-weight: 400;
+            margin-left: 90px;
+        }
+        
+        .counter {
+            display: inline-block;
+            min-width: 30px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+            background: rgba(102, 126, 234, 0.2);
+            border-radius: 50%;
+            margin-right: 10px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            padding: 30px;
+            background: #f8f9fa;
+            margin-top: 30px;
+            border-radius: 10px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .heading {
+            animation: fadeIn 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 论文结构可视化</h1>
+            <p>Optimal Algorithms for Online Convex Optimization with Adversarial Constraints</p>
+        </div>
+        
+        <div class="content">
+            <div class="heading title">
+                Optimal Algorithms for Online Convex Optimization with Adversarial Constraints
+            </div>
+            <div class="heading section">
+                <span class="counter">1</span>Abstract
+            </div>
+            <div class="heading section">
+                <span class="counter">2</span>Introduction
+            </div>
+            <div class="heading paragraph">
+                • Applications:
+            </div>
+            <div class="heading paragraph">
+                • The {Hidden Set
+            </div>
+            <div class="heading subsection">
+                <span class="counter">2.1</span>Related Work
+            </div>
+            <div class="heading subsection">
+                <span class="counter">2.2</span>Why is the problem non-trivial?
+            </div>
+            <div class="heading paragraph">
+                • Unconstrained OCO:
+            </div>
+            <div class="heading paragraph">
+                • Constrained OCO (COCO):
+            </div>
+            <div class="heading paragraph">
+                • The Online Constraint Satisfaction ({OCS
+            </div>
+            <div class="heading subsection">
+                <span class="counter">2.3</span>Our Contributions
+            </div>
+            <div class="heading paragraph">
+                • On the analytical contribution:
+            </div>
+            <div class="heading paragraph">
+                • Note:
+            </div>
+            <div class="heading section">
+                <span class="counter">3</span>The Constrained OCO (COCO) Problem
+            </div>
+            <div class="heading subsection">
+                <span class="counter">3.1</span>Assumptions
+            </div>
+            <div class="heading subsection">
+                <span class="counter">3.2</span>Assumptions
+            </div>
+            <div class="heading paragraph">
+                • Remarks:
+            </div>
+            <div class="heading paragraph">
+                • Note:
+            </div>
+            <div class="heading paragraph">
+                • Pre-processing the constraint functions by clipping:
+            </div>
+            <div class="heading subsection">
+                <span class="counter">3.3</span>Lower bound on regret and CCV for COCO
+            </div>
+            <div class="heading paragraph">
+                • Action space $$:
+            </div>
+            <div class="heading paragraph">
+                • Constraint functions:
+            </div>
+            <div class="heading paragraph">
+                • Checking feasibility:
+            </div>
+            <div class="heading paragraph">
+                • Bounding cumulative violations:
+            </div>
+            <div class="heading section">
+                <span class="counter">4</span>An Online Learning Policy
+            </div>
+            <div class="heading section">
+                <span class="counter">5</span>Strongly Convex Constraints
+            </div>
+            <div class="heading section">
+                <span class="counter">6</span>Strongly Convex Constraints
+            </div>
+            <div class="heading subsection">
+                <span class="counter">6.1</span>Online Policy for COCO
+            </div>
+            <div class="heading subsection">
+                <span class="counter">6.2</span>Analysis: Regret Decomposition:
+            </div>
+            <div class="heading subsection">
+                <span class="counter">6.3</span>Performance guarantees
+            </div>
+            <div class="heading subsection">
+                <span class="counter">6.4</span>Overview of the technique
+            </div>
+            <div class="heading subsection">
+                <span class="counter">6.5</span>Preliminaries
+            </div>
+            <div class="heading subsection">
+                <span class="counter">6.6</span>Design and Analysis of the Algorithm
+            </div>
+            <div class="heading subsection">
+                <span class="counter">6.7</span>Lower Bounds
+            </div>
+            <div class="heading subsection">
+                <span class="counter">6.8</span>Improved Bounds for a Special case
+            </div>
+            <div class="heading subsection">
+                <span class="counter">6.9</span>Queue Stabilization and Constraint Satisfaction
+            </div>
+            <div class="heading subsubsection">
+                <span class="counter">6.9.1</span>Lower Bound to the Achievable CCV
+            </div>
+            <div class="heading subsubsection">
+                <span class="counter">6.9.2</span>Convex Cost and Convex Constraint functions
+            </div>
+            <div class="heading subsubsection">
+                <span class="counter">6.9.3</span>Defining the Surrogate Cost Functions
+            </div>
+            <div class="heading subsubsection">
+                <span class="counter">6.9.4</span>The Regret Decomposition Inequality
+            </div>
+            <div class="heading subsubsection">
+                <span class="counter">6.9.5</span>Convex Cost and Convex Constraint Functions
+            </div>
+            <div class="heading subsubsection">
+                <span class="counter">6.9.6</span>Strongly Convex Cost and Convex Constraint Functions
+            </div>
+            <div class="heading subsubsection">
+                <span class="counter">6.9.7</span>Lower bounds
+            </div>
+            <div class="heading paragraph">
+                • Regret Decomposition:
+            </div>
+            <div class="heading paragraph">
+                • Policy for COCO:
+            </div>
+            <div class="heading paragraph">
+                • $$ Performance Analysis
+            </div>
+            <div class="heading paragraph">
+                • An exponential Lyapunov function:
+            </div>
+            <div class="heading paragraph">
+                • Bounding the Regret:
+            </div>
+            <div class="heading paragraph">
+                • Bounding the CCV:
+            </div>
+            <div class="heading paragraph">
+                • A Power-law Lyapunov Function:
+            </div>
+            <div class="heading paragraph">
+                • Bounding the Regret:
+            </div>
+            <div class="heading paragraph">
+                • Bounding the CCV:
+            </div>
+            <div class="heading paragraph">
+                • Remark:
+            </div>
+            <div class="heading section">
+                <span class="counter">7</span>The Online Constraint Satisfaction Problem ({OCS
+            </div>
+            <div class="heading section">
+                <span class="counter">8</span>An Online Meta-Policy
+            </div>
+            <div class="heading subsection">
+                <span class="counter">8.1</span>Assumptions
+            </div>
+            <div class="heading subsection">
+                <span class="counter">8.2</span>Designing an {OCS
+            </div>
+            <div class="heading subsection">
+                <span class="counter">8.3</span>Performance Bounds
+            </div>
+            <div class="heading subsection">
+                <span class="counter">8.4</span>Analysis
+            </div>
+            <div class="heading subsection">
+                <span class="counter">8.5</span>Boundedness Assumption
+            </div>
+            <div class="heading subsection">
+                <span class="counter">8.6</span>Case III: Convex and Smooth Constraints
+            </div>
+            <div class="heading subsection">
+                <span class="counter">8.7</span>Connection between {OCS
+            </div>
+            <div class="heading subsubsection">
+                <span class="counter">8.7.1</span>$S$-feasibility
+            </div>
+            <div class="heading paragraph">
+                • 1. $S$-feasibility:
+            </div>
+            <div class="heading paragraph">
+                • 2. $P_T$-constrained adversary
+            </div>
+            <div class="heading paragraph">
+                • A Quadratic Lyapunov function:
+            </div>
+            <div class="heading paragraph">
+                • Regret decomposition:
+            </div>
+            <div class="heading paragraph">
+                • Applications:
+            </div>
+            <div class="heading section">
+                <span class="counter">9</span>Experiments: Credit Card Fraud Detection
+            </div>
+            <div class="heading paragraph">
+                • Online anomaly detection:
+            </div>
+            <div class="heading paragraph">
+                • Classification with a highly imbalanced dataset:
+            </div>
+            <div class="heading paragraph">
+                • Formulation:
+            </div>
+            <div class="heading paragraph">
+                • Experiments:
+            </div>
+            <div class="heading paragraph">
+                • Dataset and Network Architecture:
+            </div>
+            <div class="heading paragraph">
+                • Results:
+            </div>
+            <div class="heading paragraph">
+                • References
+            </div>
+            <div class="heading section">
+                <span class="counter">10</span>Conclusion
+            </div>
+            <div class="heading section">
+                <span class="counter">11</span>Acknowledgement
+            </div>
+
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number">11</div>
+                    <div class="stat-label">主要章节</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">22</div>
+                    <div class="stat-label">子章节</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">8</div>
+                    <div class="stat-label">小节</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">36</div>
+                    <div class="stat-label">段落</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>
