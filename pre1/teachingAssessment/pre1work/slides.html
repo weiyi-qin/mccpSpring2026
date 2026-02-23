@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COLDQ — Constrained Online Learning (AAAI 2025)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+        :root {
+            --color-primary: #1B4942;
+            --color-text: #1a1a2e;
+            --color-bg: #FFFFFF;
+            --color-bg-alt: #F8FAF4;
+            --color-accent-light: #E8F0ED;
+            --color-blue: #1a6fa8;
+            --color-red: #c0392b;
+            --color-green: #1a7a4a;
+            --color-gray: #6c757d;
+            --color-border: #c8ddd6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        /* ===== SLIDES ===== */
+        .slides-container { position: relative; width: 100vw; height: 100vh; }
+
+        .slide {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: var(--color-bg);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            padding: 5vh 10vw;
+            overflow: hidden;
+        }
+        .slide.active { display: flex; }
+
+        /* ===== SLIDE NUMBER ===== */
+        .slide-num {
+            position: absolute;
+            bottom: 1.2rem; right: 2rem;
+            color: #ccc;
+            font-size: 0.82rem;
+        }
+
+        /* ===== PROGRESS BAR ===== */
+        #progress-bar {
+            position: fixed;
+            bottom: 0; left: 0;
+            height: 4px;
+            background: var(--color-primary);
+            transition: width 0.3s ease;
+            z-index: 999;
+        }
+
+        /* ===== TYPOGRAPHY ===== */
+        .slide-title {
+            font-size: clamp(2.4rem, 4.2vw, 3.6rem);
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        .slide-body {
+            font-size: clamp(1.25rem, 1.8vw, 1.55rem);
+            color: var(--color-text);
+            line-height: 1.6;
+        }
+        ul { padding-left: 1.4em; }
+        li { margin-bottom: 0.5em; }
+
+        /* ===== RUBRIC TAGS ===== */
+        .rubric-tag {
+            display: inline-block;
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 0.18em 0.65em;
+            border-radius: 3px;
+            margin: 0 0.3em 0.8rem 0;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+        .rubric-tag.content  { background: #d4e6f1; color: #154360; }
+        .rubric-tag.delivery { background: #d5f5e3; color: #145a32; }
+        .rubric-tag.evidence { background: #fdebd0; color: #784212; }
+
+        /* ===== TRANSITION CUE ===== */
+        .transition-cue {
+            margin-top: auto;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--color-border);
+            font-size: clamp(1.05rem, 1.4vw, 1.2rem);
+            color: var(--color-primary);
+            font-style: italic;
+        }
+        .transition-cue::before { content: "→ "; }
+
+        /* ===== CALLOUT BOXES ===== */
+        .callout {
+            background: var(--color-accent-light);
+            border-left: 4px solid var(--color-primary);
+            padding: 0.75rem 1.1rem;
+            margin: 0.65rem 0;
+            border-radius: 0 6px 6px 0;
+            font-size: clamp(1.1rem, 1.55vw, 1.35rem);
+            line-height: 1.55;
+        }
+        .callout.blue  { background: #d6eaf8; border-left-color: var(--color-blue); }
+        .callout.red   { background: #fadbd8; border-left-color: var(--color-red); }
+        .callout.green { background: #d5f5e3; border-left-color: var(--color-green); }
+
+        /* ===== EMPHASIS ===== */
+        .em-blue  { color: var(--color-blue);  font-weight: 600; }
+        .em-red   { color: var(--color-red);   font-weight: 600; }
+        .em-green { color: var(--color-green); font-weight: 600; }
+
+        /* ===== MATH ===== */
+        .math {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.88em;
+            background: #f0f0f0;
+            padding: 0.12em 0.4em;
+            border-radius: 3px;
+            white-space: nowrap;
+        }
+
+        /* ===== COMPARISON TABLE ===== */
+        .cmp-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(0.95rem, 1.3vw, 1.15rem);
+            margin: 0.7rem 0;
+        }
+        .cmp-table th {
+            background: var(--color-primary);
+            color: #fff;
+            padding: 0.55rem 0.8rem;
+            text-align: center;
+            font-weight: 600;
+        }
+        .cmp-table td {
+            padding: 0.5rem 0.8rem;
+            border: 1px solid var(--color-border);
+            text-align: center;
+            vertical-align: middle;
+        }
+        .cmp-table tr:nth-child(even) td { background: var(--color-bg-alt); }
+        .cmp-table tr.row-ok td {
+            background: #d5f5e3;
+            font-weight: 600;
+        }
+        .cmp-table tr.row-bad td {
+            background: #fadbd8;
+        }
+        .cmp-table tr.row-recover td {
+            background: #eaf4fb;
+            font-style: italic;
+        }
+        .check   { color: var(--color-green); font-weight: 700; }
+        .cross   { color: var(--color-red);   font-weight: 700; }
+
+        /* ===== TWO-COLUMN ===== */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.8vw;
+            margin: 0.5rem 0;
+        }
+        .col-card {
+            background: var(--color-bg-alt);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 0.9rem 1.1rem;
+        }
+        .col-card h3 {
+            font-size: clamp(1.05rem, 1.45vw, 1.25rem);
+            color: var(--color-primary);
+            margin-bottom: 0.55rem;
+            font-weight: 600;
+        }
+        .col-card ul { font-size: clamp(0.95rem, 1.3vw, 1.15rem); }
+
+        /* ===== ROADMAP ===== */
+        .roadmap {
+            display: flex;
+            gap: 1.2vw;
+            margin: 0.9rem 0;
+        }
+        .roadmap-item {
+            flex: 1;
+            background: var(--color-bg-alt);
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+            padding: 0.9rem 0.7rem;
+            text-align: center;
+        }
+        .roadmap-item .rm-num {
+            font-size: clamp(2rem, 3.2vw, 2.8rem);
+            font-weight: 700;
+            color: var(--color-primary);
+            line-height: 1;
+        }
+        .roadmap-item .rm-label {
+            font-size: clamp(0.85rem, 1.15vw, 1.05rem);
+            color: var(--color-text);
+            margin-top: 0.35rem;
+            font-weight: 500;
+        }
+        .roadmap-item .rm-time {
+            font-size: clamp(0.72rem, 0.95vw, 0.88rem);
+            color: var(--color-gray);
+            margin-top: 0.2rem;
+        }
+
+        /* ===== OCO FLOW ===== */
+        .oco-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5vw;
+            margin: 0.8rem 0;
+            flex-wrap: wrap;
+        }
+        .oco-box {
+            background: var(--color-bg-alt);
+            border: 2px solid var(--color-primary);
+            border-radius: 8px;
+            padding: 0.6rem 0.9rem;
+            text-align: center;
+            font-size: clamp(0.9rem, 1.2vw, 1.1rem);
+            font-weight: 500;
+            min-width: clamp(80px, 9vw, 120px);
+        }
+        .oco-arrow {
+            font-size: clamp(1.2rem, 1.8vw, 1.6rem);
+            color: var(--color-primary);
+            font-weight: 700;
+        }
+        .oco-box.loss-box  { border-color: var(--color-blue); background: #d6eaf8; color: var(--color-blue); }
+        .oco-box.viol-box  { border-color: var(--color-red);  background: #fadbd8; color: var(--color-red); }
+
+        /* ===== QUEUE VISUAL ===== */
+        .queue-compare {
+            display: flex;
+            gap: 3vw;
+            align-items: flex-start;
+            justify-content: center;
+            margin: 0.8rem 0;
+        }
+        .q-wrap { text-align: center; flex: 1; max-width: 200px; }
+        .q-label {
+            font-size: clamp(0.9rem, 1.2vw, 1.1rem);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .q-bar-outer {
+            width: 80px;
+            height: 100px;
+            background: #eee;
+            border: 2px solid #aaa;
+            border-radius: 6px;
+            position: relative;
+            margin: 0 auto 0.4rem;
+            overflow: visible;
+        }
+        .q-bar-inner {
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 100%;
+            border-radius: 0 0 4px 4px;
+        }
+        .q-ceiling {
+            position: absolute;
+            top: 0; left: -28px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--color-green);
+            white-space: nowrap;
+        }
+        .q-ceiling::after {
+            content: '';
+            position: absolute;
+            top: 50%; right: -28px;
+            width: 24px; height: 2px;
+            background: var(--color-green);
+        }
+        .q-floor {
+            position: absolute;
+            bottom: 0; left: -24px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--color-blue);
+            white-space: nowrap;
+        }
+        .q-floor::after {
+            content: '';
+            position: absolute;
+            top: 50%; right: -24px;
+            width: 20px; height: 2px;
+            background: var(--color-blue);
+        }
+        .q-caption { font-size: clamp(0.82rem, 1.05vw, 0.95rem); color: var(--color-gray); }
+
+        /* ===== TITLE SLIDE ===== */
+        .title-slide { background: var(--color-primary) !important; }
+        .title-slide .main-title {
+            font-size: clamp(2.8rem, 5vw, 4rem);
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.2;
+            margin-bottom: 0.9rem;
+        }
+        .title-slide .subtitle {
+            font-size: clamp(1.4rem, 2.2vw, 2rem);
+            color: #a8d5c8;
+            margin-bottom: 1.6rem;
+        }
+        .title-slide .paper-ref {
+            background: rgba(255,255,255,0.12);
+            border-left: 4px solid #a8d5c8;
+            padding: 0.75rem 1.1rem;
+            border-radius: 0 6px 6px 0;
+            color: #d0ede7;
+            font-size: clamp(1rem, 1.4vw, 1.2rem);
+            margin-bottom: 1.4rem;
+            line-height: 1.6;
+        }
+        .title-slide .presenter-info {
+            color: #a8d5c8;
+            font-size: clamp(1rem, 1.4vw, 1.2rem);
+        }
+        .title-slide .slide-num { color: rgba(255,255,255,0.35); }
+
+        /* ===== CLOSING SLIDE ===== */
+        .closing-slide { background: var(--color-primary) !important; text-align: center; }
+        .closing-slide .thank-you {
+            font-size: clamp(2.6rem, 4.8vw, 4rem);
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+        .closing-slide .qa-invite {
+            font-size: clamp(1.3rem, 2vw, 1.7rem);
+            color: #a8d5c8;
+            margin-bottom: 1.8rem;
+        }
+        .closing-slide .takeaway {
+            background: rgba(255,255,255,0.12);
+            border-radius: 8px;
+            padding: 1rem 1.8rem;
+            color: #d0ede7;
+            font-size: clamp(1.05rem, 1.5vw, 1.3rem);
+            text-align: left;
+            line-height: 1.65;
+        }
+        .closing-slide .slide-num { color: rgba(255,255,255,0.35); }
+
+        /* ===== TOOLBAR ===== */
+        #toolbar {
+            display: none;
+            position: fixed;
+            top: 1rem; right: 1.5rem;
+            background: rgba(0,0,0,0.88);
+            border-radius: 8px;
+            padding: 0.6rem 1rem;
+            z-index: 1000;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            max-width: 280px;
+        }
+        #toolbar.visible { display: flex; }
+        #toolbar button {
+            font-size: 0.78rem;
+            padding: 0.32rem 0.65rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+        }
+        #edit-indicator {
+            position: fixed;
+            top: 0.6rem; left: 50%;
+            transform: translateX(-50%);
+            background: var(--color-red);
+            color: #fff;
+            padding: 0.22rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.78rem;
+            display: none;
+            z-index: 1001;
+        }
+
+        /* ===== KEYS HINT ===== */
+        #keys-hint {
+            position: fixed;
+            bottom: 1.2rem; left: 2rem;
+            color: #ccc;
+            font-size: 0.72rem;
+            letter-spacing: 0.02em;
+        }
+    </style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+<div id="edit-indicator">✏ EDIT MODE — press E to exit</div>
+<div id="keys-hint">← → Navigate &nbsp;|&nbsp; E Edit &nbsp;|&nbsp; T Toolbar</div>
+
+<div id="toolbar">
+    <button onclick="saveToCache()"    style="background:#27ae60;color:#fff;">💾 Save</button>
+    <button onclick="loadFromCache()"  style="background:#2980b9;color:#fff;">📂 Load</button>
+    <button onclick="downloadHTML()"   style="background:#8e44ad;color:#fff;">⬇ Download</button>
+    <button onclick="clearCache()"     style="background:#c0392b;color:#fff;">🗑 Clear</button>
+    <button onclick="toggleToolbar()"  style="background:#555;color:#fff;">✕ Close</button>
+</div>
+
+<div class="slides-container" id="slides">
+
+    <!-- ===== SLIDE 1: TITLE ===== -->
+    <div class="slide title-slide active" data-index="1">
+        <div class="main-title">Making Smart Decisions<br>Under Changing Rules</div>
+        <div class="subtitle">A Presentation on a Research Paper in Online Learning</div>
+        <div class="paper-ref">
+            📄 <strong>Doubly-Bounded Queue for Constrained Online Learning:</strong><br>
+            Pace with Dynamics of Both Loss and Constraint<br>
+            <em>Juncheng Wang · HKBU Computer Science · AAAI 2025</em>
+        </div>
+        <div class="presenter-info">
+            Presented by: <strong>[Your Name]</strong> &nbsp;·&nbsp; MCCP6020 &nbsp;·&nbsp; Feb 2026
+        </div>
+        <div class="slide-num">1 / 12</div>
+    </div>
+
+    <!-- ===== SLIDE 2: ROADMAP ===== -->
+    <div class="slide" data-index="2">
+        <span class="rubric-tag content">CONTENT &amp; STRUCTURE</span>
+        <div class="slide-title">What I'll Cover Today</div>
+        <div class="slide-body">
+            <div class="roadmap">
+                <div class="roadmap-item">
+                    <div class="rm-num">1</div>
+                    <div class="rm-label">Introduction to the Paper</div>
+                    <div class="rm-time">~1.5 min</div>
+                </div>
+                <div class="roadmap-item">
+                    <div class="rm-num">2</div>
+                    <div class="rm-label">Key Theoretical Findings</div>
+                    <div class="rm-time">~2 min</div>
+                </div>
+                <div class="roadmap-item">
+                    <div class="rm-num">3</div>
+                    <div class="rm-label">Significance of the Research</div>
+                    <div class="rm-time">~1.5 min</div>
+                </div>
+                <div class="roadmap-item">
+                    <div class="rm-num">4</div>
+                    <div class="rm-label">Impact on My Research &amp; Writing Lessons</div>
+                    <div class="rm-time">~1.5 min</div>
+                </div>
+            </div>
+            <div class="callout">
+                This is a <strong>theory-driven</strong> paper in computer science that proves formal performance guarantees for a new algorithm. I will explain the core theoretical contributions — including what <em>regret</em> and <em>constraint violation</em> mean — in accessible terms.
+            </div>
+        </div>
+        <div class="transition-cue">Let's start with the problem this paper sets out to solve.</div>
+        <div class="slide-num">2 / 12</div>
+    </div>
+
+    <!-- ===== SLIDE 3: PROBLEM SETUP ===== -->
+    <div class="slide" data-index="3">
+        <span class="rubric-tag content">NON-SPECIALIST</span>
+        <span class="rubric-tag content">KEY FINDINGS</span>
+        <div class="slide-title">The Setting: Online Convex Optimization (OCO)</div>
+        <div class="slide-body">
+            <div class="callout blue" style="margin-bottom:0.7rem;">
+                💡 Imagine managing 100 data centers. Every 5 minutes, you decide how much power to allocate — <em>before</em> knowing the electricity prices or job arrivals. You want to minimize energy cost, but must serve all jobs on time. Both the cost function <em>and</em> the service deadline <em>keep changing</em>.
+            </div>
+            <p style="margin-bottom:0.6rem;">This captures the formal structure of the paper's problem:</p>
+            <div class="oco-flow">
+                <div class="oco-box">Learner picks<br>decision <span class="math">x<sub>t</sub></span></div>
+                <div class="oco-arrow">→</div>
+                <div class="oco-box loss-box">Loss <span class="math">f<sub>t</sub>(x)</span><br>revealed</div>
+                <div class="oco-arrow">→</div>
+                <div class="oco-box viol-box">Constraint <span class="math">g<sub>t</sub>(x)</span><br>revealed</div>
+                <div class="oco-arrow">→</div>
+                <div class="oco-box">Update &amp;<br>repeat</div>
+            </div>
+            <p style="margin-top:0.5rem;">Both <span class="math">f<sub>t</sub></span> and <span class="math">g<sub>t</sub></span> are <strong>unknown in advance</strong> and change arbitrarily. Two metrics measure performance:</p>
+            <div class="two-col" style="margin-top:0.5rem;">
+                <div class="col-card">
+                    <h3><span class="em-blue">Regret</span></h3>
+                    <ul>
+                        <li>How much worse did we do vs. the best possible decisions in hindsight?</li>
+                        <li>Goal: keep regret <strong>sub-linear</strong> in T</li>
+                    </ul>
+                </div>
+                <div class="col-card">
+                    <h3><span class="em-red">Hard Constraint Violation</span></h3>
+                    <ul>
+                        <li>Total amount of rule-breaking — <em>no compensated violations allowed</em></li>
+                        <li>Goal: keep violation as small as possible</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="transition-cue">What did prior research fail to achieve — and why?</div>
+        <div class="slide-num">3 / 12</div>
+    </div>
+
+    <!-- ===== SLIDE 4: THE GAP ===== -->
+    <div class="slide" data-index="4">
+        <span class="rubric-tag content">KEY FINDINGS</span>
+        <div class="slide-title">The Gap: What Prior Work Could Not Do</div>
+        <div class="slide-body">
+            <p style="margin-bottom:0.65rem;">The paper's Introduction and Related Work carefully document a clear pattern of failure in existing algorithms:</p>
+            <table class="cmp-table">
+                <thead>
+                    <tr>
+                        <th>Prior Work</th>
+                        <th>Dynamic Regret</th>
+                        <th>Hard Constraint Violation</th>
+                        <th>Limitation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="row-bad">
+                        <td>Best known (fixed constraints)</td>
+                        <td><span class="math">O(√T)</span> <span class="check">✓</span></td>
+                        <td><span class="math">O(1)</span> <span class="check">✓</span></td>
+                        <td>Assumes rules <em>never</em> change <span class="cross">✗</span></td>
+                    </tr>
+                    <tr class="row-bad">
+                        <td>Best known (time-varying constraints)</td>
+                        <td><span class="math">O(T<sup>(1+V<sub>x</sub>)/2</sup>)</span> <span class="check">✓</span></td>
+                        <td>approaches <span class="math em-red">O(√T · T)</span> <span class="cross">✗</span></td>
+                        <td>Violation <strong>never recovers</strong> to <span class="math">O(1)</span> <span class="cross">✗</span></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="callout red" style="margin-top:0.7rem;">
+                <strong>The key question posed in the Introduction:</strong><br>
+                <em>"Can a constrained OCO algorithm provide a dynamic regret bound and a constraint violation bound that smoothly approach to the best-known O(√T) regret and O(1) violation, respectively, as the dynamics of both losses and constraints diminish?"</em>
+            </div>
+            <p style="margin-top:0.55rem; font-size:clamp(1rem,1.35vw,1.2rem); color:var(--color-gray);">V<sub>x</sub> measures how much the loss changes; V<sub>g</sub> measures how much the constraints change. Both range from 0 (static) to 1 (highly dynamic).</p>
+        </div>
+        <div class="transition-cue">The authors' answer is yes — here's how.</div>
+        <div class="slide-num">4 / 12</div>
+    </div>
+
+    <!-- ===== SLIDE 5: COLDQ ALGORITHM ===== -->
+    <div class="slide" data-index="5">
+        <span class="rubric-tag content">KEY FINDINGS</span>
+        <div class="slide-title">COLDQ: The Doubly-Bounded Virtual Queue</div>
+        <div class="slide-body">
+            <p style="margin-bottom:0.65rem;"><strong>C</strong>onstrained <strong>O</strong>nline <strong>L</strong>earning with <strong>D</strong>oubly-bounded <strong>Q</strong>ueue — the core innovation is a new type of <em>virtual queue</em> <span class="math">Q<sub>t</sub></span> used to track constraint violations.</p>
+            <div class="two-col">
+                <div class="col-card">
+                    <h3><span class="em-red">Prior: Single-Bounded Queue</span></h3>
+                    <ul>
+                        <li>Queue has only a lower bound <span class="math">Q<sub>t</sub> ≥ 0</span></li>
+                        <li>Can grow without limit when constraints are violated</li>
+                        <li>Result: violation bound grows too fast, cannot recover to <span class="math">O(1)</span></li>
+                    </ul>
+                </div>
+                <div class="col-card">
+                    <h3><span class="em-green">COLDQ: Doubly-Bounded Queue</span></h3>
+                    <ul>
+                        <li>Queue is capped: <span class="math">β ≤ Q<sub>t</sub> ≤ G/γ</span></li>
+                        <li>Both bounds enforced at every step — no Slater condition needed</li>
+                        <li>New Lyapunov drift analysis uses both bounds to yield tight guarantees</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="queue-compare" style="margin-top:0.8rem;">
+                <div class="q-wrap">
+                    <div class="q-label em-red">Prior Queue</div>
+                    <div class="q-bar-outer" style="border-color:#e74c3c;">
+                        <div class="q-bar-inner" style="height:90%;background:#fadbd8;border-bottom:2px solid #e74c3c;"></div>
+                        <div class="q-floor" style="color:var(--color-red);">0</div>
+                        <div style="position:absolute;top:-1.3rem;left:50%;transform:translateX(-50%);font-size:0.75rem;color:var(--color-red);">∞ ?</div>
+                    </div>
+                    <div class="q-caption">Unbounded above</div>
+                </div>
+                <div class="q-wrap">
+                    <div class="q-label em-green">COLDQ Queue</div>
+                    <div class="q-bar-outer" style="border-color:var(--color-green);">
+                        <div class="q-bar-inner" style="height:55%;background:#d5f5e3;border-bottom:2px solid var(--color-green);"></div>
+                        <div class="q-floor" style="color:var(--color-blue);">β (floor)</div>
+                        <div class="q-ceiling">G/γ (ceiling)</div>
+                    </div>
+                    <div class="q-caption">Trapped between floor &amp; ceiling</div>
+                </div>
+            </div>
+        </div>
+        <div class="transition-cue">What performance guarantees does this design achieve?</div>
+        <div class="slide-num">5 / 12</div>
+    </div>
+
+    <!-- ===== SLIDE 6: THEORETICAL RESULTS — STAR SLIDE ===== -->
+    <div class="slide" data-index="6">
+        <span class="rubric-tag content">KEY FINDINGS</span>
+        <span class="rubric-tag evidence">EVIDENCE</span>
+        <div class="slide-title">Theoretical Results: Bound Comparison</div>
+        <div class="slide-body">
+            <table class="cmp-table">
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Dynamic Regret</th>
+                        <th>Hard Constraint Violation</th>
+                        <th>Both recover to best-known?</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="row-bad">
+                        <td>Prior (fixed constraints)</td>
+                        <td><span class="math">O(√T)</span> <span class="check">✓</span></td>
+                        <td><span class="math">O(1)</span> <span class="check">✓</span></td>
+                        <td>Only when V<sub>g</sub> = 0 <span class="cross">✗</span></td>
+                    </tr>
+                    <tr class="row-bad">
+                        <td>Prior best (time-varying)</td>
+                        <td><span class="math">O(T<sup>(1+V<sub>x</sub>)/2</sup>)</span> <span class="check">✓</span></td>
+                        <td><span class="math em-red">approaches O(√T · T)</span> <span class="cross">✗</span></td>
+                        <td>Regret only <span class="cross">✗</span></td>
+                    </tr>
+                    <tr class="row-ok">
+                        <td><strong>COLDQ (Ours) ⭐</strong></td>
+                        <td><span class="math em-green">O(T<sup>(1+V<sub>x</sub>)/2</sup>)</span> <span class="check">✓</span></td>
+                        <td><span class="math em-green">O(T<sup>V<sub>g</sub></sup>)</span> <span class="check">✓</span></td>
+                        <td><span class="em-green">Both ✓ — First ever!</span></td>
+                    </tr>
+                    <tr class="row-recover">
+                        <td>As V<sub>x</sub>→0, V<sub>g</sub>→0</td>
+                        <td><span class="math">→ O(√T)</span> <span class="check">✓</span></td>
+                        <td><span class="math">→ O(1)</span> <span class="check">✓</span></td>
+                        <td><span class="em-blue">Smooth recovery ✓</span></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="two-col" style="margin-top:0.65rem;">
+                <div class="callout green" style="margin:0;">
+                    <strong>Strongly convex losses:</strong> COLDQ also matches the best-known <span class="math">O(T)</span> <em>static</em> regret while maintaining <span class="math">O(T<sup>V<sub>g</sub></sup>)</span> violation.
+                </div>
+                <div class="callout blue" style="margin:0;">
+                    <strong>Expert-tracking variant:</strong> Same guarantees achieved <em>without</em> prior knowledge of V<sub>x</sub> or V<sub>g</sub> — run M parallel experts, aggregate by weighted combination.
+                </div>
+            </div>
+        </div>
+        <div class="transition-cue">Do the experiments confirm these theoretical guarantees?</div>
+        <div class="slide-num">6 / 12</div>
+    </div>
+
+    <!-- ===== SLIDE 7: EXPERIMENTS ===== -->
+    <div class="slide" data-index="7">
+        <span class="rubric-tag content">KEY FINDINGS</span>
+        <span class="rubric-tag evidence">EVIDENCE</span>
+        <div class="slide-title">Experimental Validation</div>
+        <div class="slide-body">
+            <div class="two-col">
+                <div class="col-card">
+                    <h3>📊 Benchmarks</h3>
+                    <ul>
+                        <li><strong>Time-varying constraints:</strong> compared against RECOO and Algorithm 1 [Liu et al.]</li>
+                        <li><strong>Fixed constraints:</strong> two additional benchmarks</li>
+                        <li>COLDQ outperforms all on <span class="em-blue">hard constraint violation</span> across all settings</li>
+                        <li>Parameters fine-tuned for equal accumulated loss — fair comparison</li>
+                    </ul>
+                </div>
+                <div class="col-card">
+                    <h3>🏙 Online Job Scheduling (NYC)</h3>
+                    <ul>
+                        <li>100 virtual data centers, 10 NYC regions</li>
+                        <li>Real electricity prices from NYISO (May 2017)</li>
+                        <li>5-minute decision intervals, Poisson job arrivals</li>
+                        <li>COLDQ: <span class="em-green">fewest delayed jobs</span> vs. all competitors</li>
+                        <li>Runtime: <strong>&lt; 10 ms/iteration</strong> on a standard laptop</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="callout" style="margin-top:0.8rem;">
+                The experiments directly mirror the theory: as environment dynamics decrease, COLDQ's constraint violations drop faster than competitors — consistent with the <span class="em-green">O(T<sup>V<sub>g</sub></sup>)</span> bound and its smooth recovery property.
+            </div>
+        </div>
+        <div class="transition-cue">Why does this theoretical breakthrough matter to the broader field?</div>
+        <div class="slide-num">7 / 12</div>
+    </div>
+
+    <!-- ===== SLIDE 8: SIGNIFICANCE ===== -->
+    <div class="slide" data-index="8">
+        <span class="rubric-tag content">SIGNIFICANCE</span>
+        <div class="slide-title">Significance of the Research</div>
+        <div class="slide-body">
+            <div class="callout blue" style="margin-bottom:0.7rem;">
+                <strong>Theoretical significance:</strong> COLDQ is the <span class="em-blue">first algorithm</span> whose regret and constraint violation bounds <em>simultaneously</em> smoothly recover to the best-known results — closing a gap in the OCO literature that had persisted for years.
+            </div>
+            <div class="two-col">
+                <div class="col-card">
+                    <h3>📐 New Standards for the Field</h3>
+                    <ul>
+                        <li>"Smooth recovery to best-known bounds" becomes the new benchmark to aim for</li>
+                        <li>No Slater condition: removes a restrictive assumption most real problems cannot satisfy</li>
+                        <li>New Lyapunov drift design is a reusable theoretical tool</li>
+                    </ul>
+                </div>
+                <div class="col-card">
+                    <h3>🔧 Practical Relevance</h3>
+                    <ul>
+                        <li>Cloud resource allocation under fluctuating demand</li>
+                        <li>Online advertising under changing budget rules</li>
+                        <li>Network routing with dynamic bandwidth limits</li>
+                        <li>Expert-tracking variant: deployable without system-specific tuning</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="callout green" style="margin-top:0.7rem;">
+                <em>"By addressing this gap, we advance our understanding of how intelligent systems can operate robustly in the unpredictable real world."</em>
+            </div>
+        </div>
+        <div class="transition-cue">How does this paper inform my own research and writing?</div>
+        <div class="slide-num">8 / 12</div>
+    </div>
+
+    <!-- ===== SLIDE 9: IMPACT ON MY RESEARCH ===== -->
+    <div class="slide" data-index="9">
+        <span class="rubric-tag content">WRITING SKILLS</span>
+        <div class="slide-title">Impact on My Own Research</div>
+        <div class="slide-body">
+            <div class="callout" style="margin-bottom:0.75rem;">
+                <em>This section is personal — it reflects how this paper influences my research design and algorithmic thinking.</em>
+            </div>
+            <ul>
+                <li>
+                    <strong>Doubly-bounded penalty term as a design principle:</strong><br>
+                    In my work on [<em>your research topic here</em>], I face similar trade-offs between performance and constraint satisfaction. Bounding a tracking term from both above and below is a powerful, generalizable technique I plan to explore.
+                </li>
+                <li style="margin-top:0.55rem;">
+                    <strong>Expert-tracking for robustness to unknown parameters:</strong><br>
+                    Running parallel algorithm instances with different parameter settings — then aggregating — is an elegant strategy for handling hyperparameter uncertainty, directly applicable to [<em>your specific challenge</em>].
+                </li>
+                <li style="margin-top:0.55rem;">
+                    <strong>Choice of performance metric matters fundamentally:</strong><br>
+                    This paper clarified that the distinction between static/dynamic regret and soft/hard violation defines what can and cannot be proven. I will apply this precision when designing evaluation metrics for my own work.
+                </li>
+            </ul>
+        </div>
+        <div class="transition-cue">Beyond the research content — what writing strategies can I learn?</div>
+        <div class="slide-num">9 / 12</div>
+    </div>
+
+    <!-- ===== SLIDE 10: WRITING LESSONS ===== -->
+    <div class="slide" data-index="10">
+        <span class="rubric-tag content">WRITING SKILLS</span>
+        <span class="rubric-tag evidence">EVIDENCE</span>
+        <div class="slide-title">Writing Strategies from Experienced Authors</div>
+        <div class="slide-body">
+            <div class="two-col">
+                <div class="col-card">
+                    <h3>✍ Lesson 1: The "Key Question" Technique</h3>
+                    <p style="font-size:clamp(1rem,1.3vw,1.15rem);margin-top:0.4rem;">End the literature review with a single, bold research question in italics:</p>
+                    <div class="callout blue" style="font-size:clamp(0.88rem,1.15vw,1.05rem);margin-top:0.4rem;">
+                        <em>"Can a constrained OCO algorithm provide bounds that smoothly approach O(√T) regret and O(1) violation...?"</em>
+                    </div>
+                    <p style="font-size:clamp(0.85rem,1.1vw,1rem);color:var(--color-gray);margin-top:0.4rem;">Creates suspense, signals the gap, and directly sets up the contributions. I will adopt this pattern.</p>
+                </div>
+                <div class="col-card">
+                    <h3>✍ Lesson 2: Parallel Contributions Structure</h3>
+                    <p style="font-size:clamp(1rem,1.3vw,1.15rem);margin-top:0.4rem;">Contributions use consistent parallel grammar:</p>
+                    <div class="callout" style="font-size:clamp(0.88rem,1.15vw,1.05rem);margin-top:0.4rem;">
+                        <em>"We propose… We analyze… We show… We further propose…"</em>
+                    </div>
+                    <p style="font-size:clamp(0.85rem,1.1vw,1rem);color:var(--color-gray);margin-top:0.4rem;">Makes contributions immediately scannable. Reviewers know what to expect before reading the paper.</p>
+                </div>
+            </div>
+            <div class="callout green" style="margin-top:0.8rem;">
+                <strong>Lesson 3: Unified narrative thread</strong> — The concept of "smoothly approaching best-known bounds" runs consistently through the Introduction, every theorem statement, and the experimental conclusions. This gives a complex technical paper the feel of one coherent argument.
+            </div>
+        </div>
+        <div class="transition-cue">Let me bring everything together.</div>
+        <div class="slide-num">10 / 12</div>
+    </div>
+
+    <!-- ===== SLIDE 11: SUMMARY ===== -->
+    <div class="slide" data-index="11">
+        <span class="rubric-tag content">CONTENT &amp; STRUCTURE</span>
+        <div class="slide-title">Summary</div>
+        <div class="slide-body">
+            <div style="display:flex;flex-direction:column;gap:0.7rem;">
+                <div class="callout blue">
+                    <strong>The Problem:</strong> Online decision-making under time-varying constraints. Prior algorithms could not simultaneously guarantee low dynamic regret <em>and</em> low hard constraint violation when both losses and constraints change.
+                </div>
+                <div class="callout">
+                    <strong>The Solution:</strong> COLDQ introduces a doubly-bounded virtual queue (<span class="math">β ≤ Q<sub>t</sub> ≤ G/γ</span>) and a new Lyapunov drift analysis. Result: <span class="math em-green">O(T<sup>(1+V<sub>x</sub>)/2</sup>)</span> dynamic regret and <span class="math em-green">O(T<sup>V<sub>g</sub></sup>)</span> hard constraint violation — both smoothly recover to <span class="math">O(√T)</span> and <span class="math">O(1)</span> as dynamics vanish. <strong>First time ever.</strong>
+                </div>
+                <div class="callout green">
+                    <strong>The Writing Lessons:</strong> End the literature review with a bold key question; list contributions with parallel structure; build a unified narrative thread that runs from Introduction to experiments.
+                </div>
+            </div>
+        </div>
+        <div class="transition-cue">Thank you — I'd be glad to answer any questions.</div>
+        <div class="slide-num">11 / 12</div>
+    </div>
+
+    <!-- ===== SLIDE 12: CLOSING ===== -->
+    <div class="slide closing-slide" data-index="12">
+        <div class="thank-you">Thank You</div>
+        <div class="qa-invite">I'd be pleased to answer any questions you might have.</div>
+        <div class="takeaway">
+            <strong style="color:#a8d5c8;display:block;margin-bottom:0.5rem;">Key Takeaway:</strong>
+            COLDQ is the first constrained online learning algorithm whose regret and constraint violation bounds <em>simultaneously</em> recover to the best-known results as the environment stabilizes — achieved via a novel doubly-bounded virtual queue and Lyapunov drift analysis, with theoretical proofs and real-world experimental validation.
+        </div>
+        <div style="margin-top:1.4rem;color:rgba(255,255,255,0.45);font-size:0.88rem;">
+            <em>Doubly-Bounded Queue for Constrained Online Learning</em> &nbsp;·&nbsp; AAAI 2025 &nbsp;·&nbsp; Juncheng Wang, HKBU
+        </div>
+        <div class="slide-num">12 / 12</div>
+    </div>
+
+</div><!-- end slides -->
+
+<script>
+    const TOTAL = 12;
+    let cur = 1;
+    let editMode = false;
+    let toolbarVisible = false;
+
+    function getSlide(n) {
+        return document.querySelector(`.slide[data-index="${n}"]`);
+    }
+
+    function goTo(n) {
+        if (n < 1 || n > TOTAL) return;
+        getSlide(cur).classList.remove('active');
+        cur = n;
+        getSlide(cur).classList.add('active');
+        document.getElementById('progress-bar').style.width = ((cur / TOTAL) * 100) + '%';
+    }
+
+    document.addEventListener('keydown', e => {
+        if (editMode && e.key !== 'Escape' && e.key !== 'e' && e.key !== 'E') return;
+        switch (e.key) {
+            case 'ArrowRight': case ' ': e.preventDefault(); goTo(cur + 1); break;
+            case 'ArrowLeft':  e.preventDefault(); goTo(cur - 1); break;
+            case 'Home':       goTo(1); break;
+            case 'End':        goTo(TOTAL); break;
+            case 'e': case 'E': toggleEditMode(); break;
+            case 't': case 'T': toggleToolbar(); break;
+            case 'Escape': if (editMode) toggleEditMode(); break;
+        }
+    });
+
+    document.querySelector('.slides-container').addEventListener('click', e => {
+        if (editMode) return;
+        const x = e.clientX / window.innerWidth;
+        if (x > 0.4) goTo(cur + 1);
+        else goTo(cur - 1);
+    });
+
+    function toggleEditMode() {
+        editMode = !editMode;
+        document.getElementById('edit-indicator').style.display = editMode ? 'block' : 'none';
+        const targets = 'p, li, h3, .slide-title, .main-title, .subtitle, .callout, .col-card, .q-label, .q-caption, .rm-label, .rm-time, .paper-ref, .presenter-info, .thank-you, .qa-invite, .takeaway';
+        document.querySelectorAll('.slide ' + targets).forEach(el => {
+            el.contentEditable = editMode ? 'true' : 'false';
+        });
+    }
+
+    function toggleToolbar() {
+        toolbarVisible = !toolbarVisible;
+        document.getElementById('toolbar').classList.toggle('visible', toolbarVisible);
+    }
+
+    function saveToCache() {
+        localStorage.setItem('coldq_slides_v2', document.documentElement.outerHTML);
+        alert('Saved to browser cache.');
+    }
+
+    function loadFromCache() {
+        const saved = localStorage.getItem('coldq_slides_v2');
+        if (saved) { document.open(); document.write(saved); document.close(); }
+        else alert('No saved version found.');
+    }
+
+    function downloadHTML() {
+        const blob = new Blob([document.documentElement.outerHTML], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'COLDQ_slides.html'; a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    function clearCache() {
+        localStorage.removeItem('coldq_slides_v2');
+        alert('Cache cleared.');
+    }
+
+    // Init
+    document.getElementById('progress-bar').style.width = ((1 / TOTAL) * 100) + '%';
+</script>
+</body>
+</html>
