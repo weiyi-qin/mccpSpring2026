@@ -75,8 +75,8 @@ Suggestions: good
 
 <!-- List any specific changes you want the AI to make -->
 
-1. 
-2. 
+1. The examples and analogies used (e.g., the data center power allocation scenario) are effective and accessible. However, the presentation should more explicitly establish the connection between the paper and the broader field of online learning — for instance, by briefly explaining what online learning is as a research area, where this paper sits within that field, and why the constrained OCO problem is a central and actively studied subproblem. This contextualisation will help the non-specialist audience understand not just the analogy, but the actual academic landscape the paper belongs to.
+2. The presentation would benefit from a brief, accessible introduction to Online Convex Optimization (OCO) as a formal framework — not just as a scenario analogy. Specifically, it should explain that OCO is a sequential decision-making framework where a learner repeatedly selects decisions from a convex feasible set, and the loss function is only revealed after each decision is made. The convexity assumption is important because it enables tractable analysis and is satisfied in many practical problems. This background would help the audience understand why the COLDQ paper's contributions are positioned within OCO, and why the metrics of regret and constraint violation are the natural and standard ways to measure algorithm performance in this setting.
 3. 
 
 ---

@@ -224,93 +224,96 @@
         }
 
         /* ===== OCO FLOW ===== */
-        .oco-flow {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5vw;
-            margin: 0.8rem 0;
-            flex-wrap: wrap;
-        }
+        .oco-flow { display:flex; flex-direction:column; align-items:stretch; margin:0.5rem 0; }
+        .oco-steps { display:flex; align-items:stretch; gap:0; }
         .oco-box {
-            background: var(--color-bg-alt);
-            border: 2px solid var(--color-primary);
-            border-radius: 8px;
-            padding: 0.6rem 0.9rem;
-            text-align: center;
-            font-size: clamp(0.9rem, 1.2vw, 1.1rem);
-            font-weight: 500;
-            min-width: clamp(80px, 9vw, 120px);
+            flex:1; min-width:0;
+            background:var(--color-bg-alt);
+            border:2.5px solid var(--color-primary);
+            border-radius:10px;
+            padding:0.75rem 0.4rem;
+            text-align:center;
+            display:flex; flex-direction:column; align-items:center; gap:0.15rem;
         }
+        .oco-box .step-badge {
+            font-size:0.62rem; font-weight:700; color:var(--color-gray);
+            text-transform:uppercase; letter-spacing:0.05em;
+            background:var(--color-border); border-radius:3px; padding:0.05em 0.4em;
+        }
+        .oco-box .step-icon  { font-size:clamp(1.4rem,2vw,2rem); line-height:1.1; }
+        .oco-box .step-label {
+            font-size:clamp(0.82rem,1.1vw,1rem); font-weight:600;
+            color:var(--color-primary); line-height:1.25;
+        }
+        .oco-box .step-math  { font-size:clamp(0.75rem,0.95vw,0.88rem); color:var(--color-gray); margin-top:0.05rem; }
         .oco-arrow {
-            font-size: clamp(1.2rem, 1.8vw, 1.6rem);
-            color: var(--color-primary);
-            font-weight: 700;
+            flex-shrink:0; display:flex; align-items:center; padding:0 0.4vw;
+            font-size:clamp(1.3rem,2vw,1.9rem); color:var(--color-primary); font-weight:700;
         }
-        .oco-box.loss-box  { border-color: var(--color-blue); background: #d6eaf8; color: var(--color-blue); }
-        .oco-box.viol-box  { border-color: var(--color-red);  background: #fadbd8; color: var(--color-red); }
+        .oco-box.loss-box { border-color:var(--color-blue); background:#daeaf8; }
+        .oco-box.loss-box .step-label { color:var(--color-blue); }
+        .oco-box.loss-box .step-badge { background:#b6d4ee; }
+        .oco-box.viol-box { border-color:var(--color-red); background:#fadbd8; }
+        .oco-box.viol-box .step-label { color:var(--color-red); }
+        .oco-box.viol-box .step-badge { background:#f5bcb6; }
+        .oco-loop { display:flex; align-items:center; gap:0.6rem; margin-top:0.35rem; }
+        .oco-loop-line { flex:1; height:2.5px; background:var(--color-border); border-radius:2px; }
+        .oco-loop-label {
+            font-size:clamp(0.72rem,0.95vw,0.88rem); color:var(--color-gray);
+            font-style:italic; white-space:nowrap;
+        }
 
         /* ===== QUEUE VISUAL ===== */
         .queue-compare {
-            display: flex;
-            gap: 3vw;
-            align-items: flex-start;
-            justify-content: center;
-            margin: 0.8rem 0;
+            display:flex; gap:6vw; align-items:flex-end;
+            justify-content:center; margin:0.5rem 0;
         }
-        .q-wrap { text-align: center; flex: 1; max-width: 200px; }
-        .q-label {
-            font-size: clamp(0.9rem, 1.2vw, 1.1rem);
-            font-weight: 600;
-            margin-bottom: 0.5rem;
+        .q-wrap { display:flex; flex-direction:column; align-items:center; }
+        .q-title {
+            font-size:clamp(0.9rem,1.2vw,1.08rem); font-weight:700;
+            margin-bottom:0.5rem; text-align:center;
         }
-        .q-bar-outer {
-            width: 80px;
-            height: 100px;
-            background: #eee;
-            border: 2px solid #aaa;
-            border-radius: 6px;
-            position: relative;
-            margin: 0 auto 0.4rem;
-            overflow: visible;
+        /* outer wrapper gives space for overflow zone above */
+        .q-outer {
+            position:relative;
+            padding-top:50px;   /* room for overflow zone */
+            width:clamp(100px,10vw,130px);
         }
-        .q-bar-inner {
-            position: absolute;
-            bottom: 0; left: 0;
-            width: 100%;
-            border-radius: 0 0 4px 4px;
+        .q-overflow-zone {
+            position:absolute; top:0; left:0; right:0; height:46px;
+            background:rgba(192,57,43,0.1);
+            border:2px dashed var(--color-red);
+            border-bottom:none; border-radius:6px 6px 0 0;
+            display:flex; align-items:center; justify-content:center;
+            font-size:clamp(0.85rem,1.1vw,1rem); font-weight:700; color:var(--color-red);
+            letter-spacing:0.05em;
         }
-        .q-ceiling {
-            position: absolute;
-            top: 0; left: -28px;
-            font-size: 0.72rem;
-            font-weight: 700;
-            color: var(--color-green);
-            white-space: nowrap;
+        .q-tank {
+            width:100%; height:clamp(150px,19vh,210px);
+            background:#f0f0f0; border:2.5px solid #bbb;
+            border-radius:0 0 6px 6px; position:relative; overflow:hidden;
         }
-        .q-ceiling::after {
-            content: '';
-            position: absolute;
-            top: 50%; right: -28px;
-            width: 24px; height: 2px;
-            background: var(--color-green);
+        .q-tank.no-overflow { border-radius:6px; }
+        .q-fill {
+            position:absolute; bottom:0; left:0; width:100%;
         }
-        .q-floor {
-            position: absolute;
-            bottom: 0; left: -24px;
-            font-size: 0.72rem;
-            font-weight: 700;
-            color: var(--color-blue);
-            white-space: nowrap;
+        /* horizontal dashed bound lines */
+        .q-dline {
+            position:absolute; left:-32px; right:-32px;
+            border-top:2.5px dashed; z-index:4;
         }
-        .q-floor::after {
-            content: '';
-            position: absolute;
-            top: 50%; right: -24px;
-            width: 20px; height: 2px;
-            background: var(--color-blue);
+        .q-dline-label {
+            position:absolute; left:calc(100% + 36px);
+            transform:translateY(-55%);
+            font-size:0.72rem; font-weight:700; white-space:nowrap;
+            background:var(--color-bg); padding:0 3px; border-radius:2px;
         }
-        .q-caption { font-size: clamp(0.82rem, 1.05vw, 0.95rem); color: var(--color-gray); }
+        .q-caption {
+            margin-top:0.45rem;
+            font-size:clamp(0.78rem,1vw,0.9rem); color:var(--color-gray);
+            font-style:italic; text-align:center;
+            max-width:clamp(120px,14vw,165px); line-height:1.35;
+        }
 
         /* ===== TITLE SLIDE ===== */
         .title-slide { background: var(--color-primary) !important; }
@@ -409,6 +412,38 @@
             color: #ccc;
             font-size: 0.72rem;
             letter-spacing: 0.02em;
+            z-index: 50;
+        }
+
+        /* ===== SPEAKER NOTES ===== */
+        #notes-panel {
+            display: none;
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            max-height: 36vh;
+            background: rgba(20, 28, 40, 0.96);
+            color: #e8f0ed;
+            padding: 0.8rem 10vw 1.2rem;
+            z-index: 500;
+            overflow-y: auto;
+            border-top: 3px solid var(--color-primary);
+        }
+        #notes-panel.visible { display: block; }
+        #notes-panel .notes-header {
+            font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.08em; color: #a8d5c8; margin-bottom: 0.5rem;
+        }
+        #notes-panel .notes-body {
+            font-size: clamp(0.9rem, 1.2vw, 1.05rem);
+            line-height: 1.7; color: #ddeee8;
+        }
+        #notes-panel .notes-body .pause {
+            display: inline-block;
+            background: rgba(168,213,200,0.2);
+            border: 1px solid #a8d5c8;
+            border-radius: 3px; padding: 0 0.35em;
+            font-size: 0.78em; color: #a8d5c8; font-style: italic;
+            vertical-align: middle; margin: 0 0.15em;
         }
     </style>
 </head>
@@ -416,7 +451,12 @@
 
 <div id="progress-bar"></div>
 <div id="edit-indicator">✏ EDIT MODE — press E to exit</div>
-<div id="keys-hint">← → Navigate &nbsp;|&nbsp; E Edit &nbsp;|&nbsp; T Toolbar</div>
+<div id="keys-hint">← → Navigate &nbsp;|&nbsp; N Speaker Notes &nbsp;|&nbsp; E Edit &nbsp;|&nbsp; T Toolbar</div>
+
+<div id="notes-panel">
+    <div class="notes-header">🎤 Speaker Notes — Slide <span id="notes-slide-num"></span> &nbsp;|&nbsp; Press N to hide</div>
+    <div class="notes-body" id="notes-content"></div>
+</div>
 
 <div id="toolbar">
     <button onclick="saveToCache()"    style="background:#27ae60;color:#fff;">💾 Save</button>
@@ -489,13 +529,40 @@
             </div>
             <p style="margin-bottom:0.6rem;">This captures the formal structure of the paper's problem:</p>
             <div class="oco-flow">
-                <div class="oco-box">Learner picks<br>decision <span class="math">x<sub>t</sub></span></div>
-                <div class="oco-arrow">→</div>
-                <div class="oco-box loss-box">Loss <span class="math">f<sub>t</sub>(x)</span><br>revealed</div>
-                <div class="oco-arrow">→</div>
-                <div class="oco-box viol-box">Constraint <span class="math">g<sub>t</sub>(x)</span><br>revealed</div>
-                <div class="oco-arrow">→</div>
-                <div class="oco-box">Update &amp;<br>repeat</div>
+                <div class="oco-steps">
+                    <div class="oco-box">
+                        <span class="step-badge">Step 1</span>
+                        <span class="step-icon">🤖</span>
+                        <span class="step-label">Learner picks decision</span>
+                        <span class="step-math"><span class="math">x<sub>t</sub> ∈ 𝒳</span></span>
+                    </div>
+                    <div class="oco-arrow">→</div>
+                    <div class="oco-box loss-box">
+                        <span class="step-badge">Step 2</span>
+                        <span class="step-icon">📉</span>
+                        <span class="step-label">Loss function revealed</span>
+                        <span class="step-math"><span class="math">f<sub>t</sub>(x<sub>t</sub>)</span> incurred</span>
+                    </div>
+                    <div class="oco-arrow">→</div>
+                    <div class="oco-box viol-box">
+                        <span class="step-badge">Step 3</span>
+                        <span class="step-icon">⚠️</span>
+                        <span class="step-label">Constraint revealed</span>
+                        <span class="step-math"><span class="math">g<sub>t</sub>(x<sub>t</sub>)</span> measured</span>
+                    </div>
+                    <div class="oco-arrow">→</div>
+                    <div class="oco-box">
+                        <span class="step-badge">Step 4</span>
+                        <span class="step-icon">🔄</span>
+                        <span class="step-label">Update &amp; advance</span>
+                        <span class="step-math">t ← t + 1</span>
+                    </div>
+                </div>
+                <div class="oco-loop">
+                    <div class="oco-loop-line"></div>
+                    <span class="oco-loop-label">↩ Repeat for T rounds &nbsp;|&nbsp; both f<sub>t</sub> and g<sub>t</sub> change arbitrarily each round</span>
+                    <div class="oco-loop-line"></div>
+                </div>
             </div>
             <p style="margin-top:0.5rem;">Both <span class="math">f<sub>t</sub></span> and <span class="math">g<sub>t</sub></span> are <strong>unknown in advance</strong> and change arbitrarily. Two metrics measure performance:</p>
             <div class="two-col" style="margin-top:0.5rem;">
@@ -583,24 +650,42 @@
                     </ul>
                 </div>
             </div>
-            <div class="queue-compare" style="margin-top:0.8rem;">
+            <div class="queue-compare" style="margin-top:0.7rem;">
+                <!-- Prior: single-bounded, can overflow -->
                 <div class="q-wrap">
-                    <div class="q-label em-red">Prior Queue</div>
-                    <div class="q-bar-outer" style="border-color:#e74c3c;">
-                        <div class="q-bar-inner" style="height:90%;background:#fadbd8;border-bottom:2px solid #e74c3c;"></div>
-                        <div class="q-floor" style="color:var(--color-red);">0</div>
-                        <div style="position:absolute;top:-1.3rem;left:50%;transform:translateX(-50%);font-size:0.75rem;color:var(--color-red);">∞ ?</div>
+                    <div class="q-title em-red">Prior: Single-Bounded Queue</div>
+                    <div class="q-outer">
+                        <div class="q-overflow-zone">∞ &nbsp;↑&nbsp; UNBOUNDED</div>
+                        <div class="q-tank" style="border-color:var(--color-red); border-top:2.5px dashed var(--color-red);">
+                            <div class="q-fill" style="height:82%; background:rgba(192,57,43,0.18); border-top:3px solid var(--color-red);"></div>
+                            <!-- only floor line -->
+                            <div class="q-dline" style="bottom:0; border-color:#999;">
+                                <span class="q-dline-label" style="color:#666;">floor = 0</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="q-caption">Unbounded above</div>
+                    <div class="q-caption">Can grow without limit —<br>violation bound never recovers to O(1)</div>
                 </div>
+
+                <!-- COLDQ: doubly-bounded -->
                 <div class="q-wrap">
-                    <div class="q-label em-green">COLDQ Queue</div>
-                    <div class="q-bar-outer" style="border-color:var(--color-green);">
-                        <div class="q-bar-inner" style="height:55%;background:#d5f5e3;border-bottom:2px solid var(--color-green);"></div>
-                        <div class="q-floor" style="color:var(--color-blue);">β (floor)</div>
-                        <div class="q-ceiling">G/γ (ceiling)</div>
+                    <div class="q-title em-green">COLDQ: Doubly-Bounded Queue</div>
+                    <div class="q-outer">
+                        <!-- placeholder so tanks align at same height -->
+                        <div style="height:46px; border-radius:6px 6px 0 0;"></div>
+                        <div class="q-tank no-overflow" style="border-color:var(--color-green);">
+                            <div class="q-fill" style="height:52%; background:rgba(26,122,74,0.18);"></div>
+                            <!-- ceiling line -->
+                            <div class="q-dline" style="top:14%; border-color:var(--color-green);">
+                                <span class="q-dline-label" style="color:var(--color-green);">ceiling = G/γ</span>
+                            </div>
+                            <!-- floor line -->
+                            <div class="q-dline" style="bottom:0; border-color:var(--color-blue);">
+                                <span class="q-dline-label" style="color:var(--color-blue);">floor = β</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="q-caption">Trapped between floor &amp; ceiling</div>
+                    <div class="q-caption">Always between β and G/γ —<br>tight, predictable violation control</div>
                 </div>
             </div>
         </div>
@@ -834,6 +919,19 @@
     let cur = 1;
     let editMode = false;
     let toolbarVisible = false;
+    let notesVisible = false;
+
+    const NOTES = {
+        1: `Good morning, everyone. Today I'd like to present a paper published at AAAI 2025 — one of the top venues in Artificial Intelligence research. The paper is titled <em>"Doubly-Bounded Queue for Constrained Online Learning: Pace with Dynamics of Both Loss and Constraint"</em>, authored by Juncheng Wang from Hong Kong Baptist University. <span class="pause">pause</span> Before I dive in, let me briefly outline what I'll cover.`,
+
+        2: `My presentation is structured in four parts. I'll begin by introducing the paper and the problem it addresses. Then I'll explain the key theoretical findings — this is the core of the talk, since the paper is fundamentally about proving formal guarantees. After that, I'll discuss why these findings matter to the broader research field. And finally, I'll reflect on how this paper might influence my own research, and what writing strategies I've learned from studying it. <span class="pause">pause</span> A quick note before we begin: this is a theory-driven paper. Its main contribution is a set of mathematical performance guarantees about a new algorithm. I'll explain these step by step — don't worry about the notation, I'll unpack each term as we go.`,
+
+        3: `Let me start with the problem. <span class="pause">pause</span> Online Convex Optimization, or OCO, is a framework for sequential decision-making under uncertainty. At each time step, a learner — think of this as an algorithm — must select a decision from a feasible set, <em>before</em> knowing what the loss function or constraint function will be for that round. Only after the decision is made are these functions revealed. The learner then updates its strategy and moves to the next step. <span class="pause">pause</span> Both the cost function and the constraint can change arbitrarily from round to round — which is what makes this problem hard. <span class="pause">pause</span> To measure performance, the paper uses two metrics. The first is <strong>Regret</strong> — how much worse did the algorithm perform compared to the best possible fixed decisions in hindsight? The goal is to keep regret sub-linear in T, meaning the per-round loss diminishes over time. The second is <strong>Hard Constraint Violation</strong> — how much did the algorithm break the rules in total? Importantly, unlike soft violation, hard violation does not allow compensating for past violations by being overly conservative later.`,
+
+        4: `Now, with these two metrics defined, let's look at what prior work could and couldn't do. <span class="pause">pause</span> For algorithms designed for <em>fixed</em> constraints — where the rules never change — the best known results are excellent: regret of O(√T) and hard constraint violation of just O(1), meaning it stays bounded no matter how long the algorithm runs. <span class="pause">pause</span> But when constraints are allowed to vary over time, something breaks down. The best known algorithms could still achieve the O(√T) regret — they handled changing losses well. But the hard constraint violation deteriorated badly, growing towards O(√T · T) at best. It could never recover to O(1), even as the environment became more stable. <span class="pause">pause</span> This is the gap the paper identifies. The key question — stated explicitly in the Introduction — is: <em>can we design an algorithm that simultaneously achieves both bounds, and where both smoothly recover to their best-known values as the environment stabilizes?</em> The answer is yes — and that's what makes this paper a breakthrough.`,
+
+        5: `The authors' solution is called COLDQ — Constrained Online Learning with Doubly-bounded Queue. The central innovation is a new type of virtual queue used to track constraint violations over time. <span class="pause">pause</span> In previous algorithms, this virtual queue had only a lower bound — it could never go below zero, but it could grow without limit whenever constraints were violated. Because of this unbounded growth, the violation bound couldn't be controlled tightly enough. <span class="pause">pause</span> COLDQ's insight is both simple and powerful: enforce a <em>ceiling</em> as well as a floor. The queue is always kept between a lower bound β and an upper bound G over γ. This tight confinement gives the algorithm the control it needs. <span class="pause">pause</span> The other key technical contribution is a new Lyapunov drift analysis — a mathematical technique for proving performance guarantees in dynamic systems. The new analysis cleverly exploits both the floor and ceiling of the queue simultaneously, which is what yields the improved bounds we'll see on the next slide.`
+    };
 
     function getSlide(n) {
         return document.querySelector(`.slide[data-index="${n}"]`);
@@ -845,6 +943,21 @@
         cur = n;
         getSlide(cur).classList.add('active');
         document.getElementById('progress-bar').style.width = ((cur / TOTAL) * 100) + '%';
+        if (notesVisible) updateNotes();
+    }
+
+    function updateNotes() {
+        document.getElementById('notes-slide-num').textContent = cur;
+        const content = NOTES[cur];
+        document.getElementById('notes-content').innerHTML = content
+            ? content
+            : '<em style="color:#6c8a82;">No notes for this slide.</em>';
+    }
+
+    function toggleNotes() {
+        notesVisible = !notesVisible;
+        document.getElementById('notes-panel').classList.toggle('visible', notesVisible);
+        if (notesVisible) updateNotes();
     }
 
     document.addEventListener('keydown', e => {
@@ -856,6 +969,7 @@
             case 'End':        goTo(TOTAL); break;
             case 'e': case 'E': toggleEditMode(); break;
             case 't': case 'T': toggleToolbar(); break;
+            case 'n': case 'N': toggleNotes(); break;
             case 'Escape': if (editMode) toggleEditMode(); break;
         }
     });
