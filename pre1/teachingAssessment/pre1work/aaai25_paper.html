@@ -3,365 +3,494 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Doubly-Bounded Queue for Constrained Online Learning:</title>
+    <title>Doubly-Bounded Queue for Constrained Online Learning: Keeping Pace with Dynamics of Both Loss and Constraint</title>
     <style>
         body {
-            font-family: 'Georgia', 'Times New Roman', serif;
-            max-width: 900px;
+            font-family: Georgia, "Times New Roman", serif;
+            max-width: 980px;
             margin: 0 auto;
-            padding: 20px;
-            line-height: 1.6;
-            color: #333;
-            background-color: #fff;
+            padding: 28px 22px 56px;
+            line-height: 1.7;
+            color: #2b2b2b;
+            background: #ffffff;
         }
+
         h1 {
-            color: #2c3e50;
-            border-bottom: 3px solid #3498db;
-            padding-bottom: 10px;
+            color: #1f3b57;
+            margin-bottom: 8px;
+            line-height: 1.25;
         }
+
         h2 {
-            color: #34495e;
-            margin-top: 30px;
-            border-bottom: 2px solid #ecf0f1;
-            padding-bottom: 5px;
+            color: #23405f;
+            margin-top: 36px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #e5edf5;
         }
+
         h3 {
-            color: #555;
-            margin-top: 20px;
+            color: #2f4f6f;
+            margin-top: 24px;
         }
-        h4 {
-            color: #666;
-        }
-        .abstract {
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-left: 4px solid #3498db;
-            margin: 20px 0;
-        }
-        .authors {
-            font-style: italic;
-            color: #666;
-            margin: 10px 0;
-        }
-        code {
-            background-color: #f4f4f4;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9em;
-        }
-        pre {
-            background-color: #f4f4f4;
-            padding: 15px;
-            border-radius: 5px;
-            overflow-x: auto;
-            border-left: 3px solid #3498db;
-        }
-        pre code {
-            background-color: transparent;
-            padding: 0;
-        }
-        ul, ol {
-            margin: 10px 0;
-            padding-left: 30px;
-        }
-        li {
-            margin: 5px 0;
-        }
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin: 20px 0;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #3498db;
-            color: white;
-        }
-        hr {
-            border: none;
-            border-top: 2px solid #ecf0f1;
-            margin: 30px 0;
-        }
-        .source-info {
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 2px solid #ecf0f1;
-            font-size: 0.9em;
-            color: #666;
-        }
+
         p {
-            margin: 10px 0;
+            margin: 12px 0;
             text-align: justify;
+        }
+
+        ul, ol {
+            padding-left: 24px;
+        }
+
+        li {
+            margin: 8px 0;
+        }
+
+        .meta {
+            color: #66778a;
+            margin-bottom: 18px;
+        }
+
+        .abstract,
+        .note,
+        .equation {
+            background: #f7fafc;
+            border-left: 4px solid #4a90d9;
+            padding: 14px 16px;
+            margin: 16px 0;
+        }
+
+        .equation {
+            font-family: "Courier New", Courier, monospace;
+            white-space: pre-wrap;
+            overflow-x: auto;
+            font-size: 0.96em;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            margin: 18px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 8px 0 18px;
+        }
+
+        caption {
+            caption-side: top;
+            text-align: left;
+            font-weight: bold;
+            color: #23405f;
+            margin-bottom: 8px;
+        }
+
+        th, td {
+            border: 1px solid #d7e0ea;
+            padding: 10px;
+            vertical-align: top;
+        }
+
+        th {
+            background: #eef5fb;
+            color: #1f3b57;
+        }
+
+        .small {
+            color: #5f6f7f;
+            font-size: 0.95em;
+        }
+
+        .footer {
+            margin-top: 42px;
+            padding-top: 18px;
+            border-top: 2px solid #e5edf5;
+            color: #66778a;
+            font-size: 0.94em;
         }
     </style>
 </head>
 <body>
-    <h1>Doubly-Bounded Queue for Constrained Online Learning:</h1>
-    
-    <div class="authors">
-        <p><strong>Authors:</strong> Juncheng Wang{Corresponding author, jcwang@comp.hkbu.edu.hk</p>
-    </div>
+    <header>
+        <h1>Doubly-Bounded Queue for Constrained Online Learning: Keeping Pace with Dynamics of Both Loss and Constraint</h1>
+        <p class="meta"><strong>Paper status:</strong> Anonymous submission</p>
+        <p class="small">This HTML page is a cleaned reconstruction of the provided PDF. Broken placeholders, malformed equations, and appendix fragments from the previous version have been removed. Mathematical expressions are rendered in plain text for readability.</p>
+    </header>
 
-    <div class="abstract"><h2>Abstract</h2><p>We consider online convex optimization with time-varying constraints and conduct performance analysis using two stringent metrics: dynamic regret with respect to the online solution benchmark, and hard constraint violation that does not allow any compensated violation over time. We propose an efficient algorithm called Constrained Online Learning with Doubly-bounded Queue (COLDQ), which introduces a novel virtual queue that is both lower and upper bounded, allowing tight control of the constraint violation without the need for the Slater condition. We prove via a new Lyapunov drift analysis that COLDQ achieves $O(T^1+V_x{2})$ dynamic regret and $O(T^{V_g})$ hard constraint violation, where $V_x$ and $V_g$ capture the dynamics of the loss and constraint functions. For the first time, the two bounds smoothly approach to the best-known $O(T^1{2})$ regret and $O(1)$ violation, as the dynamics of the losses and constraints diminish. For strongly convex loss functions, COLDQ matches the best-known $O(T)$ static regret while maintaining the $O(T^{V_g})$ hard constraint violation. We further introduce an expert-tracking variation of COLDQ, which achieves the same performance bounds without any prior knowledge of the system dynamics. Simulation results demonstrate that COLDQ outperforms the state-of-the-art approaches.</p></div>
-<hr>
-<h1>Doubly-Bounded Queue for Constrained Online Learning:</h1>
-<p>\ Pace with Dynamics of Both Loss and Constraint</p>
-<strong>Authors</strong>: Juncheng Wang{Corresponding author, jcwang@comp.hkbu.edu.hk
-<strong>Affiliation</strong>: Department of Computer Science, Hong Kong Baptist University
-<h2>Introduction</h2>
-<p>In many online learning applications, optimization losses and constraints are dynamic over time. Online Convex Optimization (OCO) [citation], as the intersection of learning, optimization, and game, is a vital framework for solving online learning problems under uncertainty. It has broad applications such as advertisement placement [citation], load balancing [citation], network virtualization [citation], and resource allocation [citation].</p>
-<p>In the standard OCO setting, a learner selects online decisions from a known convex set to minimize a sequence of time-varying convex loss functions. The information of each loss function, however, is only revealed to the learner after the decision has been made. Given this lack of current information, the objective of the learner becomes to minimize the <em>regret</em>, which is the accumulated difference between the losses incurred by their online decisions and those of some benchmark solutions. [citation] considered both <em>static</em> regret to an offline benchmark and <em>dynamic</em> regret to an online benchmark. The proposed online projected gradient descent algorithm provided a dynamic regret bound that <em>smoothly</em> approaches to [O(T^1{2})] static regret, as the accumulated variation of the loss functions reduces, the OCO algorithm keeps pace with the dynamics of the losses.</p>
-<p>The projection operation to strictly satisfy the constraints at each time can incur heavy computation. Furthermore, in many applications, the online decisions are subject to constraints that are allowed to be violated at certain time slots. [citation] initiated the study on OCO with <em>soft constraint violation</em>, which measures the amount of compensated violations over time. In contrast, with a goal to limit the instantaneous violation, [citation] introduced a stronger notion of <em>hard</em> constraint violation that does not allow any compensated violation over time. For <em>fixed</em> constraints, the best-known soft and hard constraint violation bounds are both [O(1)] [citation].</p>
-<p>Most existing works on OCO with <em>time-varying</em> constraints focused on the static regret [citation]. Dynamic regret for time-varying constrained OCO was more recently studied [citation]. As the accumulated variation of the constraint functions reduces, the best-known soft and hard constraint violation bounds for time-varying constraints approach to [O(T^1{2})] and [O(T^1{2} T)], respectively [citation]. However, none of the constraint violation bound recovers the best-known [O(1)] violation for fixed constraints, the constrained OCO algorithms do <em>not</em> keep pace with the dynamics of the constraints.</p>
-<p>The above discrepancies motivate us to pose the following key question: <em>Can a constrained OCO algorithm provide a dynamic regret bound and a constraint violation bound that smoothly approach to the best-known [O</em>(T^{1{2})] regret and [O(1)] violation, respectively, as the dynamics of the losses and constraints diminish?} Our answer is yes.</p>
-<strong>Contributions.</strong> We summarize our contributions below.
-<ul>
-<li>We propose an effective algorithm named Constrained Online Learning with Doubly-bounded Queue (COLDQ) for tackling OCO problems with time-varying constraints. Existing virtual-queue-based approaches rely on either a lower or an upper bound of the virtual queue to bound the constraint violation. In contrast, we introduce a novel virtual queue that enforces both a lower and an upper bound, without the commonly assumed Slater condition, to strictly control the constraint violation.</li>
-</ul>
-<p>We analyze the performance of COLDQ via a new Lyapunov drift design that leverages both the lower and upper bounds of the virtual queue. We show that COLDQ provides [O(T^1+V_x{2})] dynamic regret and [O(T^{V_g})] hard constraint violation, where [V_x] and [V_g] capture the dynamics of the losses and constraints (see definitions in (eq:Vx) and (eq:Vg)). For the first time, the two bounds smoothly approach to the best-known [O(T^1{2})] regret and [O(1)] violation as [V_x0] and [V_g0].</p>
-<p>When the loss functions are strongly convex, we show that COLDQ matches the best-known [O(T)] static regret, while maintaining the [O(T^{V_g})] hard constraint violation. We further propose a variation of COLDQ with expert tracking that can achieve the same [O(T^1+V_x{2})] dynamic regret and [O(T^{V_g})] hard constraint violation, without any prior knowledge about the system dynamics.</p>
-<p>We conduct experiments to evaluate the practical performance of COLDQ on various applications involving both time-varying and fixed constraints. Numerical results confirm the effectiveness of COLDQ over the state-of-the-art approaches.</p>
-<p>[Table]</p>
-<p>[Table]</p>
-<h2>Related Work</h2>
-<h2>Constrained Online Convex Optimization</h2>
-<p>We can consider the constrained OCO problem as an iterative game between a learner and the system over [T] time slots. At each time [t], the learner first selects a decision [x_t] from a known feasible set [X^p]. The loss function [f_t(x):R^p] and the constraint function [g_t(x)=[g_t^1(x),,g_t^N(x)]^:R^p^N] are then revealed to the learner, incurring a loss of [f_t(x_t)] and a constraint violation of [g_t(x_t)]. Both the loss function [f_t(x)] and the constraint function [g_t(x)] are unknown a priori and are allowed to change arbitrarily over time.</p>
-<p>The goal of the learner is to select from the feasible set an online decision sequence that minimizes the total accumulated loss under time-varying constraints. This gives rise to the following time-varying constrained OCO problem</p>
-<p>[Equation]</p>
-<p>When [g_t(x)=g(x),t], [<strong>P</strong>] becomes the OCO problem with fixed constraints.</p>
-<h2>Constrained Online Learning with Doubly-bounded Queue (COLDQ)</h2>
-<p>We present the COLDQ algorithm for solving [<strong>P</strong>]. In COLDQ, we introduce a novel doubly-bounded virtual queue and a new Lyapunov drift design, which will be shown to provide improved regret and constraint violation bounds.</p>
-<h2>Performance Bounds of COLDQ</h2>
-<h2>Experiments</h2>
-<p>We conduct experiments to evaluate the performance of COLDQ for both time-varying and fixed constraints. In the Appendix, we provide all the algorithm parameters used in our experiments, and detailed problem settings of the application to online job scheduling.</p>
-<h2>Conclusions</h2>
-<p>We propose an effective COLDQ algorithm for OCO with time-varying constraints. We design a novel virtual queue that is bounded both from above and below to strictly control the hard constraint violation. Through a new Lyapunov drift analysis, COLDQ achieves [O(T^1+V_x{2})] dynamic regret and [O(T^{V_g})] hard constraint violation. For the first time, the two bounds smoothly approach to the best-known [O(T^1{2})] regret and [O(1)] violation, as the dynamics of the losses and constraints represented by [V_x] and [V_g] diminish. We further study the case of strongly-convex loss functions, and demonstrate that COLDQ matches the best-known [O(T)] static regret while maintaining the [O(T^{V_g})] hard constraint violation. Moreover, we extend COLDQ with expert tracking capability, which allows it to achieve the same dynamic regret and hard constraint violation bounds without any prior knowledge of the system dynamics. Finally, experimental results complement our theoretical analysis.</p>
-<h2>Auxiliary Lemmas</h2>
-<p>lemma[Lemma 2.8 [citation]]</p>
-<em>Let [X</em>] be a convex set. Let [f({x):X] be a [2]-strongly convex function with respect to a norm [], and [x^_{x}f(x)] be the optimal solution of [f(x)]. Then, we have [f(x^)f(x)--x^^2,].}
-<p>lemma</p>
-<em>Proof:</em> From the definition of strong convexity, we have for any [x,y]:
-<p>align*</p>
-<p>f(x)f(y)+(y),x-y+-y^2.</p>
-<p>align*</p>
-<p>Substituting [y=x^] into the above inequality and rearranging terms, we have for any [x]:</p>
-<p>align*</p>
-<p>f(x^)f(x)-(x^),x-x^--x^^2.</p>
-<p>align*</p>
-<p>Further noting that the sufficient and necessary condition for [x^] to be a global optimal solution of the convex function [f(x)] is for any [x]:</p>
-<p>align*</p>
-<p>(x^),x-x^0,</p>
-<p>align*</p>
-<p>we complete the proof.[]</p>
-<p>lemma[Time Series]</p>
-<em>The following time series is upper bounded for any [c[0,1)] as</em>
-<p>align*</p>
-<p>_{t=1}^T1{t^c}1{1-c}T^{1-c}.</p>
-<p>align*</p>
-<p>lemma</p>
-<em>Proof:</em> For any [c[0,1)], we have
-<p>align*</p>
-<p>_{t=1}^T1{t^c}_1^Tt^{-c}dt=1{1-c}t^{1-c}|_1^T=1{1-c}(T^{1-c}-1)1{1-c}T^{1-c}.</p>
-<p>align*</p>
-<p>[]</p>
-<p>lemma[Lemma 1 [citation], Lemma 3 [citation]]</p>
-<em>Let <a href="0,1">X</em>] be a convex set. Let [{l_t({x):X}_{t=1}^T] be a sequence of convex functions. Assume [l_t(x)] is bounded, [F>0], such that [|l_t(x)|F,,t]. Let [M_+] and [>0] be constants. Let [{x_t[m]}_{t=1}^T,m={1,,M}] be [M] sequences of decisions. Then, for any given [w_1[m</a>] that satisfies [_{m=1}^Mw_1[m]=1], let [{x_t}_{t=1}^T] be a sequence of decisions updated via
-<p>align*</p>
-<p>x_t=_{m=1}^Mw_t[m]x_t[m]</p>
-<p>align*</p>
-<p>where</p>
-<p>align*</p>
-<p>w_t[m]=w_{t-1[m]e^{-l_{t-1}(x_{t-1}[m])}}{_{m=1}^Mw_{t-1}[m]e^{-l_{t-1}(x_{t-1}[m])}}.</p>
-<p>align*</p>
-<p>Then, for any [T1], we have</p>
-<p>align*</p>
-<p>_{t=1}^Tl_t(x_t)-_{m}{_{t=1}^Tl_t(x_t[m])+1{}(1{w_1[m]})}{F^2T}{2}.</p>
-<p>align*</p>
-<p>}</p>
-<p>lemma</p>
-<em>Proof:</em> See the proof of Lemma 1 in [citation].
-<h2>Proof of Lemma~\ref{lm:vq</h2>
-<p>}</p>
-<em>Proof:</em> We first prove [Q_t^n{},t,n] by induction. From the initialization of the virtual queue, we have [Q_1^n={},n]. Then, suppose [Q_{-1}^n{},n] for some [>1], we now prove [Q_^n{},n]. From the virtual queue updating rule
-<p>([reference]), we consider the following two cases:</p>
-<ul>
-<li>If [(1-)Q_{-1}^n+[g_^n(x_)]_+>], we have</li>
-</ul>
-<p>align</p>
-<p>Q_^n&=(1-)Q_{-1}^n+[g_^n(x_)]_+(1-)Q_{-1}^n+|g_^n(x_)|(a){}(1-)G{}+G=G{}</p>
-<p>align</p>
-<p>where [(a)] follows from [Q_{-1}^n{}] by induction</p>
-<p>and the bound on [|g_t^n(x)|] in Assumption asm:G.</p>
-<p>If [(1-)Q_{-1}^n+[g_^n(x_)]_+],</p>
-<p>we have</p>
-<p>align</p>
-<p>Q_^n=<G{}.</p>
-<p>align</p>
-<p>Combining the above two cases, we have proven by induction that [Q_t^n{},t,n].</p>
-<p>Further noting that [Q_1^n=,n] from initialization and [{Q}_t^n,t>1,n] from ([reference]), we complete the proof.[]</p>
-<h2>Proof of Lemma~\ref{lm:drift</h2>
-<p>}</p>
-<em>Proof:</em> From the virtual queue updating rule in ([reference]), for any [t>1] and [n], we have
-<p>[Equation]</p>
-<p>where [(a)] follows from[|{a,b}-b||a-b|,a,b0].</p>
-<p>We now bound the RHS of ([reference]). For the second term on the RHS of ([reference]), we have[Equation]</p>
-<p>where [(a)] follows from the triangle inequality, and [(b)] is because of the bound on [|g_t^n(x)|] in Assumption [reference] and the virtual queue upper bound in ([reference]).</p>
-<p>For the third term on the RHS of ([reference]), we have</p>
-<p>[Equation]</p>
-<p>where [(a)] follows from the virtual queue upper bound in ([reference]),</p>
-<p>and [(b)] is because [|[a]_+-[b]_+||a-b|].</p>
-<p>For the last term on the RHS of ([reference]), we have</p>
-<p>[Equation]</p>
-<p>which follows form the virtual queue lower bound in ([reference]).</p>
-<p>Substituting ([reference])-([reference]) into the RHS of</p>
-<p>([reference]), for</p>
-<p>any [t>1] and [n], we have</p>
-<p>[Equation]</p>
-<p>Rearranging terms of ([reference]), and summing over [n=1,,N], we have</p>
-<p>[Equation]</p>
-<p>From ([reference]) and noting that [_{n=1}^N|g_t^n(x_t)-g_{t-1}^n(x_t)|_{x}_t(x)-g_{t-1}(x)], we complete the proof. []</p>
-<h2>Proof of Lemma~\ref{lm:fgt</h2>
-<p>}</p>
-<em>Proof:</em> Note that [_{t-1}(x_{t-1}),x-x_{t-1}]
-<p>is affine in [x] over [X], [_{n=1}^NQ_{t-1}^n[g_{t-1}^n(x)]_+] is convex in [x]</p>
-<p>over [X] since the maximum and linear combination of convex functions</p>
-<p>are also convex, and [_{t-1}-x_{t-1}^2] is [2_{t-1}]-strongly convex in [x] over [X]. Therefore, the objective function of [<strong>P</strong>_t] is [2_{t-1}]-strongly convex in [x] over [X]. Further noting that [x_t] is the optimal solution to [<strong>P</strong>_t], applying Lemma [reference] to [<strong>P</strong>_t], we have</p>
-<p>[Equation]</p>
-<p>We now bound the RHS of ([reference]). From the convexity of [f_{t-1}(x)], the first term on the RHS of ([reference]) is upper bounded by</p>
-<p>[Equation]</p>
-<p>From the definition of the dynamic benchmark [x_t^], the second term on the RHS of ([reference]) satisfies</p>
-<p>[Equation]</p>
-<p>For the last two terms on the RHS of ([reference]), we have</p>
-<p>[Equation]</p>
-<p>where [(a)] follows from [+b^2^2+^2-2] and [(b)] is because [{_t}] being non-decreasing and [X] being bounded in Assumption [reference].</p>
-<p>Substituting ([reference])-([reference]) into the RHS of ([reference]) and rearranging terms, we have</p>
-<p>[Equation]</p>
-<p>For the last two terms on the RHS of ([reference]), completing the square, we have</p>
-<p>[Equation]</p>
-<p>where [(a)] follows from the bound on [f_t(x)] in Assumption [reference].</p>
-<p>Substituting ([reference]) into ([reference]) yields ([reference]).[]</p>
-<h2>Proof of Theorem~\ref{thm:reg</h2>
-<p>}</p>
-<em>Proof:</em> Summing ([reference]) over [t=2,,T] and noting that [Q_{t-1}^{n}[g_{t-1}^{n}(x_t)]_+0,t>1,n], we have
-<p>[Equation]</p>
-<p>where [(a)] follows from [X] being bounded in Assumption [reference].</p>
-<p>Also, for any [t], we have</p>
-<p>[Equation]</p>
-<p>where [(a)] follows from the convexity of [f_t(x)], [(b)] is due to the fact that [,b], and [(c)] follows from [X] and [f_t(x)] being bounded in Assumptions [reference] and [reference] , respectively.</p>
-<p>Combining ([reference]) and [f_T(x_T)-f_T(x_T^)DR] from ([reference]), we complete the proof. []</p>
-<h2>Proof of Theorem~\ref{thm:vio</h2>
-<p>}</p>
-<em>Proof:</em> Substituting the upper bound on the Lyapunov drift in ([reference])
-<p>of Lemma [reference] into the per-slot performance bound of COLDQ in ([reference]) of Lemma [reference] and</p>
-<p>rearranging terms, we have</p>
-<p>[Equation]</p>
-<p>Dividing both sides of ([reference]) by [] and summing over</p>
-<p>[t=2,,T], we have</p>
-<p>[Equation]</p>
-<p>We now bound the RHS of ([reference]). We have</p>
-<p>[Equation]</p>
-<p>which follows from the bound on [X] in Assumption [reference].</p>
-<p>Also, we have</p>
-<p>[Equation]</p>
-<p>which follows from ([reference]) in the proof of Theorem [reference].</p>
-<p>We can show that</p>
-<p>[Equation]</p>
-<p>where [(a)] follows from the definition of [_{t-1}] in ([reference]), and [(b)] is because [Q_1^n=,n] by initialization.</p>
-<p>Substituting ([reference])-([reference]) into ([reference]), we have</p>
-<p>[Equation]</p>
-<p>Further noting that [[g_1^n(x_1)]_+|g_1^n(x_1)|G,n] from Assumption [reference], we complete the proof.[]</p>
-<h2>Proof of Theorem~\ref{thm:strong</h2>
-<p>}</p>
-<em>Proof:</em> Replacing the dynamic benchmark [{x_t^}] with the offline benchmark [x^] in ([reference]) of the proof of Lemma [reference], we have
-<p>[Equation]</p>
-<p>We now bound the RHS of ([reference]). From the []-strongly convexity of [f_{t-1}(x)], the first term on the RHS of ([reference]) can be upper bounded as</p>
-<p>[Equation]</p>
-<p>From the definition of the offline benchmark [x^],</p>
-<p>the second term on the RHS of ([reference]) satisfies</p>
-<p>[Equation]</p>
-<p>Substituting ([reference]) and ([reference]) into the RHS of ([reference]) and rearranging terms, we have</p>
-<p>[Equation]</p>
-<p>where [(a)] follows from [Q_{t-1}^n[g_{t-1}^n(x_t)]_+0,n] and ([reference]) in the proof of Lemma [reference].</p>
-<p>Summing ([reference]) over [t=2,,T], we have</p>
-<p>[Equation]</p>
-<p>where [(a)] follows from [X] being bounded in Assumption [reference].</p>
-<p>Further noting that [f_T(x_T)-f_T(x^)DR] similar to the proof of ([reference]), we complete the proof.[]</p>
-<h2>Proof of Corollary~\ref{cor:conv</h2>
-<p>}</p>
-<em>Proof:</em> Substituting [_t=t^1-V_x{2}] into the dynamic regret bound ([reference]) in Theorem [reference], we have
-<p>[Equation]</p>
-<p>where [(a)] follows from Lemma [reference] and [(b)] is because [_{t=2}^T_t^-x_{t-1}^=O(T^{V_x})] in ([reference]).</p>
-<p>Substituting [_t=t^1-V_x{2}], [=1{T}] and [=T]</p>
-<p>into the hard constraint violation bound ([reference]) in Theorem [reference], we</p>
-<p>have</p>
-<p>[Equation]</p>
-<p>where [(a)] follows from Lemma [reference] and [(b)] is because [_{t=2}^T_t^-x_{t-1}^=O(T^{V_x})]</p>
-<p>in ([reference]) and [_{t=2}^T_{x}_t(x)-g_{t-1}(x)=O(T^{V_g})] in ([reference]).[]</p>
-<h2>Proof of Corollary~\ref{cor:strong</h2>
-<p>}</p>
-<em>Proof:</em> Substituting [_t=t] into the static regret bound ([reference]) in Theorem [reference], we have
-<p>[Equation]</p>
-<p>Substituting [_t=t], [=1{T}], and [=T] into ([reference]) in Theorem [reference] with the dynamic benchmark [{x_t^}] replaced by the offline benchmark [x^], we have</p>
-<p>[Equation]</p>
-<p>where [(a)] follows from [_{t=2}^T_{x}_t(x)-g_{t-1}(x)=O(T^{V_g})]</p>
-<p>in ([reference]).[]</p>
-<h2>COLDQ with Expert Tracking</h2>
-<p>We extend the basic COLDQ algorithm with expert tracking in Algorithm [reference], which can achieve the same performance bounds as COLDQ without the knowledge of [V_x] to set the algorithm parameter [_t]. The idea of expert tracking is to run multiple Algorithm [reference] in parallel, each tracks a different [V_x], and then aggregate the decisions of different experts.</p>
-<p>The expert-tracking algorithm in [citation] is for OCO with <em>short-term</em> constraints only, while the algorithm in [citation] is for OCO with <em>fixed</em> constraints. In contrast, Algorithm [reference] is the first <em>time-varying</em> constrained OCO algorithm to provide [O(T^1+V_x{2})] dynamic regret and [O(T^{V_g})] constraint violation that recover the best-known [O(T^1{2})] regret and [O(1)] violation, without any prior knowledge of the system dynamics.</p>
-<p>[Algorithm]</p>
-<p>algorithm</p>
-<p>corollary[Expert Tracking]</p>
-<em>Under Assumptions [reference]-[reference], for any [V_x[0,1]] and [V_g[0,1]], let [M=1</em>{2_2(1+T)+1]. [=T^{-1{2}}], [_t[m]=t^1{2}/2^{m-1}], [=T^{-3{2}}] and [=T^3{2}], where [(0,G)], COLDQ-Expert achieves:}
-<p>[Equation]</p>
-<p>corollary</p>
-<h2>Proof of Corollary~\ref{cor:expert</h2>
-<p>}</p>
-<em>Proof:</em> We first derive the dynamic regret bound. Following the Proof of ([reference]) in Theorem [reference], we can show that for each [m]:
-<p>[Equation]</p>
-<p>where [(a)] is because of setting [_t[m]=t^1{2}/2^{m-1}]and [(b)] follows from Lemma [reference].</p>
-<p>Since the number of experts is set as [M=1{2}_2(1+T)+1], there exists an expert</p>
-<p>[Equation]</p>
-<p>such that</p>
-<p>[Equation]</p>
-<p>Substituting ([reference]) into ([reference]), we have</p>
-<p>[Equation]</p>
-<p>Also, we have</p>
-<p>[Equation]</p>
-<p>where [(a)] follows from the convexity of [f_t(x)], [(b)] is because [l_t(x)=_t(x_t),x-x_t], [(c)] follows from Lemma [reference] and [|l_t(x)|DR,,t] under Assumptions [reference] and [reference].</p>
-<p>Recall [w_1[m]=M+1{m(m+1)M}] by initialization, we have</p>
-<p>[Equation]</p>
-<p>Substituting ([reference]) into ([reference]) and noting that [=T^{-1{2}}], we have</p>
-<p>[Equation]</p>
-<p>Combining ([reference]) and ([reference]), we have</p>
-<p>[Equation]</p>
-<p>where [(a)] follows from [_{t=2}^T_t^-x_{t-1}^=O(T^{V_x})]</p>
-<p>in ([reference]).</p>
-<p>We now derive the hard constraint violation bound. Replacing [{x_t}] with [{x_t[m]}] in the proof of Theorem [reference], for each expert [m], we can show that</p>
-<p>[Equation]</p>
-<p>where [(a)] follows from setting [_t[m]=t^1{2}/2^{m-1}], [=T^{-3{2}}], and [=T^3{2}], [(b)] is because [m1{2}_2(1+T)+1,m] and [_{t=1}^Tt^{-1{2}}2T^1{2}] from Lemma [reference], and [(c)] follows from [_{t=2}^T_t^-x_{t-1}^=O(T^{V_x})] in ([reference]) and [_{t=2}^T_{x}_t(x)-g_{t-1}(x)=O(T^{V_g})] in ([reference]).</p>
-<p>Noting that [g_t^n(x),t,n] is convex and [x_t=_{m=1}^Mw_t[m]x_t[m]] with [_{m=1}^Mw_t[m]=1,t], We then have</p>
-<p>[Equation]</p>
-<p>where [(a)] follows from [x_t=_{m=1}^Mw_t[m]x_t[m],t], [(b)] is due to the convexity of [g_t^n(x),t,n], and [_{m=1}^Mw_t[m]=1,t], and [(c)] follows from [_{n=1}^N_{t=1}^T[g_t^n(x_t[m])]_+=O(T^{V_g}),m] in ([reference]). []</p>
-<h2>Experiment Details</h2>
-<p>We provide all the algorithm parameters used in our experiments, the intuition behind the fine-tuning of all algorithms for fair comparison, and the detailed problem settings of the application to online job scheduling.</p>
-<h4>Experiment on Time-Varying Constraints.</h4>
-<p>In Table [reference], we summarize all algorithm parameters used to generate Figure [reference]. For fair comparison among COLDQ (this work), RECOO [citation], and Algorithm 1 [citation], we fine-tuned their suggested parameters such that they reach as close accumulated loss as possible at the end. In this way, we can focus on comparing the algorithm performance in terms of the hard constraint violation.</p>
-<p>[Table]</p>
-<h4>Experiment on Fixed Constraints.</h4>
-<p>In Tables [reference] and [reference], we summarize all algorithm parameters used to generate Figures [reference] and [reference]. Similar to the previous experiment, we fine-tuned the suggested parameters of all algorithms to reach nearly the same accumulated loss, and compare their hard constraint violations.</p>
-<p>[Table]</p>
-<p>[Table]</p>
-<h4>Application to Online Job Scheduling.</h4>
-<p>We experiment on the practical online job schedulig problem considered in [citation]. This application aims at allocating power across data centers to minimize the energy cost subject to service quality constraints. We consider [100] data centers equally distributed in [10] regions. The duration of each time slot [t] is 5 minutes. Let [x_t=[x_t^1,,x_t^{100}]^^{100}] be the power allocation decision at time [t]. The loss function [f_t(x_t)] representing the energy cost is set as [f_t(x_t)=_t,x_t], where [c_t^{100}] is the time-varying electricity price vector. The constraint function [g_t(x_t)] representing the service quality is set as [g_t(x_t)=_t-_{i=1}^{100}h_i(x_t^i)], where [_t] is the job arrival rate and [h_i(x_t^i) = 4(1 + 4x_t^i)] models the service capacity of each data center. The constraint violation measures the amount of delayed jobs not finished in time. We use real-world electricity price data from NYISO (available from http://www.nyiso.com/.) for 10 New York City regions between [05/01/2017] and [05/10/2017]. The number of arriving jobs [_t] at each time [t] is generated from a Poisson distribution with mean [2500]. The feasible set [X] is set as [X={x_t|0x_t^i1000,t,i}].</p>
-<p>In Table [reference], we summarize all algorithm parameters used to generate Figure [reference]. We fine-tuned the suggested parameters of COLD (this work) and RECOO [citation] to reach nearly the same number of average delayed jobs at the end. We optimized the suggested parameters of Algorithm 1 [citation] to reach its best performance.</p>
-<p>[Table]</p>
-<p>We implemented all algorithms in Python 3.8.19 with CVXPY 1.5.1. A laptop with Intel(R) Core(TM) i5-13600K CPU@3.50GHz and 32 GB of RAM can finish a single run of each algorithm within 10 ms per iteration.</p>
-    
-    <div class="source-info"><p><strong>Source:</strong> Converted from markdown version of arXiv:2412.10703v21 (AAAI 2025)</p></div>
+    <section class="abstract">
+        <h2>Abstract</h2>
+        <p>We consider online convex optimization with time-varying constraints and conduct performance analysis using two stringent metrics: dynamic regret with respect to the online solution benchmark, and hard constraint violation that does not allow any compensated violation over time. We propose an efficient algorithm called Constrained Online Learning with Doubly-bounded Queue (COLDQ), which introduces a novel virtual queue that is both lower and upper bounded, allowing tight control of the constraint violation without the need for the Slater condition. We prove via a new Lyapunov drift analysis that COLDQ achieves O(T^((1 + Vx) / 2)) dynamic regret and O(T^Vg) hard constraint violation, where Vx and Vg capture the dynamics of the loss and constraint functions. For the first time, the two bounds smoothly approach the best-known O(T^(1/2)) regret and O(1) violation, as the dynamics of the losses and constraints diminish. For strongly convex loss functions, COLDQ matches the best-known O(log T) static regret while maintaining the O(T^Vg) hard constraint violation. We further introduce an expert-tracking variation of COLDQ, which achieves the same performance bounds without any prior knowledge of the system dynamics. Simulation results demonstrate that COLDQ outperforms the state-of-the-art approaches.</p>
+    </section>
+
+    <section>
+        <h2>1. Introduction</h2>
+        <p>In many online learning applications, system states change over time with unknown distributions. Both optimization losses and constraints may depend on these states, and are therefore dynamic. Online Convex Optimization (OCO) is a standard framework for such problems, with applications including advertisement placement, load balancing, network virtualization, and resource allocation.</p>
+        <p>In standard OCO, the learner selects an online decision from a known convex set, while the current loss function is revealed only after the decision has been made. This motivates regret minimization. Earlier work showed that dynamic regret can smoothly approach the classic O(T^(1/2)) static regret bound as the variation of the loss functions becomes smaller, meaning the online algorithm can keep pace with the dynamics of the losses.</p>
+        <p>Strict projection onto feasible sets can be computationally expensive. In many practical systems, some temporary constraint violations are acceptable. Prior work therefore studied soft constraint violation, which allows compensation over time. In contrast, hard constraint violation is stricter: it does not allow a violation at one time step to be canceled by satisfaction at another. For fixed constraints, the best-known soft and hard violation bounds are both O(1).</p>
+        <p>For time-varying constraints, however, prior work did not fully recover this fixed-constraint behavior. Existing bounds can become smaller when the dynamics reduce, but they do not smoothly approach the best-known O(1) hard constraint violation. In that sense, earlier constrained OCO methods did not keep pace with the dynamics of the constraints.</p>
+        <p>The paper answers the following question in the affirmative: can a constrained OCO algorithm achieve a dynamic regret bound and a hard constraint violation bound that smoothly approach O(T^(1/2)) and O(1), respectively, as the dynamics of both the losses and the constraints diminish?</p>
+    </section>
+
+    <section>
+        <h2>Main Contributions</h2>
+        <ul>
+            <li>The paper proposes <strong>COLDQ</strong>, a constrained online learning algorithm with a <strong>doubly-bounded virtual queue</strong>. Unlike previous approaches that use either a lower bound or an upper bound on the queue, COLDQ enforces both, and does so without the Slater condition.</li>
+            <li>It develops a new Lyapunov drift analysis that leverages both queue bounds, yielding O(T^((1 + Vx) / 2)) dynamic regret and O(T^Vg) hard constraint violation.</li>
+            <li>For strongly convex losses, COLDQ matches the best-known O(log T) static regret while preserving the O(T^Vg) hard constraint violation guarantee.</li>
+            <li>The paper also gives an expert-tracking extension of COLDQ that removes the need to know the system dynamics in advance while keeping the same asymptotic guarantees.</li>
+            <li>Experiments on time-varying constraints, fixed constraints, and online job scheduling show that COLDQ outperforms prior state-of-the-art methods.</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>2. Related Work</h2>
+
+        <h3>2.1 OCO with Fixed Constraints</h3>
+        <p>The paper reviews the classic OCO regret results of Zinkevich (2003) and Hazan, Agarwal, and Kale (2007), then discusses how later work relaxed hard per-round feasibility into long-term constraints to reduce the cost of projection. Mahdavi, Jin, and Yang (2012) and Jenatton, Huang, and Archambeau (2016) analyzed soft constraint violation, while Yu and Neely (2020) achieved O(1) violation under the Slater condition. For hard constraint violation, Yuan and Lamperski (2018) and Yi et al. (2021) established stronger guarantees but still under more restrictive settings than the one studied here.</p>
+
+        <h3>2.2 OCO with Time-Varying Constraints</h3>
+        <p>For stochastic or time-varying constraints, prior work obtained a range of static regret, dynamic regret, and soft violation bounds. The paper highlights that even the best earlier results do not smoothly recover O(1) hard violation as the system becomes less dynamic. In particular, RECOO (Guo et al. 2022) provides strong performance for fixed constraints and O(T^(3/4)) hard violation for time-varying constraints, but still does not fully keep pace with the dynamics of the constraints.</p>
+
+        <div class="table-wrap">
+            <table>
+                <caption>Table 1. Performance bounds for time-varying constraints (Vg &gt; 0)</caption>
+                <thead>
+                    <tr>
+                        <th>Algorithm</th>
+                        <th>Loss Function</th>
+                        <th>Static Regret, Hard Violation</th>
+                        <th>Dynamic Regret, Hard Violation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Algorithm 1 (Yi et al. 2023)</td>
+                        <td>Convex</td>
+                        <td>O(T^(1/2)), O(T^(3/4))</td>
+                        <td>N/A</td>
+                    </tr>
+                    <tr>
+                        <td>RECOO (Guo et al. 2022)</td>
+                        <td>Convex</td>
+                        <td>O(T^(1/2)), O(T^(3/4))</td>
+                        <td>O(T^(1/2 + Vx)), O(T^(3/4))</td>
+                    </tr>
+                    <tr>
+                        <td>COLDQ (this work)</td>
+                        <td>Convex</td>
+                        <td>O(T^(1/2)), O(T^Vg)</td>
+                        <td>O(T^((1 + Vx) / 2)), O(T^Vg)</td>
+                    </tr>
+                    <tr>
+                        <td>Algorithm 1 (Yi et al. 2023)</td>
+                        <td>Strongly convex</td>
+                        <td>O(T^c), O(T^(1 - c / 2))</td>
+                        <td>N/A</td>
+                    </tr>
+                    <tr>
+                        <td>RECOO (Guo et al. 2022)</td>
+                        <td>Strongly convex</td>
+                        <td>O(log T), O(T^(1/2) (log T)^(1/2))</td>
+                        <td>O(T^(1/2 + Vx)), O(T^(1/2) (log T)^(1/2))</td>
+                    </tr>
+                    <tr>
+                        <td>COLDQ (this work)</td>
+                        <td>Strongly convex</td>
+                        <td>O(log T), O(T^Vg)</td>
+                        <td>O(T^((1 + Vx) / 2)), O(T^Vg)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <caption>Table 2. Performance bounds for fixed constraints (Vg = 0)</caption>
+                <thead>
+                    <tr>
+                        <th>Algorithm</th>
+                        <th>Loss Function</th>
+                        <th>Static Regret, Hard Violation</th>
+                        <th>Dynamic Regret, Hard Violation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Algorithm 1 (Yi et al. 2021)</td>
+                        <td>Convex</td>
+                        <td>O(T^(1/2)), O(T^(1/4))</td>
+                        <td>O(T^((1 + Vx) / 2)), O(T^(1/2))</td>
+                    </tr>
+                    <tr>
+                        <td>RECOO (Guo et al. 2022)</td>
+                        <td>Convex</td>
+                        <td>O(T^(1/2)), O(1)</td>
+                        <td>O(T^(1/2 + Vx)), O(log T)</td>
+                    </tr>
+                    <tr>
+                        <td>COLDQ (this work)</td>
+                        <td>Convex</td>
+                        <td>O(T^(1/2)), O(1)</td>
+                        <td>O(T^((1 + Vx) / 2)), O(1)</td>
+                    </tr>
+                    <tr>
+                        <td>Algorithm 1 (Yi et al. 2021)</td>
+                        <td>Strongly convex</td>
+                        <td>O(log T), O(log T)</td>
+                        <td>O(T^((1 + Vx) / 2)), O(T^(1/2))</td>
+                    </tr>
+                    <tr>
+                        <td>RECOO (Guo et al. 2022)</td>
+                        <td>Strongly convex</td>
+                        <td>O(log T), O(1)</td>
+                        <td>O(T^(1/2 + Vx)), O(log T)</td>
+                    </tr>
+                    <tr>
+                        <td>COLDQ (this work)</td>
+                        <td>Strongly convex</td>
+                        <td>O(log T), O(1)</td>
+                        <td>O(T^((1 + Vx) / 2)), O(1)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <ul>
+            <li>For time-varying constraints and convex losses, COLDQ improves the best-known O(T^(3/4)) hard violation to O(T^Vg), and improves dynamic regret from O(T^(1/2 + Vx)) to O(T^((1 + Vx) / 2)).</li>
+            <li>For time-varying constraints and strongly convex losses, COLDQ improves both dynamic regret and hard constraint violation over RECOO.</li>
+            <li>For fixed constraints, COLDQ achieves O(1) hard constraint violation while preserving the improved dynamic regret bound.</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>3. Constrained Online Convex Optimization</h2>
+        <p>The constrained OCO problem is modeled as an iterative game over T time slots. At time t, the learner chooses a decision x_t from a feasible set X, then observes the loss function f_t(x) and the constraint function g_t(x) = [g_t^1(x), ..., g_t^N(x)]^T. Both may vary arbitrarily with time and are unknown before the decision is made.</p>
+
+        <div class="equation">P:
+min_{x_t in X}  sum_{t=1}^T f_t(x_t)
+s.t.            g_t(x_t) &lt;= 0, for all t.</div>
+
+        <p>When g_t(x) = g(x) for all t, the problem reduces to the fixed-constraint setting.</p>
+
+        <h3>3.1 Assumptions</h3>
+        <ul>
+            <li><strong>Assumption 1.</strong> X is convex and bounded: there exists R &gt; 0 such that ||x - y|| &lt;= R for all x, y in X.</li>
+            <li><strong>Assumption 2.</strong> The loss functions are convex with bounded subgradients: there exists D &gt; 0 such that ||grad f_t(x)|| &lt;= D for all x in X and all t.</li>
+            <li><strong>Assumption 3.</strong> The constraint functions are convex and bounded: there exists G &gt; 0 such that |g_t^n(x)| &lt;= G for all x in X, all t, and all n.</li>
+        </ul>
+        <p>The paper explicitly does <strong>not</strong> require the Slater condition. This is important because equality constraints, which are common in practice, are excluded by the usual shared interior-point assumption.</p>
+
+        <h3>3.2 Performance Metrics</h3>
+        <p>The paper evaluates constrained online learning against both offline and online solution benchmarks.</p>
+
+        <div class="equation">Static benchmark:
+x^* in arg min_{x in X} { sum_{t=1}^T f_t(x) | g_t(x) &lt;= 0, for all t }
+
+Static regret:
+REG_s(T) = sum_{t=1}^T [ f_t(x_t) - f_t(x^*) ]</div>
+
+        <div class="equation">Dynamic benchmark:
+x_t^* in arg min_{x in X} { f_t(x) | g_t(x) &lt;= 0, for all t }
+
+Dynamic regret:
+REG_d(T) = sum_{t=1}^T [ f_t(x_t) - f_t(x_t^*) ]</div>
+
+        <div class="equation">Soft constraint violation:
+VIO_s(T) = sum_{n=1}^N [ sum_{t=1}^T g_t^n(x_t) ]_+
+
+Hard constraint violation:
+VIO_h(T) = sum_{n=1}^N sum_{t=1}^T [ g_t^n(x_t) ]_+</div>
+
+        <p>Soft violation allows compensation across time, while hard violation does not. Since VIO_s(T) &lt;= VIO_h(T), a hard-violation bound also implies a soft-violation bound.</p>
+
+        <h3>3.3 Variation Measures</h3>
+        <p>The paper tracks dynamics through two variation measures.</p>
+
+        <div class="equation">Path length of the online solution benchmark:
+sum_{t=2}^T ||x_t^* - x_(t-1)^*|| = O(T^Vx)</div>
+
+        <div class="equation">Constraint variation:
+sum_{t=2}^T max_{x in X} ||g_t(x) - g_(t-1)(x)|| = O(T^Vg)</div>
+
+        <p>Here Vx and Vg lie in [0, 1]. When the benchmark is fixed, Vx = 0. When the constraints are fixed, Vg = 0.</p>
+    </section>
+
+    <section>
+        <h2>4. Constrained Online Learning with Doubly-Bounded Queue (COLDQ)</h2>
+
+        <h3>4.1 Doubly-Bounded Virtual Queue</h3>
+        <p>COLDQ introduces a virtual queue Q_t^n to track the violation of each time-varying constraint. After observing the constraint at the end of round t, the queue is updated by</p>
+
+        <div class="equation">Q_t^n = max { (1 - eta) Q_(t-1)^n + [ g_t^n(x_t) ]_+, gamma }</div>
+
+        <p>The extra term -(eta) Q_(t-1)^n keeps the queue from growing excessively, while the lower bound gamma prevents the queue from becoming too small. This leads to both a lower and an upper queue bound.</p>
+
+        <div class="equation">Lemma 1:
+gamma &lt;= Q_t^n &lt;= G / eta</div>
+
+        <h3>4.2 Lyapunov Drift</h3>
+        <p>The paper defines the following Lyapunov drift for t &gt; 1:</p>
+
+        <div class="equation">Delta_(t-1)
+= (1 / 2) sum_{n=1}^N (Q_t^n - gamma)^2
+  - (1 / 2) sum_{n=1}^N (Q_(t-1)^n - gamma)^2</div>
+
+        <p>Unlike standard queue-based analyses, the Lyapunov function is centered around the lower bound gamma. This allows the drift bound to exploit both queue bounds at once.</p>
+
+        <div class="equation">Lemma 2:
+Delta_(t-1) &lt;=
+sum_{n=1}^N Q_(t-1)^n [ g_(t-1)^n(x_t) ]_+
+- gamma sum_{n=1}^N [ g_t^n(x_t) ]_+
++ (G sqrt(N) / eta) max_{x in X} ||g_t(x) - g_(t-1)(x)||
++ 2 N G^2</div>
+
+        <h3>4.3 Per-Slot Optimization and Intuition</h3>
+        <p>At each round t &gt; 1, the learner chooses x_t by solving a one-step optimization problem that balances gradient descent on the previous loss and control of the previous constraint violations.</p>
+
+        <div class="equation">P_t:
+min_{x in X}
+&lt; grad f_(t-1)(x_(t-1)), x - x_(t-1) &gt;
++ alpha_(t-1) ||x - x_(t-1)||^2
++ sum_{n=1}^N Q_(t-1)^n [ g_(t-1)^n(x) ]_+</div>
+
+        <p>If the gradient step does not violate the constraints, the optimizer follows the usual projected update. If it does, the queue-weighted constraint term shifts the direction to suppress violation. In this way, Q_(t-1)^n balances loss minimization and feasibility control.</p>
+
+        <h3>4.4 Algorithm 1: COLDQ</h3>
+        <ol>
+            <li>Initialize a non-decreasing sequence {alpha_t}, choose eta in (0, 1), gamma in (0, G / eta), pick any x_1 in X, and set Q_1^n = gamma for all n.</li>
+            <li>For each t = 2, ..., T, update x_t by solving P_t.</li>
+            <li>Observe grad f_t(x_t) and g_t(x).</li>
+            <li>Update each queue Q_t^n using the doubly-bounded rule above.</li>
+        </ol>
+    </section>
+
+    <section>
+        <h2>5. Performance Bounds of COLDQ</h2>
+
+        <h3>Lemma 3: Per-Slot Performance</h3>
+        <p>The analysis first derives a one-step inequality that upper-bounds the previous-step loss gap together with the queue-weighted constraint term. This becomes the starting point for both the dynamic regret and hard violation analysis.</p>
+
+        <div class="equation">For any t &gt; 1:
+[ f_(t-1)(x_(t-1)) - f_(t-1)(x_(t-1)^*) ]
++ sum_{n=1}^N Q_(t-1)^n [ g_(t-1)^n(x_t) ]_+
+&lt;=
+2 R alpha_(t-1) ||x_t^* - x_(t-1)^*||
++ R^2 (alpha_t - alpha_(t-1))
++ D^2 / (4 alpha_(t-1))
++ ( alpha_(t-1) ||x_(t-1)^* - x_(t-1)||^2 - alpha_t ||x_t^* - x_t||^2 )</div>
+
+        <h3>Theorem 1: Dynamic Regret</h3>
+        <div class="equation">REG_d(T) &lt;=
+2 R sum_{t=2}^T alpha_(t-1) ||x_t^* - x_(t-1)^*||
++ (D^2 / 4) sum_{t=1}^T (1 / alpha_t)
++ R^2 alpha_T
++ D R</div>
+
+        <h3>Theorem 2: Hard Constraint Violation</h3>
+        <div class="equation">VIO_h(T) &lt;=
+(G sqrt(N) / (eta gamma)) sum_{t=2}^T max_{x in X} ||g_t(x) - g_(t-1)(x)||
++ (2 R / gamma) sum_{t=2}^T alpha_(t-1) ||x_t^* - x_(t-1)^*||
++ (D^2 / (4 gamma)) sum_{t=1}^T (1 / alpha_t)
++ ((D R + 2 N G^2) T) / gamma
++ (R^2 alpha_T) / gamma
++ N G</div>
+
+        <h3>5.4 Strongly Convex Case</h3>
+        <p>Under the additional assumption that each loss function is mu-strongly convex on X, the paper derives a tighter static regret guarantee.</p>
+
+        <div class="equation">Assumption 4:
+f_t(y) &gt;= f_t(x) + &lt; grad f_t(x), y - x &gt; + mu ||y - x||^2,
+for all x, y in X and all t.</div>
+
+        <div class="equation">Theorem 3:
+REG_s(T) &lt;=
+sum_{t=2}^{T-1} (alpha_t - alpha_(t-1) - mu) ||x^* - x_t||^2
++ (D^2 / 4) sum_{t=1}^T (1 / alpha_t)
++ (alpha_1 - mu) R^2
++ D R</div>
+
+        <h3>5.5 Corollaries and Final Rates</h3>
+        <div class="equation">Corollary 1 (Convex Loss):
+If alpha_t = t^((1 - Vx) / 2), eta = T^(-1), and gamma = epsilon T
+for epsilon in (0, G), then
+REG_d(T) = O(T^((1 + Vx) / 2)),
+VIO_h(T) = O(T^Vg)</div>
+
+        <div class="equation">Corollary 2 (Strongly Convex Loss):
+If alpha_t = mu t, eta = T^(-1), and gamma = epsilon T
+for epsilon in (0, G), then
+REG_s(T) = O(log T),
+VIO_h(T) = O(T^Vg)</div>
+
+        <p>Two important consequences follow immediately. First, by setting Vx = 0, the static regret reduces to O(T^(1/2)). Second, when constraints are fixed so that Vg = 0, the hard constraint violation becomes O(1). This is exactly the "keeping pace" behavior emphasized in the title of the paper.</p>
+
+        <h3>Expert Tracking Extension</h3>
+        <p>The paper further notes that the same O(T^((1 + Vx) / 2)) dynamic regret and O(T^Vg) hard constraint violation can be achieved without prior knowledge of Vx. The expert-tracking version runs multiple candidate schedules for alpha_t in parallel and aggregates them, preserving the asymptotic performance while removing the need to know the dynamics beforehand.</p>
+    </section>
+
+    <section>
+        <h2>6. Experiments</h2>
+        <p>The experiments report averages over 100 runs and evaluate COLDQ under both time-varying and fixed constraints, plus an application to online job scheduling.</p>
+
+        <h3>6.1 Experiment on Time-Varying Constraints</h3>
+        <p>Following Guo et al. (2022) and Yi et al. (2023), the paper sets the loss to f_t(x) = (1 / 2) ||H_t x - y_t||^2 with H_t in R^(4 x 10), x in R^10, and y_t in R^4. Each element of H_t is sampled uniformly from U(-1, 1). The constraints are g_t(x) = A_t x - b_t with A_t in R^(2 x 10), b_t in R^2, and feasible set X = {x | 0 &lt;= x &lt;= 5}.</p>
+        <p>The comparison is against RECOO and Algorithm 1 from Yi et al. (2023). The paper reports that COLDQ achieves more than 40% lower hard constraint violation than RECOO without sacrificing accumulated loss.</p>
+
+        <h3>6.2 Experiment on Fixed Constraints</h3>
+        <p>The fixed-constraint study uses an online quadratic programming problem similar to Yi et al. (2021), with f_t(x) = ||x - theta_t||^2 + 20 &lt;theta_t, x&gt;, where theta_t = theta_t^1 + theta_t^2 + theta_t^3 in R^2. It also evaluates an online linear programming variant with f_t(x) = &lt;theta_t, x&gt;. The fixed constraint is g(x) = A x - b with X = {x | 0 &lt;= x &lt;= 1}.</p>
+        <p>Against Yi et al. (2021) and RECOO, COLDQ again shows a significant reduction in hard constraint violation on both online quadratic programming and online linear programming.</p>
+
+        <h3>6.3 Application to Online Job Scheduling</h3>
+        <p>The paper applies COLDQ to online job scheduling using real-world datasets, following the setup of Yu, Neely, and Wei (2017) and Guo et al. (2022). The main reported metrics are time-averaged energy cost and average delayed jobs.</p>
+        <p>According to the paper, COLDQ significantly reduces the energy cost without compromising service quality when compared with RECOO and Algorithm 1 from Yi et al. (2023).</p>
+    </section>
+
+    <section>
+        <h2>7. Conclusions</h2>
+        <p>The paper proposes COLDQ, a constrained online learning algorithm for time-varying constraints that uses a virtual queue bounded from both above and below. A new Lyapunov drift analysis yields O(T^((1 + Vx) / 2)) dynamic regret and O(T^Vg) hard constraint violation. As the dynamics of the losses and constraints diminish, these guarantees smoothly approach the best-known O(T^(1/2)) regret and O(1) violation. For strongly convex losses, COLDQ matches the best-known O(log T) static regret while maintaining the same O(T^Vg) hard violation bound. The paper also presents an expert-tracking extension that removes the need for prior knowledge of the system dynamics and confirms the method empirically on multiple benchmarks.</p>
+    </section>
+
+    <section>
+        <h2>References</h2>
+        <ol>
+            <li>Balseiro, S.; Lu, H.; and Mirrokni, V. 2020. Dual mirror descent for online allocation problems. In Proceedings of the 37th International Conference on Machine Learning (ICML), 613-628.</li>
+            <li>Besbes, O.; Gur, Y.; and Zeevi, A. 2015. Non-stationary stochastic optimization. Operations Research, 63(5): 1227-1244.</li>
+            <li>Cao, X.; and Liu, K. J. R. 2019. Online convex optimization with time-varying constraints and bandit feedback. IEEE Transactions on Automatic Control, 64(7): 2665-2680.</li>
+            <li>Cao, X.; Zhang, J.; and Poor, H. V. 2021. Constrained online convex optimization with feedback delays. IEEE Transactions on Automatic Control, 66(11): 5049-5064.</li>
+            <li>Chen, T.; Ling, Q.; and Giannakis, G. B. 2017. An online convex optimization approach to proactive network resource allocation. IEEE Transactions on Signal Processing, 65(24): 6350-6364.</li>
+            <li>Eshraghi, N.; and Liang, B. 2020. Distributed online optimization over a heterogeneous network with any-batch mirror descent. In Proceedings of the 37th International Conference on Machine Learning (ICML), 2933-2942.</li>
+            <li>Guo, H.; Liu, X.; Wei, H.; and Ying, L. 2022. Online convex optimization with hard constraints: Towards the best of two worlds and beyond. In Advances in Neural Information Processing Systems, 36426-36439.</li>
+            <li>Hall, E. C.; and Willett, R. M. 2015. Online convex optimization in dynamic environments. IEEE Journal of Selected Topics in Signal Processing, 9(4): 647-662.</li>
+            <li>Hazan, E. 2016. Introduction to online convex optimization. Foundations and Trends in Optimization, 2(3-4): 157-325.</li>
+            <li>Hazan, E.; Agarwal, A.; and Kale, S. 2007. Logarithmic regret algorithms for online convex optimization. Machine Learning, 69(2): 169-192.</li>
+            <li>Hsu, W.-K.; Xu, J.; Lin, X. L.; and Bell, M. R. 2021. Integrated online learning and adaptive control in queueing systems with uncertain payoffs. Operations Research, 70(2): 1166-1181.</li>
+            <li>Jadbabaie, A.; Rakhlin, A.; Shahrampour, S.; and Sridharan, K. 2015. Online optimization: Competing with dynamic comparators. In Proceedings of the 18th International Conference on Artificial Intelligence and Statistics (AISTATS), 398-406.</li>
+            <li>Jenatton, R.; Huang, J.; and Archambeau, C. 2016. Adaptive algorithms for online convex optimization with long-term constraints. In Proceedings of the 33rd International Conference on Machine Learning (ICML), 402-411.</li>
+            <li>Liu, Q.; Wu, W.; Huang, L.; and Fang, Z. 2022. Simultaneously achieving sublinear regret and constraint violations for online convex optimization with time-varying constraints. ACM SIGMETRICS Performance Evaluation Review, 49(3): 4-5.</li>
+            <li>Liu, Z.; Liu, I.; Low, S.; and Wierman, A. 2014. Pricing data center demand response. ACM SIGMETRICS Performance Evaluation Review, 24(1): 111-123.</li>
+            <li>Mahdavi, M.; Jin, R.; and Yang, T. 2012. Trading regret for efficiency: Online convex optimization with long term constraints. The Journal of Machine Learning Research, 13(1): 2503-2528.</li>
+            <li>Mokhtari, A.; Shahrampour, S.; Jadbabaie, A.; and Ribeiro, A. 2016. Online optimization in dynamic environments: Improved regret rates for strongly convex problems. In Proceedings of the 55th IEEE Conference on Decision and Control (CDC), 7195-7201.</li>
+            <li>Shalev-Shwartz, S. 2012. Online learning and online convex optimization. Foundations and Trends in Machine Learning, 4(2): 107-194.</li>
+            <li>Shi, M.; Lin, X.; and Fahmy, S. 2021. Competitive online convex optimization with switching costs and ramp constraints. IEEE/ACM Transactions on Networking, 29(2): 876-889.</li>
+            <li>Wang, J.; Dong, M.; Liang, B.; Boudreau, G.; and Abou-Zeid, H. 2023. Delay-tolerant OCO with long-term constraints: Algorithm and its application to network resource allocation. IEEE/ACM Transactions on Networking, 31(1): 147-163.</li>
+            <li>Wei, X.; Yu, H.; and Neely, M. J. 2020. Online primal-dual mirror descent under stochastic constraints. Proceedings of the ACM on Measurement and Analysis of Computing Systems (POMACS), 4(2): 1-36.</li>
+            <li>Yi, X.; Li, X.; Yang, T.; Xie, L.; Chai, T.; and Johansson, K. 2021. Regret and cumulative constraint violation analysis for online convex optimization with long term constraints. In Proceedings of the 38th International Conference on Machine Learning (ICML), 11998-12008.</li>
+            <li>Yi, X.; Li, X.; Yang, T.; Xie, L.; Chai, T.; and Johansson, K. H. 2023. Regret and cumulative constraint violation analysis for distributed online constrained convex optimization. IEEE Transactions on Automatic Control, 68(5): 2875-2890.</li>
+            <li>Yu, H.; Neely, M.; and Wei, X. 2017. Online convex optimization with stochastic constraints. In Advances in Neural Information Processing Systems, 1428-1438.</li>
+            <li>Yu, H.; and Neely, M. J. 2019. Learning-aided optimization for energy-harvesting devices with outdated state information. IEEE/ACM Transactions on Networking, 27(4): 1501-1514.</li>
+            <li>Yu, H.; and Neely, M. J. 2020. A low complexity algorithm with O(sqrt(T)) regret and O(1) constraint violations for online convex optimization with long term constraints. Journal of Machine Learning Research, 21(1): 1-24.</li>
+            <li>Yuan, J.; and Lamperski, A. 2018. Online convex optimization for cumulative constraints. In Advances in Neural Information Processing Systems (NeurIPS), 6140-6149.</li>
+            <li>Zhang, L.; Lu, S.; and Zhou, Z.-H. 2018. Adaptive online learning in dynamic environments. In Advances in Neural Information Processing Systems (NeurIPS), 1330-1340.</li>
+            <li>Zhang, L.; Yang, T.; Yi, J.; Jin, R. J.; and Zhou, Z.-H. 2017. Improved dynamic regret for non-degenerate functions. In Advances in Neural Information Processing Systems (NeurIPS), 732-741.</li>
+            <li>Zhang, Y.; Hajiesmaili, M. H.; Cai, S.; Chen, M.; and Zhu, Q. 2018. Peak-aware online economic dispatching for microgrids. IEEE Transactions on Smart Grid, 9(1): 323-335.</li>
+            <li>Zhao, P.; and Zhang, L. 2021. Improved analysis for dynamic regret of strongly convex and smooth functions. In Proceedings of the 3rd Conference on Learning for Dynamics and Control (L4DC), 48-59.</li>
+            <li>Zinkevich, M. 2003. Online convex programming and generalized infinitesimal gradient ascent. In Proceedings of the 20th International Conference on Machine Learning (ICML), 928-936.</li>
+        </ol>
+    </section>
+
+    <div class="footer">
+        <p><strong>Source:</strong> Content manually corrected from the provided <code>aaai25.pdf</code> and aligned to the PDF's main paper sections.</p>
+    </div>
 </body>
 </html>

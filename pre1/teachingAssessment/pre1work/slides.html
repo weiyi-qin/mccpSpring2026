@@ -470,15 +470,15 @@
 
     <!-- ===== SLIDE 1: TITLE ===== -->
     <div class="slide title-slide active" data-index="1">
-        <div class="main-title">Making Smart Decisions<br>Under Changing Rules</div>
-        <div class="subtitle">A Presentation on a Research Paper in Online Learning</div>
+        <div class="main-title">Doubly-Bounded Queue for<br>Constrained Online Learning</div>
+        <div class="subtitle">Keeping Pace with Dynamics of Both Loss and Constraint</div>
         <div class="paper-ref">
-            📄 <strong>Doubly-Bounded Queue for Constrained Online Learning:</strong><br>
-            Pace with Dynamics of Both Loss and Constraint<br>
-            <em>Juncheng Wang · HKBU Computer Science · AAAI 2025</em>
+            📄 <strong>AAAI 2025 paper presentation</strong><br>
+            Provided PDF metadata: <em>Anonymous submission</em><br>
+            Core claim: COLDQ is the first method whose dynamic regret and hard constraint violation both improve smoothly as losses and constraints become less dynamic.
         </div>
         <div class="presenter-info">
-            Presented by: <strong>[Your Name]</strong> &nbsp;·&nbsp; MCCP6020 &nbsp;·&nbsp; Feb 2026
+            Focus of this deck: the problem setting, the COLDQ mechanism, the main theoretical guarantees, and the experimental evidence reported in the paper.
         </div>
         <div class="slide-num">1 / 12</div>
     </div>
@@ -486,35 +486,35 @@
     <!-- ===== SLIDE 2: ROADMAP ===== -->
     <div class="slide" data-index="2">
         <span class="rubric-tag content">CONTENT &amp; STRUCTURE</span>
-        <div class="slide-title">What I'll Cover Today</div>
+        <div class="slide-title">Roadmap</div>
         <div class="slide-body">
             <div class="roadmap">
                 <div class="roadmap-item">
                     <div class="rm-num">1</div>
-                    <div class="rm-label">Introduction to the Paper</div>
-                    <div class="rm-time">~1.5 min</div>
+                    <div class="rm-label">Problem Setting and Research Gap</div>
+                    <div class="rm-time">~2 min</div>
                 </div>
                 <div class="roadmap-item">
                     <div class="rm-num">2</div>
-                    <div class="rm-label">Key Theoretical Findings</div>
+                    <div class="rm-label">COLDQ Method</div>
                     <div class="rm-time">~2 min</div>
                 </div>
                 <div class="roadmap-item">
                     <div class="rm-num">3</div>
-                    <div class="rm-label">Significance of the Research</div>
-                    <div class="rm-time">~1.5 min</div>
+                    <div class="rm-label">Main Guarantees</div>
+                    <div class="rm-time">~2 min</div>
                 </div>
                 <div class="roadmap-item">
                     <div class="rm-num">4</div>
-                    <div class="rm-label">Impact on My Research &amp; Writing Lessons</div>
-                    <div class="rm-time">~1.5 min</div>
+                    <div class="rm-label">Experimental Evidence and Takeaway</div>
+                    <div class="rm-time">~2 min</div>
                 </div>
             </div>
             <div class="callout">
-                This is a <strong>theory-driven</strong> paper in computer science that proves formal performance guarantees for a new algorithm. I will explain the core theoretical contributions — including what <em>regret</em> and <em>constraint violation</em> mean — in accessible terms.
+                This slide deck follows the main paper sections closely. It keeps the core formulas and complexity results, but compresses appendix-level proofs into presentation-friendly explanations and CSS-only visuals.
             </div>
         </div>
-        <div class="transition-cue">Let's start with the problem this paper sets out to solve.</div>
+        <div class="transition-cue">First, let's look at the online optimization problem the paper is trying to solve.</div>
         <div class="slide-num">2 / 12</div>
     </div>
 
@@ -522,392 +522,404 @@
     <div class="slide" data-index="3">
         <span class="rubric-tag content">NON-SPECIALIST</span>
         <span class="rubric-tag content">KEY FINDINGS</span>
-        <div class="slide-title">The Setting: Online Convex Optimization (OCO)</div>
+        <div class="slide-title">The Setting: Time-Varying Constrained OCO</div>
         <div class="slide-body">
             <div class="callout blue" style="margin-bottom:0.7rem;">
-                💡 Imagine managing 100 data centers. Every 5 minutes, you decide how much power to allocate — <em>before</em> knowing the electricity prices or job arrivals. You want to minimize energy cost, but must serve all jobs on time. Both the cost function <em>and</em> the service deadline <em>keep changing</em>.
+                💡 In this paper, a learner repeatedly chooses a decision <span class="math">x<sub>t</sub></span> before seeing the current loss <span class="math">f<sub>t</sub></span> and constraint <span class="math">g<sub>t</sub></span>. Both may change arbitrarily over time, so the environment is dynamic rather than fixed.
             </div>
-            <p style="margin-bottom:0.6rem;">This captures the formal structure of the paper's problem:</p>
+            <p style="margin-bottom:0.6rem;">Each round follows the same four-stage online decision process:</p>
             <div class="oco-flow">
                 <div class="oco-steps">
                     <div class="oco-box">
                         <span class="step-badge">Step 1</span>
                         <span class="step-icon">🤖</span>
-                        <span class="step-label">Learner picks decision</span>
+                        <span class="step-label">Choose a decision</span>
                         <span class="step-math"><span class="math">x<sub>t</sub> ∈ 𝒳</span></span>
                     </div>
                     <div class="oco-arrow">→</div>
                     <div class="oco-box loss-box">
                         <span class="step-badge">Step 2</span>
                         <span class="step-icon">📉</span>
-                        <span class="step-label">Loss function revealed</span>
-                        <span class="step-math"><span class="math">f<sub>t</sub>(x<sub>t</sub>)</span> incurred</span>
+                        <span class="step-label">Observe the loss</span>
+                        <span class="step-math"><span class="math">f<sub>t</sub>(x)</span> becomes known</span>
                     </div>
                     <div class="oco-arrow">→</div>
                     <div class="oco-box viol-box">
                         <span class="step-badge">Step 3</span>
                         <span class="step-icon">⚠️</span>
-                        <span class="step-label">Constraint revealed</span>
-                        <span class="step-math"><span class="math">g<sub>t</sub>(x<sub>t</sub>)</span> measured</span>
+                        <span class="step-label">Observe the constraint</span>
+                        <span class="step-math"><span class="math">g<sub>t</sub>(x)</span> becomes known</span>
                     </div>
                     <div class="oco-arrow">→</div>
                     <div class="oco-box">
                         <span class="step-badge">Step 4</span>
                         <span class="step-icon">🔄</span>
-                        <span class="step-label">Update &amp; advance</span>
-                        <span class="step-math">t ← t + 1</span>
+                        <span class="step-label">Update and continue</span>
+                        <span class="step-math">repeat for <span class="math">T</span> rounds</span>
                     </div>
                 </div>
                 <div class="oco-loop">
                     <div class="oco-loop-line"></div>
-                    <span class="oco-loop-label">↩ Repeat for T rounds &nbsp;|&nbsp; both f<sub>t</sub> and g<sub>t</sub> change arbitrarily each round</span>
+                    <span class="oco-loop-label">↩ Both the losses and the constraints may vary from round to round</span>
                     <div class="oco-loop-line"></div>
                 </div>
             </div>
-            <p style="margin-top:0.5rem;">Both <span class="math">f<sub>t</sub></span> and <span class="math">g<sub>t</sub></span> are <strong>unknown in advance</strong> and change arbitrarily. Two metrics measure performance:</p>
+            <p style="margin-top:0.5rem;">This general framework covers applications explicitly mentioned in the paper, such as advertisement placement, load balancing, network virtualization, and resource allocation.</p>
             <div class="two-col" style="margin-top:0.5rem;">
                 <div class="col-card">
-                    <h3><span class="em-blue">Regret</span></h3>
+                    <h3><span class="em-blue">What the learner wants</span></h3>
                     <ul>
-                        <li>How much worse did we do vs. the best possible decisions in hindsight?</li>
-                        <li>Goal: keep regret <strong>sub-linear</strong> in T</li>
+                        <li>Minimize the accumulated loss over time.</li>
+                        <li>Make decisions without knowing the current round's loss in advance.</li>
+                        <li>Track a benchmark that may itself move over time.</li>
                     </ul>
                 </div>
                 <div class="col-card">
-                    <h3><span class="em-red">Hard Constraint Violation</span></h3>
+                    <h3><span class="em-red">Why the problem is difficult</span></h3>
                     <ul>
-                        <li>Total amount of rule-breaking — <em>no compensated violations allowed</em></li>
-                        <li>Goal: keep violation as small as possible</li>
+                        <li>Projection onto feasible sets can be expensive.</li>
+                        <li>Some applications tolerate temporary violations but still need strong control.</li>
+                        <li>The paper studies the stricter hard-violation metric, not just averaged compensation over time.</li>
                     </ul>
                 </div>
             </div>
         </div>
-        <div class="transition-cue">What did prior research fail to achieve — and why?</div>
+        <div class="transition-cue">To see the contribution clearly, we need to understand why earlier methods still left a gap.</div>
         <div class="slide-num">3 / 12</div>
     </div>
 
     <!-- ===== SLIDE 4: THE GAP ===== -->
     <div class="slide" data-index="4">
         <span class="rubric-tag content">KEY FINDINGS</span>
-        <div class="slide-title">The Gap: What Prior Work Could Not Do</div>
+        <div class="slide-title">Why Prior Work Fell Short</div>
         <div class="slide-body">
-            <p style="margin-bottom:0.65rem;">The paper's Introduction and Related Work carefully document a clear pattern of failure in existing algorithms:</p>
-            <table class="cmp-table">
-                <thead>
-                    <tr>
-                        <th>Prior Work</th>
-                        <th>Dynamic Regret</th>
-                        <th>Hard Constraint Violation</th>
-                        <th>Limitation</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="row-bad">
-                        <td>Best known (fixed constraints)</td>
-                        <td><span class="math">O(√T)</span> <span class="check">✓</span></td>
-                        <td><span class="math">O(1)</span> <span class="check">✓</span></td>
-                        <td>Assumes rules <em>never</em> change <span class="cross">✗</span></td>
-                    </tr>
-                    <tr class="row-bad">
-                        <td>Best known (time-varying constraints)</td>
-                        <td><span class="math">O(T<sup>(1+V<sub>x</sub>)/2</sup>)</span> <span class="check">✓</span></td>
-                        <td>approaches <span class="math em-red">O(√T · T)</span> <span class="cross">✗</span></td>
-                        <td>Violation <strong>never recovers</strong> to <span class="math">O(1)</span> <span class="cross">✗</span></td>
-                    </tr>
-                </tbody>
-            </table>
-            <div class="callout red" style="margin-top:0.7rem;">
-                <strong>The key question posed in the Introduction:</strong><br>
-                <em>"Can a constrained OCO algorithm provide a dynamic regret bound and a constraint violation bound that smoothly approach to the best-known O(√T) regret and O(1) violation, respectively, as the dynamics of both losses and constraints diminish?"</em>
+            <div class="two-col">
+                <div class="col-card">
+                    <h3>Soft vs. Hard Violation</h3>
+                    <ul>
+                        <li><strong>Soft violation</strong> lets violations at one time be compensated later.</li>
+                        <li><strong>Hard violation</strong> sums <span class="math">[g<sub>t</sub><sup>n</sup>(x<sub>t</sub>)]<sub>+</sub></span> round by round, so no compensation is allowed.</li>
+                        <li>The paper studies the harder and more stringent metric.</li>
+                    </ul>
+                </div>
+                <div class="col-card">
+                    <h3>The Specific Gap</h3>
+                    <ul>
+                        <li>For <strong>fixed constraints</strong>, the best-known hard violation is <span class="math">O(1)</span>.</li>
+                        <li>For <strong>time-varying constraints</strong>, the best-known hard violation only approaches <span class="math">O(T<sup>3/4</sup>)</span>.</li>
+                        <li>So earlier algorithms did <em>not</em> keep pace with diminishing constraint dynamics.</li>
+                    </ul>
+                </div>
             </div>
-            <p style="margin-top:0.55rem; font-size:clamp(1rem,1.35vw,1.2rem); color:var(--color-gray);">V<sub>x</sub> measures how much the loss changes; V<sub>g</sub> measures how much the constraints change. Both range from 0 (static) to 1 (highly dynamic).</p>
+            <div class="callout red" style="margin-top:0.8rem;">
+                <strong>The key question stated in the Introduction:</strong><br>
+                <em>Can a constrained OCO algorithm provide a dynamic regret bound and a hard constraint violation bound that smoothly approach the best-known <span class="math">O(T<sup>1/2</sup>)</span> regret and <span class="math">O(1)</span> violation as the dynamics of the losses and constraints diminish?</em>
+            </div>
+            <div class="callout" style="margin-top:0.7rem;">
+                The paper measures these dynamics through <span class="math">V<sub>x</sub></span> for benchmark movement and <span class="math">V<sub>g</sub></span> for constraint variation, with both values lying in <span class="math">[0, 1]</span>.
+            </div>
         </div>
-        <div class="transition-cue">The authors' answer is yes — here's how.</div>
+        <div class="transition-cue">The answer proposed by the paper is COLDQ, together with a new queue design and analysis.</div>
         <div class="slide-num">4 / 12</div>
     </div>
 
-    <!-- ===== SLIDE 5: COLDQ ALGORITHM ===== -->
+    <!-- ===== SLIDE 5: CONTRIBUTIONS ===== -->
     <div class="slide" data-index="5">
         <span class="rubric-tag content">KEY FINDINGS</span>
-        <div class="slide-title">COLDQ: The Doubly-Bounded Virtual Queue</div>
+        <div class="slide-title">What the Paper Contributes</div>
         <div class="slide-body">
-            <p style="margin-bottom:0.65rem;"><strong>C</strong>onstrained <strong>O</strong>nline <strong>L</strong>earning with <strong>D</strong>oubly-bounded <strong>Q</strong>ueue — the core innovation is a new type of <em>virtual queue</em> <span class="math">Q<sub>t</sub></span> used to track constraint violations.</p>
             <div class="two-col">
                 <div class="col-card">
-                    <h3><span class="em-red">Prior: Single-Bounded Queue</span></h3>
+                    <h3><span class="em-blue">Algorithmic Contribution</span></h3>
                     <ul>
-                        <li>Queue has only a lower bound <span class="math">Q<sub>t</sub> ≥ 0</span></li>
-                        <li>Can grow without limit when constraints are violated</li>
-                        <li>Result: violation bound grows too fast, cannot recover to <span class="math">O(1)</span></li>
+                        <li>The paper proposes <strong>COLDQ</strong>: Constrained Online Learning with Doubly-bounded Queue.</li>
+                        <li>Its virtual queue is controlled from <em>both below and above</em>.</li>
+                        <li>The design does <strong>not</strong> require the commonly assumed Slater condition.</li>
                     </ul>
                 </div>
                 <div class="col-card">
-                    <h3><span class="em-green">COLDQ: Doubly-Bounded Queue</span></h3>
+                    <h3><span class="em-green">Analytical Contribution</span></h3>
                     <ul>
-                        <li>Queue is capped: <span class="math">β ≤ Q<sub>t</sub> ≤ G/γ</span></li>
-                        <li>Both bounds enforced at every step — no Slater condition needed</li>
-                        <li>New Lyapunov drift analysis uses both bounds to yield tight guarantees</li>
+                        <li>A new Lyapunov drift analysis uses both queue bounds at the same time.</li>
+                        <li>This yields <span class="math">O(T<sup>(1+V<sub>x</sub>)/2</sup>)</span> dynamic regret and <span class="math">O(T<sup>V<sub>g</sub></sup>)</span> hard constraint violation.</li>
+                        <li>Those two bounds smoothly approach the best-known <span class="math">O(T<sup>1/2</sup>)</span> regret and <span class="math">O(1)</span> violation as dynamics vanish.</li>
                     </ul>
                 </div>
             </div>
-            <div class="queue-compare" style="margin-top:0.7rem;">
-                <!-- Prior: single-bounded, can overflow -->
-                <div class="q-wrap">
-                    <div class="q-title em-red">Prior: Single-Bounded Queue</div>
-                    <div class="q-outer">
-                        <div class="q-overflow-zone">∞ &nbsp;↑&nbsp; UNBOUNDED</div>
-                        <div class="q-tank" style="border-color:var(--color-red); border-top:2.5px dashed var(--color-red);">
-                            <div class="q-fill" style="height:82%; background:rgba(192,57,43,0.18); border-top:3px solid var(--color-red);"></div>
-                            <!-- only floor line -->
-                            <div class="q-dline" style="bottom:0; border-color:#999;">
-                                <span class="q-dline-label" style="color:#666;">floor = 0</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="q-caption">Can grow without limit —<br>violation bound never recovers to O(1)</div>
-                </div>
-
-                <!-- COLDQ: doubly-bounded -->
-                <div class="q-wrap">
-                    <div class="q-title em-green">COLDQ: Doubly-Bounded Queue</div>
-                    <div class="q-outer">
-                        <!-- placeholder so tanks align at same height -->
-                        <div style="height:46px; border-radius:6px 6px 0 0;"></div>
-                        <div class="q-tank no-overflow" style="border-color:var(--color-green);">
-                            <div class="q-fill" style="height:52%; background:rgba(26,122,74,0.18);"></div>
-                            <!-- ceiling line -->
-                            <div class="q-dline" style="top:14%; border-color:var(--color-green);">
-                                <span class="q-dline-label" style="color:var(--color-green);">ceiling = G/γ</span>
-                            </div>
-                            <!-- floor line -->
-                            <div class="q-dline" style="bottom:0; border-color:var(--color-blue);">
-                                <span class="q-dline-label" style="color:var(--color-blue);">floor = β</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="q-caption">Always between β and G/γ —<br>tight, predictable violation control</div>
-                </div>
+            <div class="callout green" style="margin-top:0.8rem;">
+                <strong>Strongly convex extension:</strong> the paper also proves <span class="math">O(log T)</span> static regret while keeping the same <span class="math">O(T<sup>V<sub>g</sub></sup>)</span> hard-violation rate.
+            </div>
+            <div class="callout blue" style="margin-top:0.7rem;">
+                <strong>Expert-tracking extension:</strong> a variant of COLDQ achieves the same asymptotic guarantees without any prior knowledge of the system dynamics.
             </div>
         </div>
-        <div class="transition-cue">What performance guarantees does this design achieve?</div>
+        <div class="transition-cue">Before looking at the algorithm itself, let's pin down the formal optimization problem and the paper's metrics.</div>
         <div class="slide-num">5 / 12</div>
     </div>
 
-    <!-- ===== SLIDE 6: THEORETICAL RESULTS — STAR SLIDE ===== -->
+    <!-- ===== SLIDE 6: FORMAL SETUP ===== -->
     <div class="slide" data-index="6">
         <span class="rubric-tag content">KEY FINDINGS</span>
+        <div class="slide-title">Formal Problem, Metrics, and Dynamics</div>
+        <div class="slide-body">
+            <div class="two-col">
+                <div>
+                    <div class="callout" style="margin-top:0;">
+                        <strong>Optimization problem</strong><br>
+                        <span class="math">min Σ<sub>t=1</sub><sup>T</sup> f<sub>t</sub>(x<sub>t</sub>)</span><br>
+                        subject to <span class="math">g<sub>t</sub>(x<sub>t</sub>) ≤ 0</span> for all <span class="math">t</span>
+                    </div>
+                    <div class="callout blue">
+                        <strong>Dynamic regret</strong><br>
+                        <span class="math">REG<sub>d</sub>(T) = Σ [ f<sub>t</sub>(x<sub>t</sub>) - f<sub>t</sub>(x<sub>t</sub><sup>*</sup>) ]</span><br>
+                        It compares the online learner against the per-round optimal feasible solution.
+                    </div>
+                </div>
+                <div>
+                    <div class="callout red" style="margin-top:0;">
+                        <strong>Hard constraint violation</strong><br>
+                        <span class="math">VIO<sub>h</sub>(T) = Σ<sub>n=1</sub><sup>N</sup> Σ<sub>t=1</sub><sup>T</sup> [ g<sub>t</sub><sup>n</sup>(x<sub>t</sub>) ]<sub>+</sub></span><br>
+                        Every violating round counts separately; there is no compensation over time.
+                    </div>
+                    <div class="callout green">
+                        <strong>Variation measures</strong><br>
+                        <span class="math">Σ ||x<sub>t</sub><sup>*</sup> - x<sub>t-1</sub><sup>*</sup>|| = O(T<sup>V<sub>x</sub></sup>)</span><br>
+                        <span class="math">Σ max<sub>x∈X</sub> ||g<sub>t</sub>(x) - g<sub>t-1</sub>(x)|| = O(T<sup>V<sub>g</sub></sup>)</span>
+                    </div>
+                </div>
+            </div>
+            <div class="callout" style="margin-top:0.8rem;">
+                When <span class="math">V<sub>x</sub> = 0</span>, the benchmark is fixed. When <span class="math">V<sub>g</sub> = 0</span>, the constraints are fixed. The paper's main claim is about how the bounds behave as these dynamics shrink.
+            </div>
+        </div>
+        <div class="transition-cue">Now we can look at the core mechanism: the doubly-bounded queue that gives COLDQ its name.</div>
+        <div class="slide-num">6 / 12</div>
+    </div>
+
+    <!-- ===== SLIDE 7: QUEUE DESIGN ===== -->
+    <div class="slide" data-index="7">
+        <span class="rubric-tag content">KEY FINDINGS</span>
+        <div class="slide-title">COLDQ: The Doubly-Bounded Queue</div>
+        <div class="slide-body">
+            <div class="callout blue" style="margin-top:0;">
+                <strong>Queue update in COLDQ</strong><br>
+                <span class="math">Q<sub>t</sub><sup>n</sup> = max { (1 - η) Q<sub>t-1</sub><sup>n</sup> + [ g<sub>t</sub><sup>n</sup>(x<sub>t</sub>) ]<sub>+</sub>, γ }</span><br>
+                The term <span class="math">-(η)Q<sub>t-1</sub><sup>n</sup></span> prevents runaway growth, while <span class="math">γ</span> enforces a strictly positive floor.
+            </div>
+            <div class="callout green" style="margin-top:0.7rem;">
+                <strong>Lemma 1:</strong> the queue is bounded on both sides for every time and every constraint:
+                <span class="math">γ ≤ Q<sub>t</sub><sup>n</sup> ≤ G / η</span>
+            </div>
+            <div class="queue-compare" style="margin-top:0.7rem;">
+                <div class="q-wrap">
+                    <div class="q-title em-red">Prior One-Sided Queue Control</div>
+                    <div class="q-outer">
+                        <div class="q-overflow-zone">ONE-SIDED</div>
+                        <div class="q-tank" style="border-color:var(--color-red); border-top:2.5px dashed var(--color-red);">
+                            <div class="q-fill" style="height:80%; background:rgba(192,57,43,0.18); border-top:3px solid var(--color-red);"></div>
+                            <div class="q-dline" style="bottom:0; border-color:#888;">
+                                <span class="q-dline-label" style="color:#666;">single bound only</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="q-caption">Existing analyses typically rely on either a lower bound or an upper bound, but not both at once.</div>
+                </div>
+                <div class="q-wrap">
+                    <div class="q-title em-green">COLDQ: Doubly-Bounded Queue</div>
+                    <div class="q-outer">
+                        <div style="height:46px; border-radius:6px 6px 0 0;"></div>
+                        <div class="q-tank no-overflow" style="border-color:var(--color-green);">
+                            <div class="q-fill" style="height:50%; background:rgba(26,122,74,0.18);"></div>
+                            <div class="q-dline" style="top:14%; border-color:var(--color-green);">
+                                <span class="q-dline-label" style="color:var(--color-green);">upper = G / η</span>
+                            </div>
+                            <div class="q-dline" style="bottom:0; border-color:var(--color-blue);">
+                                <span class="q-dline-label" style="color:var(--color-blue);">lower = γ</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="q-caption">COLDQ enforces both sides simultaneously, which enables tighter control of hard constraint violation.</div>
+                </div>
+            </div>
+        </div>
+        <div class="transition-cue">The next step is to see how this queue enters the per-round optimization problem used by the algorithm.</div>
+        <div class="slide-num">7 / 12</div>
+    </div>
+
+    <!-- ===== SLIDE 8: ALGORITHM FLOW ===== -->
+    <div class="slide" data-index="8">
+        <span class="rubric-tag content">KEY FINDINGS</span>
+        <div class="slide-title">How COLDQ Chooses Each Decision</div>
+        <div class="slide-body">
+            <div class="callout blue" style="margin-bottom:0.7rem;">
+                <strong>Per-slot optimization problem</strong><br>
+                <span class="math">P<sub>t</sub>: min<sub>x∈X</sub> &lt;∇f<sub>t-1</sub>(x<sub>t-1</sub>), x - x<sub>t-1</sub>&gt; + α<sub>t-1</sub> ||x - x<sub>t-1</sub>||<sup>2</sup> + Σ Q<sub>t-1</sub><sup>n</sup> [ g<sub>t-1</sub><sup>n</sup>(x) ]<sub>+</sub></span>
+            </div>
+            <div class="oco-flow">
+                <div class="oco-steps">
+                    <div class="oco-box">
+                        <span class="step-badge">Step 1</span>
+                        <span class="step-icon">🧮</span>
+                        <span class="step-label">Solve <span class="math">P<sub>t</sub></span></span>
+                        <span class="step-math">use previous loss and constraint information</span>
+                    </div>
+                    <div class="oco-arrow">→</div>
+                    <div class="oco-box loss-box">
+                        <span class="step-badge">Step 2</span>
+                        <span class="step-icon">📉</span>
+                        <span class="step-label">Observe gradient</span>
+                        <span class="step-math"><span class="math">∇f<sub>t</sub>(x<sub>t</sub>)</span></span>
+                    </div>
+                    <div class="oco-arrow">→</div>
+                    <div class="oco-box viol-box">
+                        <span class="step-badge">Step 3</span>
+                        <span class="step-icon">📏</span>
+                        <span class="step-label">Observe constraint</span>
+                        <span class="step-math"><span class="math">g<sub>t</sub>(x)</span></span>
+                    </div>
+                    <div class="oco-arrow">→</div>
+                    <div class="oco-box">
+                        <span class="step-badge">Step 4</span>
+                        <span class="step-icon">🧰</span>
+                        <span class="step-label">Update queue</span>
+                        <span class="step-math"><span class="math">Q<sub>t</sub><sup>n</sup></span> via the doubly-bounded rule</span>
+                    </div>
+                </div>
+            </div>
+            <div class="callout" style="margin-top:0.8rem;">
+                <strong>Intuition:</strong> the first two terms act like a gradient-descent-style update, while the queue-weighted term penalizes decisions that would create constraint violations. If a plain descent step is already feasible, COLDQ behaves like standard optimization; otherwise the queue shifts the decision toward lower violation.
+            </div>
+        </div>
+        <div class="transition-cue">With the algorithm in place, we can now look at the performance guarantees the paper proves.</div>
+        <div class="slide-num">8 / 12</div>
+    </div>
+
+    <!-- ===== SLIDE 9: MAIN RESULTS ===== -->
+    <div class="slide" data-index="9">
+        <span class="rubric-tag content">KEY FINDINGS</span>
         <span class="rubric-tag evidence">EVIDENCE</span>
-        <div class="slide-title">Theoretical Results: Bound Comparison</div>
+        <div class="slide-title">Main Guarantees: Keeping Pace with Dynamics</div>
         <div class="slide-body">
             <table class="cmp-table">
                 <thead>
                     <tr>
-                        <th>Method</th>
-                        <th>Dynamic Regret</th>
-                        <th>Hard Constraint Violation</th>
-                        <th>Both recover to best-known?</th>
+                        <th>Setting</th>
+                        <th>Prior Best</th>
+                        <th>COLDQ</th>
+                        <th>Why It Matters</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="row-bad">
-                        <td>Prior (fixed constraints)</td>
-                        <td><span class="math">O(√T)</span> <span class="check">✓</span></td>
-                        <td><span class="math">O(1)</span> <span class="check">✓</span></td>
-                        <td>Only when V<sub>g</sub> = 0 <span class="cross">✗</span></td>
+                    <tr>
+                        <td>Time-varying constraints, convex loss</td>
+                        <td>REG<sub>d</sub>: <span class="math">O(T<sup>1/2+V<sub>x</sub></sup>)</span><br>VIO<sub>h</sub>: <span class="math">O(T<sup>3/4</sup>)</span></td>
+                        <td>REG<sub>d</sub>: <span class="math em-green">O(T<sup>(1+V<sub>x</sub>)/2</sup>)</span><br>VIO<sub>h</sub>: <span class="math em-green">O(T<sup>V<sub>g</sub></sup>)</span></td>
+                        <td>Both bounds now respond to diminishing dynamics.</td>
                     </tr>
-                    <tr class="row-bad">
-                        <td>Prior best (time-varying)</td>
-                        <td><span class="math">O(T<sup>(1+V<sub>x</sub>)/2</sup>)</span> <span class="check">✓</span></td>
-                        <td><span class="math em-red">approaches O(√T · T)</span> <span class="cross">✗</span></td>
-                        <td>Regret only <span class="cross">✗</span></td>
+                    <tr>
+                        <td>Fixed constraints (<span class="math">V<sub>g</sub> = 0</span>)</td>
+                        <td>REG<sub>d</sub>: <span class="math">O(T<sup>1/2+V<sub>x</sub></sup>)</span><br>VIO<sub>h</sub>: <span class="math">O(log T)</span></td>
+                        <td>REG<sub>d</sub>: <span class="math em-green">O(T<sup>(1+V<sub>x</sub>)/2</sup>)</span><br>VIO<sub>h</sub>: <span class="math em-green">O(1)</span></td>
+                        <td>Hard violation recovers to the best-known constant bound.</td>
                     </tr>
-                    <tr class="row-ok">
-                        <td><strong>COLDQ (Ours) ⭐</strong></td>
-                        <td><span class="math em-green">O(T<sup>(1+V<sub>x</sub>)/2</sup>)</span> <span class="check">✓</span></td>
-                        <td><span class="math em-green">O(T<sup>V<sub>g</sub></sup>)</span> <span class="check">✓</span></td>
-                        <td><span class="em-green">Both ✓ — First ever!</span></td>
-                    </tr>
-                    <tr class="row-recover">
-                        <td>As V<sub>x</sub>→0, V<sub>g</sub>→0</td>
-                        <td><span class="math">→ O(√T)</span> <span class="check">✓</span></td>
-                        <td><span class="math">→ O(1)</span> <span class="check">✓</span></td>
-                        <td><span class="em-blue">Smooth recovery ✓</span></td>
+                    <tr>
+                        <td>Strongly convex losses</td>
+                        <td>REG<sub>s</sub>: <span class="math">O(log T)</span><br>VIO<sub>h</sub>: <span class="math">O(T<sup>1/2</sup>(log T)<sup>1/2</sup>)</span></td>
+                        <td>REG<sub>s</sub>: <span class="math em-green">O(log T)</span><br>VIO<sub>h</sub>: <span class="math em-green">O(T<sup>V<sub>g</sub></sup>)</span></td>
+                        <td>Same best-known static regret, with tighter violation control.</td>
                     </tr>
                 </tbody>
             </table>
-            <div class="two-col" style="margin-top:0.65rem;">
+            <div class="two-col" style="margin-top:0.75rem;">
                 <div class="callout green" style="margin:0;">
-                    <strong>Strongly convex losses:</strong> COLDQ also matches the best-known <span class="math">O(T)</span> <em>static</em> regret while maintaining <span class="math">O(T<sup>V<sub>g</sub></sup>)</span> violation.
+                    <strong>Smooth recovery:</strong> as <span class="math">V<sub>x</sub> → 0</span> and <span class="math">V<sub>g</sub> → 0</span>, the bounds approach <span class="math">O(T<sup>1/2</sup>)</span> regret and <span class="math">O(1)</span> hard violation.
                 </div>
                 <div class="callout blue" style="margin:0;">
-                    <strong>Expert-tracking variant:</strong> Same guarantees achieved <em>without</em> prior knowledge of V<sub>x</sub> or V<sub>g</sub> — run M parallel experts, aggregate by weighted combination.
+                    <strong>Expert tracking:</strong> the paper also gives a variant that keeps the same asymptotic rates without prior knowledge of the system dynamics.
                 </div>
             </div>
         </div>
-        <div class="transition-cue">Do the experiments confirm these theoretical guarantees?</div>
-        <div class="slide-num">6 / 12</div>
-    </div>
-
-    <!-- ===== SLIDE 7: EXPERIMENTS ===== -->
-    <div class="slide" data-index="7">
-        <span class="rubric-tag content">KEY FINDINGS</span>
-        <span class="rubric-tag evidence">EVIDENCE</span>
-        <div class="slide-title">Experimental Validation</div>
-        <div class="slide-body">
-            <div class="two-col">
-                <div class="col-card">
-                    <h3>📊 Benchmarks</h3>
-                    <ul>
-                        <li><strong>Time-varying constraints:</strong> compared against RECOO and Algorithm 1 [Liu et al.]</li>
-                        <li><strong>Fixed constraints:</strong> two additional benchmarks</li>
-                        <li>COLDQ outperforms all on <span class="em-blue">hard constraint violation</span> across all settings</li>
-                        <li>Parameters fine-tuned for equal accumulated loss — fair comparison</li>
-                    </ul>
-                </div>
-                <div class="col-card">
-                    <h3>🏙 Online Job Scheduling (NYC)</h3>
-                    <ul>
-                        <li>100 virtual data centers, 10 NYC regions</li>
-                        <li>Real electricity prices from NYISO (May 2017)</li>
-                        <li>5-minute decision intervals, Poisson job arrivals</li>
-                        <li>COLDQ: <span class="em-green">fewest delayed jobs</span> vs. all competitors</li>
-                        <li>Runtime: <strong>&lt; 10 ms/iteration</strong> on a standard laptop</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="callout" style="margin-top:0.8rem;">
-                The experiments directly mirror the theory: as environment dynamics decrease, COLDQ's constraint violations drop faster than competitors — consistent with the <span class="em-green">O(T<sup>V<sub>g</sub></sup>)</span> bound and its smooth recovery property.
-            </div>
-        </div>
-        <div class="transition-cue">Why does this theoretical breakthrough matter to the broader field?</div>
-        <div class="slide-num">7 / 12</div>
-    </div>
-
-    <!-- ===== SLIDE 8: SIGNIFICANCE ===== -->
-    <div class="slide" data-index="8">
-        <span class="rubric-tag content">SIGNIFICANCE</span>
-        <div class="slide-title">Significance of the Research</div>
-        <div class="slide-body">
-            <div class="callout blue" style="margin-bottom:0.7rem;">
-                <strong>Theoretical significance:</strong> COLDQ is the <span class="em-blue">first algorithm</span> whose regret and constraint violation bounds <em>simultaneously</em> smoothly recover to the best-known results — closing a gap in the OCO literature that had persisted for years.
-            </div>
-            <div class="two-col">
-                <div class="col-card">
-                    <h3>📐 New Standards for the Field</h3>
-                    <ul>
-                        <li>"Smooth recovery to best-known bounds" becomes the new benchmark to aim for</li>
-                        <li>No Slater condition: removes a restrictive assumption most real problems cannot satisfy</li>
-                        <li>New Lyapunov drift design is a reusable theoretical tool</li>
-                    </ul>
-                </div>
-                <div class="col-card">
-                    <h3>🔧 Practical Relevance</h3>
-                    <ul>
-                        <li>Cloud resource allocation under fluctuating demand</li>
-                        <li>Online advertising under changing budget rules</li>
-                        <li>Network routing with dynamic bandwidth limits</li>
-                        <li>Expert-tracking variant: deployable without system-specific tuning</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="callout green" style="margin-top:0.7rem;">
-                <em>"By addressing this gap, we advance our understanding of how intelligent systems can operate robustly in the unpredictable real world."</em>
-            </div>
-        </div>
-        <div class="transition-cue">How does this paper inform my own research and writing?</div>
-        <div class="slide-num">8 / 12</div>
-    </div>
-
-    <!-- ===== SLIDE 9: IMPACT ON MY RESEARCH ===== -->
-    <div class="slide" data-index="9">
-        <span class="rubric-tag content">WRITING SKILLS</span>
-        <div class="slide-title">Impact on My Own Research</div>
-        <div class="slide-body">
-            <div class="callout" style="margin-bottom:0.75rem;">
-                <em>This section is personal — it reflects how this paper influences my research design and algorithmic thinking.</em>
-            </div>
-            <ul>
-                <li>
-                    <strong>Doubly-bounded penalty term as a design principle:</strong><br>
-                    In my work on [<em>your research topic here</em>], I face similar trade-offs between performance and constraint satisfaction. Bounding a tracking term from both above and below is a powerful, generalizable technique I plan to explore.
-                </li>
-                <li style="margin-top:0.55rem;">
-                    <strong>Expert-tracking for robustness to unknown parameters:</strong><br>
-                    Running parallel algorithm instances with different parameter settings — then aggregating — is an elegant strategy for handling hyperparameter uncertainty, directly applicable to [<em>your specific challenge</em>].
-                </li>
-                <li style="margin-top:0.55rem;">
-                    <strong>Choice of performance metric matters fundamentally:</strong><br>
-                    This paper clarified that the distinction between static/dynamic regret and soft/hard violation defines what can and cannot be proven. I will apply this precision when designing evaluation metrics for my own work.
-                </li>
-            </ul>
-        </div>
-        <div class="transition-cue">Beyond the research content — what writing strategies can I learn?</div>
+        <div class="transition-cue">The remaining question is empirical: do the reported experiments support these guarantees?</div>
         <div class="slide-num">9 / 12</div>
     </div>
 
-    <!-- ===== SLIDE 10: WRITING LESSONS ===== -->
+    <!-- ===== SLIDE 10: EXPERIMENTS ===== -->
     <div class="slide" data-index="10">
-        <span class="rubric-tag content">WRITING SKILLS</span>
+        <span class="rubric-tag content">KEY FINDINGS</span>
         <span class="rubric-tag evidence">EVIDENCE</span>
-        <div class="slide-title">Writing Strategies from Experienced Authors</div>
+        <div class="slide-title">Experimental Evidence</div>
         <div class="slide-body">
             <div class="two-col">
                 <div class="col-card">
-                    <h3>✍ Lesson 1: The "Key Question" Technique</h3>
-                    <p style="font-size:clamp(1rem,1.3vw,1.15rem);margin-top:0.4rem;">End the literature review with a single, bold research question in italics:</p>
-                    <div class="callout blue" style="font-size:clamp(0.88rem,1.15vw,1.05rem);margin-top:0.4rem;">
-                        <em>"Can a constrained OCO algorithm provide bounds that smoothly approach O(√T) regret and O(1) violation...?"</em>
-                    </div>
-                    <p style="font-size:clamp(0.85rem,1.1vw,1rem);color:var(--color-gray);margin-top:0.4rem;">Creates suspense, signals the gap, and directly sets up the contributions. I will adopt this pattern.</p>
+                    <h3>Time-Varying Constraints</h3>
+                    <ul>
+                        <li>The paper compares COLDQ against RECOO and the distributed algorithm of Yi et al. (2023).</li>
+                        <li>The benchmark uses quadratic losses and time-varying linear constraints.</li>
+                        <li>COLDQ achieves <strong>more than 40% lower hard constraint violation</strong> than RECOO without sacrificing accumulated loss.</li>
+                    </ul>
                 </div>
                 <div class="col-card">
-                    <h3>✍ Lesson 2: Parallel Contributions Structure</h3>
-                    <p style="font-size:clamp(1rem,1.3vw,1.15rem);margin-top:0.4rem;">Contributions use consistent parallel grammar:</p>
-                    <div class="callout" style="font-size:clamp(0.88rem,1.15vw,1.05rem);margin-top:0.4rem;">
-                        <em>"We propose… We analyze… We show… We further propose…"</em>
-                    </div>
-                    <p style="font-size:clamp(0.85rem,1.1vw,1rem);color:var(--color-gray);margin-top:0.4rem;">Makes contributions immediately scannable. Reviewers know what to expect before reading the paper.</p>
+                    <h3>Fixed Constraints</h3>
+                    <ul>
+                        <li>The fixed-constraint experiments include online quadratic programming and online linear programming.</li>
+                        <li>The comparisons are against Yi et al. (2021) and RECOO.</li>
+                        <li>Across both tasks, COLDQ again shows significantly lower hard constraint violation.</li>
+                    </ul>
                 </div>
             </div>
             <div class="callout green" style="margin-top:0.8rem;">
-                <strong>Lesson 3: Unified narrative thread</strong> — The concept of "smoothly approaching best-known bounds" runs consistently through the Introduction, every theorem statement, and the experimental conclusions. This gives a complex technical paper the feel of one coherent argument.
+                <strong>Application to online job scheduling:</strong> using real-world electricity price data, the paper reports that COLDQ reduces energy cost without compromising service quality, measured through delayed jobs.
+            </div>
+            <div class="callout" style="margin-top:0.7rem;">
+                The main message of Figure 1 to Figure 4 is consistent with the theory: the new queue design gives stronger control of hard constraint violation in both synthetic benchmarks and a practical scheduling application.
             </div>
         </div>
-        <div class="transition-cue">Let me bring everything together.</div>
+        <div class="transition-cue">The final step is to summarize why these results matter for constrained online learning more broadly.</div>
         <div class="slide-num">10 / 12</div>
     </div>
 
-    <!-- ===== SLIDE 11: SUMMARY ===== -->
+    <!-- ===== SLIDE 11: CONCLUSIONS ===== -->
     <div class="slide" data-index="11">
+        <span class="rubric-tag content">SIGNIFICANCE</span>
         <span class="rubric-tag content">CONTENT &amp; STRUCTURE</span>
-        <div class="slide-title">Summary</div>
+        <div class="slide-title">Conclusions and Significance</div>
         <div class="slide-body">
-            <div style="display:flex;flex-direction:column;gap:0.7rem;">
-                <div class="callout blue">
-                    <strong>The Problem:</strong> Online decision-making under time-varying constraints. Prior algorithms could not simultaneously guarantee low dynamic regret <em>and</em> low hard constraint violation when both losses and constraints change.
+            <div class="two-col">
+                <div class="col-card">
+                    <h3>Theoretical Significance</h3>
+                    <ul>
+                        <li>COLDQ is the first method whose regret and hard-violation bounds both keep pace with diminishing dynamics.</li>
+                        <li>The analysis removes the need for the Slater condition.</li>
+                        <li>The doubly-bounded queue and centered Lyapunov drift provide a new proof template for constrained OCO.</li>
+                    </ul>
                 </div>
-                <div class="callout">
-                    <strong>The Solution:</strong> COLDQ introduces a doubly-bounded virtual queue (<span class="math">β ≤ Q<sub>t</sub> ≤ G/γ</span>) and a new Lyapunov drift analysis. Result: <span class="math em-green">O(T<sup>(1+V<sub>x</sub>)/2</sup>)</span> dynamic regret and <span class="math em-green">O(T<sup>V<sub>g</sub></sup>)</span> hard constraint violation — both smoothly recover to <span class="math">O(√T)</span> and <span class="math">O(1)</span> as dynamics vanish. <strong>First time ever.</strong>
-                </div>
-                <div class="callout green">
-                    <strong>The Writing Lessons:</strong> End the literature review with a bold key question; list contributions with parallel structure; build a unified narrative thread that runs from Introduction to experiments.
+                <div class="col-card">
+                    <h3>Practical Relevance</h3>
+                    <ul>
+                        <li>The setting covers dynamic resource-allocation and scheduling problems.</li>
+                        <li>The job-scheduling case study shows the method is meaningful beyond theory alone.</li>
+                        <li>The expert-tracking extension reduces dependence on prior system-knowledge tuning.</li>
+                    </ul>
                 </div>
             </div>
+            <div class="callout green" style="margin-top:0.8rem;">
+                <strong>The paper's central takeaway:</strong> for the first time, the bounds smoothly approach the best-known <span class="math">O(T<sup>1/2</sup>)</span> regret and <span class="math">O(1)</span> violation as the dynamics of the losses and constraints diminish.
+            </div>
         </div>
-        <div class="transition-cue">Thank you — I'd be glad to answer any questions.</div>
+        <div class="transition-cue">That leads directly to the one-sentence takeaway for the whole paper.</div>
         <div class="slide-num">11 / 12</div>
     </div>
 
     <!-- ===== SLIDE 12: CLOSING ===== -->
     <div class="slide closing-slide" data-index="12">
         <div class="thank-you">Thank You</div>
-        <div class="qa-invite">I'd be pleased to answer any questions you might have.</div>
+        <div class="qa-invite">Questions and discussion</div>
         <div class="takeaway">
             <strong style="color:#a8d5c8;display:block;margin-bottom:0.5rem;">Key Takeaway:</strong>
-            COLDQ is the first constrained online learning algorithm whose regret and constraint violation bounds <em>simultaneously</em> recover to the best-known results as the environment stabilizes — achieved via a novel doubly-bounded virtual queue and Lyapunov drift analysis, with theoretical proofs and real-world experimental validation.
+            COLDQ combines a doubly-bounded virtual queue with a new Lyapunov drift analysis to achieve <span class="math">O(T<sup>(1+V<sub>x</sub>)/2</sup>)</span> dynamic regret and <span class="math">O(T<sup>V<sub>g</sub></sup>)</span> hard constraint violation, while smoothly recovering the best-known <span class="math">O(T<sup>1/2</sup>)</span> regret and <span class="math">O(1)</span> violation as the environment stabilizes.
         </div>
         <div style="margin-top:1.4rem;color:rgba(255,255,255,0.45);font-size:0.88rem;">
-            <em>Doubly-Bounded Queue for Constrained Online Learning</em> &nbsp;·&nbsp; AAAI 2025 &nbsp;·&nbsp; Juncheng Wang, HKBU
+            <em>Doubly-Bounded Queue for Constrained Online Learning</em> &nbsp;·&nbsp; AAAI 2025 &nbsp;·&nbsp; provided PDF lists Anonymous submission
         </div>
         <div class="slide-num">12 / 12</div>
     </div>
@@ -922,16 +934,66 @@
     let notesVisible = false;
 
     const NOTES = {
-        1: `Good morning, everyone. Today I'd like to present a paper published at AAAI 2025 — one of the top venues in Artificial Intelligence research. The paper is titled <em>"Doubly-Bounded Queue for Constrained Online Learning: Pace with Dynamics of Both Loss and Constraint"</em>, authored by Juncheng Wang from Hong Kong Baptist University. <span class="pause">pause</span> Before I dive in, let me briefly outline what I'll cover.`,
+        1: `This opening slide introduces the paper title exactly as given in the provided PDF. <span class="pause">pause</span> One detail worth noting is that the PDF itself lists the work as an <em>anonymous submission</em>, so I avoid attributing an author name beyond what appears in the document. <span class="pause">pause</span> The whole deck focuses on the paper's core argument: COLDQ is the first method whose regret and hard-violation bounds both improve in the right way as the environment becomes less dynamic.`,
 
-        2: `My presentation is structured in four parts. I'll begin by introducing the paper and the problem it addresses. Then I'll explain the key theoretical findings — this is the core of the talk, since the paper is fundamentally about proving formal guarantees. After that, I'll discuss why these findings matter to the broader research field. And finally, I'll reflect on how this paper might influence my own research, and what writing strategies I've learned from studying it. <span class="pause">pause</span> A quick note before we begin: this is a theory-driven paper. Its main contribution is a set of mathematical performance guarantees about a new algorithm. I'll explain these step by step — don't worry about the notation, I'll unpack each term as we go.`,
+        2: `I'll organize the talk in four parts. First, the problem setting and the research gap. Second, the COLDQ method itself. Third, the main theoretical guarantees. Fourth, the experiments and the broader takeaway. <span class="pause">pause</span> This presentation follows the main paper closely and intentionally skips appendix-level proofs.`,
 
-        3: `Let me start with the problem. <span class="pause">pause</span> Online Convex Optimization, or OCO, is a framework for sequential decision-making under uncertainty. At each time step, a learner — think of this as an algorithm — must select a decision from a feasible set, <em>before</em> knowing what the loss function or constraint function will be for that round. Only after the decision is made are these functions revealed. The learner then updates its strategy and moves to the next step. <span class="pause">pause</span> Both the cost function and the constraint can change arbitrarily from round to round — which is what makes this problem hard. <span class="pause">pause</span> To measure performance, the paper uses two metrics. The first is <strong>Regret</strong> — how much worse did the algorithm perform compared to the best possible fixed decisions in hindsight? The goal is to keep regret sub-linear in T, meaning the per-round loss diminishes over time. The second is <strong>Hard Constraint Violation</strong> — how much did the algorithm break the rules in total? Importantly, unlike soft violation, hard violation does not allow compensating for past violations by being overly conservative later.`,
+        3: `Here I explain the online learning setup. At each round, the learner chooses a decision before seeing the current loss and constraint. Both are time-varying and unknown in advance. <span class="pause">pause</span> This is why the setting is difficult: the learner must adapt online while still trying to keep losses low and violations controlled.`,
 
-        4: `Now, with these two metrics defined, let's look at what prior work could and couldn't do. <span class="pause">pause</span> For algorithms designed for <em>fixed</em> constraints — where the rules never change — the best known results are excellent: regret of O(√T) and hard constraint violation of just O(1), meaning it stays bounded no matter how long the algorithm runs. <span class="pause">pause</span> But when constraints are allowed to vary over time, something breaks down. The best known algorithms could still achieve the O(√T) regret — they handled changing losses well. But the hard constraint violation deteriorated badly, growing towards O(√T · T) at best. It could never recover to O(1), even as the environment became more stable. <span class="pause">pause</span> This is the gap the paper identifies. The key question — stated explicitly in the Introduction — is: <em>can we design an algorithm that simultaneously achieves both bounds, and where both smoothly recover to their best-known values as the environment stabilizes?</em> The answer is yes — and that's what makes this paper a breakthrough.`,
+        4: `This slide explains the gap that motivates the paper. Soft violation can be compensated over time, but hard violation cannot. <span class="pause">pause</span> The key issue is that previous results for time-varying constraints did not recover the best-known constant hard-violation bound as the constraint dynamics diminished. That is the exact gap this paper targets.`,
 
-        5: `The authors' solution is called COLDQ — Constrained Online Learning with Doubly-bounded Queue. The central innovation is a new type of virtual queue used to track constraint violations over time. <span class="pause">pause</span> In previous algorithms, this virtual queue had only a lower bound — it could never go below zero, but it could grow without limit whenever constraints were violated. Because of this unbounded growth, the violation bound couldn't be controlled tightly enough. <span class="pause">pause</span> COLDQ's insight is both simple and powerful: enforce a <em>ceiling</em> as well as a floor. The queue is always kept between a lower bound β and an upper bound G over γ. This tight confinement gives the algorithm the control it needs. <span class="pause">pause</span> The other key technical contribution is a new Lyapunov drift analysis — a mathematical technique for proving performance guarantees in dynamic systems. The new analysis cleverly exploits both the floor and ceiling of the queue simultaneously, which is what yields the improved bounds we'll see on the next slide.`
+        5: `These are the paper's main contributions. First, the algorithm COLDQ with a doubly-bounded queue. Second, a new Lyapunov drift analysis. <span class="pause">pause</span> Then the paper extends the story to strongly convex losses, an expert-tracking variant, and experiments that support the theory.`,
+
+        6: `Before discussing the algorithm, I define the formal problem and the paper's metrics. The optimization problem is time-varying constrained OCO. <span class="pause">pause</span> The two key quantities are dynamic regret and hard constraint violation, and the two dynamics parameters are Vx and Vg. These are what the final rates depend on.`,
+
+        7: `This slide presents the core mechanism behind COLDQ. The queue update includes both a decay term and a hard lower bound gamma. <span class="pause">pause</span> The important result is Lemma 1: the queue is bounded on both sides, from gamma up to G over eta. That is the structural property the later analysis exploits.`,
+
+        8: `Now I show how the queue enters the decision rule. Each round, COLDQ solves a proximal optimization problem using the previous loss gradient, a stability term, and a queue-weighted constraint penalty. <span class="pause">pause</span> The intuition is simple: if the descent step is already safe, the algorithm behaves like standard optimization. If not, the queue pushes the decision back toward lower violation.`,
+
+        9: `This is the result slide. The first key rate is dynamic regret of O(T to the power of one plus Vx over two). The second is hard constraint violation of O(T to the power of Vg). <span class="pause">pause</span> The most important message is the smooth recovery statement: as Vx and Vg go to zero, the bounds recover the best-known O(root T) regret and O(1) violation. The paper also reports O(log T) static regret in the strongly convex case and an expert-tracking extension.`,
+
+        10: `The experiments match the theory. Under time-varying constraints, the paper reports more than forty percent lower hard violation than RECOO without sacrificing accumulated loss. <span class="pause">pause</span> Under fixed constraints, COLDQ again reduces hard violation. And in the job-scheduling application, it lowers energy cost without harming service quality.`,
+
+        11: `This slide distills why the paper matters. The theoretical contribution is not just a new rate, but a new benchmark: keeping pace with both loss dynamics and constraint dynamics at the same time. <span class="pause">pause</span> Practically, the setting connects to dynamic resource allocation and scheduling, so the result is relevant beyond theory.`,
+
+        12: `I close by restating the main point in one sentence. COLDQ uses a doubly-bounded queue and a new drift analysis to get the right regret bound and the right hard-violation bound together, with smooth recovery as the environment stabilizes.`
     };
+
+    const EDITABLE_SELECTORS = [
+        '.slide-title',
+        '.main-title',
+        '.subtitle',
+        '.paper-ref',
+        '.presenter-info',
+        '.thank-you',
+        '.qa-invite',
+        '.takeaway',
+        '.transition-cue',
+        '.rubric-tag',
+        '.slide-num',
+        '.callout',
+        '.q-title',
+        '.q-caption',
+        '.q-dline-label',
+        '.q-overflow-zone',
+        '.rm-num',
+        '.rm-label',
+        '.rm-time',
+        '.step-badge',
+        '.step-icon',
+        '.step-label',
+        '.step-math',
+        '.oco-loop-label',
+        'p',
+        'li',
+        'h3',
+        'h4',
+        'th',
+        'td',
+        'caption'
+    ];
+
+    const EDITABLE_QUERY = EDITABLE_SELECTORS.map(selector => `.slide ${selector}`).join(', ');
 
     function getSlide(n) {
         return document.querySelector(`.slide[data-index="${n}"]`);
@@ -984,8 +1046,7 @@
     function toggleEditMode() {
         editMode = !editMode;
         document.getElementById('edit-indicator').style.display = editMode ? 'block' : 'none';
-        const targets = 'p, li, h3, .slide-title, .main-title, .subtitle, .callout, .col-card, .q-label, .q-caption, .rm-label, .rm-time, .paper-ref, .presenter-info, .thank-you, .qa-invite, .takeaway';
-        document.querySelectorAll('.slide ' + targets).forEach(el => {
+        document.querySelectorAll(EDITABLE_QUERY).forEach(el => {
             el.contentEditable = editMode ? 'true' : 'false';
         });
     }
@@ -996,12 +1057,12 @@
     }
 
     function saveToCache() {
-        localStorage.setItem('coldq_slides_v2', document.documentElement.outerHTML);
+        localStorage.setItem('aaai25_coldq_slides_v1', document.documentElement.outerHTML);
         alert('Saved to browser cache.');
     }
 
     function loadFromCache() {
-        const saved = localStorage.getItem('coldq_slides_v2');
+        const saved = localStorage.getItem('aaai25_coldq_slides_v1');
         if (saved) { document.open(); document.write(saved); document.close(); }
         else alert('No saved version found.');
     }
@@ -1010,16 +1071,19 @@
         const blob = new Blob([document.documentElement.outerHTML], { type: 'text/html' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = url; a.download = 'COLDQ_slides.html'; a.click();
+        a.href = url; a.download = 'aaai25_coldq_slides.html'; a.click();
         URL.revokeObjectURL(url);
     }
 
     function clearCache() {
-        localStorage.removeItem('coldq_slides_v2');
+        localStorage.removeItem('aaai25_coldq_slides_v1');
         alert('Cache cleared.');
     }
 
     // Init
+    document.querySelectorAll(EDITABLE_QUERY).forEach(el => {
+        el.contentEditable = 'false';
+    });
     document.getElementById('progress-bar').style.width = ((1 / TOTAL) * 100) + '%';
 </script>
 </body>
