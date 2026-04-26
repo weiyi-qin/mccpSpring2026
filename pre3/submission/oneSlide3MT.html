@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3MT One-Slide Submission - Double-Q</title>
+  <style>
+    :root {
+      --sky-top: #fbf1d7;
+      --sky-bottom: #f5d49b;
+      --ground: #203743;
+      --road: #2f4f5d;
+      --road-edge: #f8f3e7;
+      --ink: #1e2a2f;
+      --muted: #4f5d63;
+      --panel: rgba(255, 251, 244, 0.94);
+      --panel-strong: #fffdf8;
+      --accent: #d86d3c;
+      --accent-deep: #114d59;
+      --accent-soft: #e7f3f4;
+      --gold: #f1b54d;
+      --shadow: 0 18px 44px rgba(32, 55, 67, 0.14);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at top left, rgba(216, 109, 60, 0.16), transparent 26%),
+        linear-gradient(180deg, #fcf7ec 0%, #f2e0bd 100%);
+      font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+      color: var(--ink);
+      padding: 20px;
+    }
+
+    .slide {
+      width: min(100%, 1600px);
+      aspect-ratio: 16 / 9;
+      position: relative;
+      overflow: hidden;
+      border-radius: 32px;
+      background:
+        linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 50%, #f2c47f 100%);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(17, 77, 89, 0.1);
+    }
+
+    .sun {
+      position: absolute;
+      top: 56px;
+      right: 84px;
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 36% 36%, #fffef9 0%, #ffe9af 42%, #f4b757 70%, rgba(244, 183, 87, 0.16) 100%);
+      opacity: 0.92;
+    }
+
+    .cityline {
+      position: absolute;
+      inset: auto 0 250px 0;
+      height: 160px;
+      background:
+        linear-gradient(180deg, rgba(17, 77, 89, 0.1), rgba(17, 77, 89, 0.1)),
+        linear-gradient(90deg,
+          transparent 0 3%,
+          rgba(17, 77, 89, 0.18) 3% 5%,
+          transparent 5% 7%,
+          rgba(17, 77, 89, 0.22) 7% 10%,
+          transparent 10% 13%,
+          rgba(17, 77, 89, 0.14) 13% 15%,
+          transparent 15% 19%,
+          rgba(17, 77, 89, 0.2) 19% 24%,
+          transparent 24% 28%,
+          rgba(17, 77, 89, 0.16) 28% 31%,
+          transparent 31% 36%,
+          rgba(17, 77, 89, 0.22) 36% 42%,
+          transparent 42% 46%,
+          rgba(17, 77, 89, 0.15) 46% 50%,
+          transparent 50% 55%,
+          rgba(17, 77, 89, 0.21) 55% 60%,
+          transparent 60% 64%,
+          rgba(17, 77, 89, 0.17) 64% 68%,
+          transparent 68% 73%,
+          rgba(17, 77, 89, 0.24) 73% 79%,
+          transparent 79% 83%,
+          rgba(17, 77, 89, 0.16) 83% 87%,
+          transparent 87% 91%,
+          rgba(17, 77, 89, 0.2) 91% 96%,
+          transparent 96% 100%);
+      mask:
+        linear-gradient(180deg, transparent 0%, black 26%, black 100%);
+    }
+
+    .ground {
+      position: absolute;
+      inset: auto 0 0 0;
+      height: 270px;
+      background:
+        linear-gradient(180deg, #2e5564 0%, var(--ground) 48%, #18272e 100%);
+      clip-path: polygon(0 24%, 100% 8%, 100% 100%, 0 100%);
+    }
+
+    .header {
+      position: relative;
+      z-index: 3;
+      padding: 42px 56px 0;
+      width: min(100%, 760px);
+    }
+
+    .eyebrow {
+      display: inline-block;
+      margin-bottom: 14px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(255, 253, 248, 0.84);
+      border: 1px solid rgba(17, 77, 89, 0.16);
+      font-family: "Avenir Next Condensed", "Trebuchet MS", sans-serif;
+      font-size: 18px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent-deep);
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "Avenir Next Condensed", "Gill Sans", "Trebuchet MS", sans-serif;
+      font-size: clamp(38px, 3.6vw, 66px);
+      line-height: 0.94;
+      letter-spacing: -0.03em;
+      max-width: 14ch;
+      text-wrap: balance;
+    }
+
+    .subline {
+      margin: 16px 0 0;
+      max-width: 30ch;
+      font-size: clamp(19px, 1.25vw, 25px);
+      line-height: 1.3;
+      color: var(--muted);
+    }
+
+    .panel {
+      position: absolute;
+      z-index: 2;
+      padding: 18px 20px;
+      border-radius: 24px;
+      background: var(--panel);
+      border: 1px solid rgba(17, 77, 89, 0.1);
+      box-shadow: 0 10px 24px rgba(32, 55, 67, 0.08);
+    }
+
+    .panel h2 {
+      margin: 0 0 10px;
+      font-family: "Avenir Next Condensed", "Trebuchet MS", sans-serif;
+      font-size: 28px;
+      line-height: 1;
+      color: var(--accent-deep);
+      letter-spacing: 0.01em;
+    }
+
+    .panel p,
+    .panel li {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.35;
+    }
+
+    .panel ul {
+      margin: 0;
+      padding-left: 1.1em;
+    }
+
+    .challenge {
+      top: 392px;
+      left: 42px;
+      width: 320px;
+    }
+
+    .idea {
+      top: 244px;
+      right: 46px;
+      width: 380px;
+      background: rgba(231, 243, 244, 0.94);
+    }
+
+    .impact {
+      left: 50%;
+      bottom: 28px;
+      transform: translateX(-50%);
+      width: min(1050px, calc(100% - 150px));
+      background: rgba(255, 253, 248, 0.96);
+      display: grid;
+      grid-template-columns: 1.3fr 0.9fr;
+      gap: 16px;
+      align-items: center;
+      padding: 16px 20px;
+    }
+
+    .impact-quote {
+      font-family: "Avenir Next Condensed", "Trebuchet MS", sans-serif;
+      font-size: clamp(22px, 1.75vw, 34px);
+      line-height: 1.08;
+      color: var(--accent-deep);
+    }
+
+    .impact-list {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .chip {
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: #fff7e6;
+      border: 1px solid rgba(216, 109, 60, 0.18);
+      font-family: "Avenir Next Condensed", "Trebuchet MS", sans-serif;
+      font-size: 18px;
+      color: #84411f;
+      white-space: nowrap;
+    }
+
+    .figure-wrap {
+      position: absolute;
+      inset: 222px 300px 154px 360px;
+      z-index: 1;
+      display: grid;
+      place-items: center;
+    }
+
+    svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .presenter {
+      position: absolute;
+      top: 66px;
+      right: 274px;
+      z-index: 2;
+      padding: 10px 14px;
+      border-radius: 16px;
+      background: rgba(255, 251, 244, 0.88);
+      border: 1px solid rgba(17, 77, 89, 0.14);
+      color: var(--accent-deep);
+      box-shadow: 0 8px 18px rgba(32, 55, 67, 0.08);
+      font-size: 17px;
+      line-height: 1.25;
+    }
+
+    @media (max-width: 1100px) {
+      body {
+        padding: 10px;
+      }
+
+      .slide {
+        aspect-ratio: auto;
+        min-height: 980px;
+      }
+
+      .header {
+        width: auto;
+      }
+
+      .figure-wrap {
+        inset: 340px 26px 280px 26px;
+      }
+
+      .challenge,
+      .idea {
+        position: relative;
+        top: auto;
+        left: auto;
+        right: auto;
+        width: auto;
+        margin: 18px 26px 0;
+      }
+
+      .impact {
+        width: calc(100% - 52px);
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+
+      .impact-list {
+        justify-content: flex-start;
+      }
+
+      .presenter {
+        top: auto;
+        right: 26px;
+        bottom: 192px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="slide">
+    <div class="sun"></div>
+    <div class="cityline"></div>
+    <div class="ground"></div>
+
+    <div class="header">
+      <div class="eyebrow">3MT | Double-Q research story</div>
+      <h1>What if your GPS had to drive before today's road rules were posted?</h1>
+      <p class="subline">
+        My research builds a two-signal decision system that helps online services keep moving without
+        "running red lights" when rules keep changing.
+      </p>
+    </div>
+
+    <div class="panel challenge">
+      <h2>The challenge</h2>
+      <ul>
+        <li>Real systems make decisions step by step.</li>
+        <li>But today's rules may only appear after the choice is made.</li>
+        <li>And some mistakes cannot be undone later.</li>
+      </ul>
+    </div>
+
+    <div class="panel idea">
+      <h2>The idea behind Double-Q</h2>
+      <p>
+        Instead of using one warning light, I use two. One watches progress. The other watches risk.
+        Together, they aim to keep decisions efficient and safe across both calm and fast-changing conditions.
+      </p>
+    </div>
+
+    <div class="figure-wrap">
+      <svg viewBox="0 0 980 520" role="img" aria-labelledby="slide-title slide-desc">
+        <title id="slide-title">Traffic metaphor for Double-Q</title>
+        <desc id="slide-desc">A road with changing signs is controlled by a central Double-Q dashboard that balances progress and safety.</desc>
+
+        <defs>
+          <linearGradient id="roadFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#4c6875"></stop>
+            <stop offset="100%" stop-color="#263f49"></stop>
+          </linearGradient>
+          <linearGradient id="towerFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#f5fbfc"></stop>
+            <stop offset="100%" stop-color="#dbeff1"></stop>
+          </linearGradient>
+          <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#203743" flood-opacity="0.16"></feDropShadow>
+          </filter>
+        </defs>
+
+        <path d="M78 435 C190 364, 284 334, 386 322 C500 308, 592 250, 658 176 C716 112, 806 84, 912 88"
+          fill="none" stroke="url(#roadFill)" stroke-width="112" stroke-linecap="round"></path>
+        <path d="M78 435 C190 364, 284 334, 386 322 C500 308, 592 250, 658 176 C716 112, 806 84, 912 88"
+          fill="none" stroke="#f8f3e7" stroke-width="5" stroke-linecap="round" stroke-dasharray="20 16"></path>
+
+        <circle cx="520" cy="210" r="96" fill="url(#towerFill)" stroke="#114d59" stroke-width="4" filter="url(#softShadow)"></circle>
+        <text x="520" y="188" text-anchor="middle" font-family="Trebuchet MS, sans-serif" font-size="24" fill="#114d59">DOUBLE-Q</text>
+        <text x="520" y="217" text-anchor="middle" font-family="Palatino Linotype, serif" font-size="18" fill="#38545d">two dashboard warnings</text>
+
+        <circle cx="478" cy="254" r="25" fill="#fff8e8" stroke="#d86d3c" stroke-width="3"></circle>
+        <line x1="478" y1="254" x2="494" y2="242" stroke="#d86d3c" stroke-width="4" stroke-linecap="round"></line>
+        <text x="478" y="299" text-anchor="middle" font-family="Trebuchet MS, sans-serif" font-size="17" fill="#84411f">progress</text>
+
+        <circle cx="562" cy="254" r="25" fill="#eef8f9" stroke="#114d59" stroke-width="3"></circle>
+        <line x1="562" y1="254" x2="550" y2="238" stroke="#114d59" stroke-width="4" stroke-linecap="round"></line>
+        <text x="562" y="299" text-anchor="middle" font-family="Trebuchet MS, sans-serif" font-size="17" fill="#114d59">safety</text>
+
+        <g transform="translate(186 330)">
+          <rect x="-26" y="-54" width="52" height="86" rx="10" fill="#203743"></rect>
+          <rect x="-12" y="-92" width="24" height="44" rx="10" fill="#2f4f5d"></rect>
+          <circle cx="0" cy="-28" r="11" fill="#d86d3c"></circle>
+          <circle cx="0" cy="0" r="11" fill="#f1b54d"></circle>
+          <circle cx="0" cy="28" r="11" fill="#76b67d"></circle>
+          <text x="0" y="60" text-anchor="middle" font-family="Trebuchet MS, sans-serif" font-size="18" fill="#203743">changing signals</text>
+        </g>
+
+        <g transform="translate(780 120)">
+          <rect x="-26" y="-54" width="52" height="86" rx="10" fill="#203743"></rect>
+          <rect x="-12" y="-92" width="24" height="44" rx="10" fill="#2f4f5d"></rect>
+          <circle cx="0" cy="-28" r="11" fill="#76b67d"></circle>
+          <circle cx="0" cy="0" r="11" fill="#f1b54d"></circle>
+          <circle cx="0" cy="28" r="11" fill="#d86d3c"></circle>
+          <text x="0" y="60" text-anchor="middle" font-family="Trebuchet MS, sans-serif" font-size="18" fill="#203743">rules keep shifting</text>
+        </g>
+
+        <g transform="translate(340 358)">
+          <rect x="-44" y="-18" width="88" height="36" rx="18" fill="#fffdf8" stroke="#114d59" stroke-width="3"></rect>
+          <rect x="-24" y="-10" width="44" height="20" rx="10" fill="#d86d3c"></rect>
+          <circle cx="-16" cy="12" r="8" fill="#203743"></circle>
+          <circle cx="18" cy="12" r="8" fill="#203743"></circle>
+        </g>
+
+        <line x1="255" y1="312" x2="430" y2="232" stroke="#114d59" stroke-width="3" stroke-dasharray="9 8"></line>
+        <line x1="760" y1="150" x2="606" y2="192" stroke="#d86d3c" stroke-width="3" stroke-dasharray="9 8"></line>
+
+        <text x="305" y="205" text-anchor="middle" font-family="Trebuchet MS, sans-serif" font-size="22" fill="#203743">Old methods often choose</text>
+        <text x="305" y="231" text-anchor="middle" font-family="Trebuchet MS, sans-serif" font-size="22" fill="#203743">either speed or safety</text>
+
+        <text x="720" y="305" text-anchor="middle" font-family="Trebuchet MS, sans-serif" font-size="24" fill="#114d59">Goal:</text>
+        <text x="720" y="336" text-anchor="middle" font-family="Palatino Linotype, serif" font-size="25" fill="#114d59">keep moving without</text>
+        <text x="720" y="366" text-anchor="middle" font-family="Palatino Linotype, serif" font-size="25" fill="#114d59">running red lights</text>
+      </svg>
+    </div>
+
+    <div class="presenter">
+      Presenter: Weiyi Qin<br>
+      Topic: safer online decisions under changing rules
+    </div>
+
+    <div class="panel impact">
+      <div class="impact-quote">
+        If we can make better decisions under changing rules, we can build more reliable scheduling,
+        resource-allocation, and fraud-detection systems.
+      </div>
+      <div class="impact-list">
+        <span class="chip">Scheduling</span>
+        <span class="chip">Resource allocation</span>
+        <span class="chip">Fraud detection</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
